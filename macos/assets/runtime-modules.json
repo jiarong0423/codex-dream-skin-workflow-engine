@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "policy": {
+    "principle": "subtractive module aggregation",
+    "rendererMaintenanceMs": 2500,
+    "heavyMaintenanceMs": 10000,
+    "assetLoad": "only package assets referenced by enabled theme modules",
+    "animationLoad": "static cache lookup after manual trigger; sprite first, GIF fallback only when sprite is unavailable",
+    "gpuComposition": "single non-fixed three-layer body wallpaper; no idle backdrop blur on full-size or repeated surfaces; no per-icon filter stack"
+  },
+  "budgets": {
+    "themeCssBytes": 125000,
+    "rendererBytes": 106000,
+    "runtimePayloadBytes": 9000000,
+    "singleIconBytes": 4194304,
+    "buttonIconBytes": 262144
+  },
+  "modules": [
+    {
+      "id": "background",
+      "kind": "asset",
+      "activation": "backgroundImagePath",
+      "payloadKeys": ["backgroundDataUrl"],
+      "loadPolicy": "active-theme-only",
+      "disableValue": ""
+    },
+    {
+      "id": "iconBadge",
+      "kind": "asset",
+      "activation": "icons.badge.enabled && icons.badge.placement !== off",
+      "payloadKeys": ["iconBadgeDataUrl"],
+      "loadPolicy": "enabled-only"
+    },
+    {
+      "id": "character",
+      "kind": "asset",
+      "activation": "icons.character.enabled && icons.character.placement !== off",
+      "payloadKeys": ["characterDataUrl"],
+      "loadPolicy": "enabled-only"
+    },
+    {
+      "id": "characterRetreat",
+      "kind": "dom-geometry",
+      "activation": "icons.character.enabled && renderer-detected",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "hide character when right panel is visible or text-line overlap is detected"
+    },
+    {
+      "id": "staticAccess",
+      "kind": "dom-cache",
+      "activation": "renderer-module-registry",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "cache stable DOM entrypoints; invalidate on install, route, low-frequency mutation, resize, and right-trigger"
+    },
+    {
+      "id": "collisionScheduler",
+      "kind": "scheduler",
+      "activation": "renderer-module-registry",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "shared layout observer plus top-right preflight trigger; no second full-page observer"
+    },
+    {
+      "id": "tableFlipCat",
+      "kind": "manual-animation",
+      "activation": "icons.tableFlipCat.enabled && icons.tableFlipCat.placement === right-bottom",
+      "payloadKeys": [
+        "tableFlipCatTriggerIconDataUrl",
+        "loadTableFlipCatPlayback"
+      ],
+      "loadPolicy": "static-cache-click",
+      "eventPolicy": "idle trigger only, create animation node after click, play once, release node and image reference"
+    },
+    {
+      "id": "workspacePickers",
+      "kind": "dom-class",
+      "activation": "event-triggered workspace picker geometry and text detection",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "short follow-up checks after pointer, click, keydown, or focusin; marks only the picker shell while visible; no detached overlay plate"
+    },
+    {
+      "id": "buttonGlyphs",
+      "kind": "asset-map",
+      "activation": "icons.buttons.enabled && icons.buttons.applyMode === module",
+      "payloadKeys": ["iconButtonDataUrls"],
+      "loadPolicy": "enabled-module-only"
+    },
+    {
+      "id": "projectPanels",
+      "kind": "dom-class",
+      "activation": "renderer-detected",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset"
+    },
+    {
+      "id": "composerSurface",
+      "kind": "dom-class",
+      "activation": "renderer-detected",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset"
+    },
+    {
+      "id": "conversationSurface",
+      "kind": "dom-class",
+      "activation": "renderer-detected",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset"
+    }
+  ],
+  "matrix": [
+    {
+      "scenario": "default-theme",
+      "expected": "passes module manifest and file budgets"
+    },
+    {
+      "scenario": "active-theme",
+      "expected": "old active theme is normalized with runtime defaults before payload assembly"
+    },
+    {
+      "scenario": "table-flip-enabled",
+      "expected": "sprite is stored by content hash and only attached to a DOM node after trigger click"
+    },
+    {
+      "scenario": "table-flip-disabled",
+      "expected": "sprite, poster, trigger, and GIF payloads are not planned"
+    },
+    {
+      "scenario": "button-glyphs-disabled",
+      "expected": "button SVG map is not packaged"
+    },
+    {
+      "scenario": "asset-budget",
+      "expected": "runtime referenced assets stay under payload budget; unused heavy assets are only reported"
+    }
+  ]
+}

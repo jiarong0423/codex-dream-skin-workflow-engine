@@ -1,0 +1,187 @@
+{
+  "id": "codex-interface-default",
+  "name": "Codex Interface Default",
+  "mode": "sidebar-art",
+  "appearance": "auto",
+  "palette": {
+    "accent": "#19e6a3",
+    "secondary": "#00c8f8",
+    "highlight": "#ff5a45",
+    "surface": "rgba(9, 13, 16, 0.72)",
+    "surfaceStrong": "rgba(8, 10, 13, 0.86)",
+    "text": "#f4f7fb"
+  },
+  "layout": {
+    "workspaceTreatment": "native",
+    "blockContrast": "segmented",
+    "cornerArmor": "sidebar-top-left"
+  },
+  "modules": {
+    "sidebar": {
+      "accent": "#00c8f8",
+      "surface": "rgba(8, 13, 16, 0.78)",
+      "border": "rgba(0, 200, 248, 0.20)"
+    },
+    "header": {
+      "accent": "#f2a23a",
+      "surface": "rgba(12, 13, 14, 0.62)",
+      "border": "rgba(242, 162, 58, 0.16)"
+    },
+    "composer": {
+      "accent": "#f2a23a",
+      "surface": "rgba(9, 10, 12, 0.56)",
+      "border": "rgba(242, 162, 58, 0.16)"
+    },
+    "popover": {
+      "accent": "#ff5a45",
+      "surface": "rgba(16, 11, 12, 0.88)",
+      "border": "rgba(255, 90, 69, 0.18)"
+    },
+    "mecha": {
+      "frame": "#161a20",
+      "armor": "#f2a23a",
+      "glow": "#00c8f8"
+    },
+    "status": {
+      "success": "#19e6a3",
+      "warning": "#f2a23a",
+      "danger": "#ff5a45",
+      "info": "#00c8f8"
+    }
+  },
+  "art": {
+    "focusX": 0.58,
+    "focusY": 0.50,
+    "safeArea": "sides",
+    "taskMode": "ambient"
+  },
+  "icons": {
+    "badge": {
+      "enabled": true,
+      "path": "icons/orange-hacker-cat-128.png",
+      "placement": "sidebar-dock",
+      "size": 58,
+      "opacity": 0.92
+    },
+    "character": {
+      "enabled": true,
+      "path": "icons/cyber-mecha-cat-male-helmet-900.png",
+      "placement": "sidebar-hero",
+      "size": 350,
+      "opacity": 1
+    },
+    "tableFlipCat": {
+      "enabled": true,
+      "path": "icons/table-flip-cat-left.gif",
+      "spritePath": "icons/table-flip-cat-left-sprite.webp",
+      "posterPath": "icons/table-flip-cat-left-poster.png",
+      "triggerIconPath": "icons/table-flip-trigger-angry.svg",
+      "placement": "right-bottom",
+      "size": 118,
+      "opacity": 0.96,
+      "frameCount": 8,
+      "durationMs": 1430
+    },
+    "buttons": {
+      "enabled": false,
+      "style": "cat-mecha-symbols",
+      "applyMode": "opt-in",
+      "modules": {
+        "sidebarNavigation": {
+          "enabled": false,
+          "strategy": "text-or-aria-exact-match",
+          "actions": {
+            "search": "search",
+            "newTask": "newTask",
+            "projects": "project",
+            "pullRequests": "files",
+            "websites": "spark",
+            "scheduled": "tagTask",
+            "extensions": "package"
+          }
+        },
+        "titlebarNavigation": {
+          "enabled": false,
+          "strategy": "aria-exact-visible-topbar",
+          "actions": {
+            "back": "back",
+            "forward": "forward"
+          }
+        },
+        "composerControls": {
+          "enabled": false,
+          "strategy": "composer-visible-control-match",
+          "actions": {
+            "run": "run",
+            "stop": "stop",
+            "send": "send"
+          }
+        },
+        "topUtilityActions": {
+          "enabled": false,
+          "strategy": "visible-top-toolbar-match",
+          "actions": {
+            "projectContext": "project",
+            "taskActions": "settings",
+            "summaryToggle": "thread",
+            "sideTab": "project",
+            "expandPanel": "spark",
+            "bottomPanel": "tagTask",
+            "sidePanel": "files",
+            "sourceView": "files",
+            "fileTree": "thread",
+            "openExternal": "package",
+            "openOptions": "settings"
+          }
+        },
+        "messageActions": {
+          "enabled": false,
+          "strategy": "visible-message-action-match",
+          "actions": {
+            "copyMessage": "files",
+            "goodResponse": "spark",
+            "badResponse": "stop",
+            "continueTask": "tagTask",
+            "guide": "thread",
+            "deleteAction": "clean",
+            "moreActions": "settings",
+            "scrollBottom": "send"
+          }
+        },
+        "projectPanelRows": {
+          "enabled": false,
+          "strategy": "visible-project-panel-row-match",
+          "actions": {
+            "outputRow": "files",
+            "agentRow": "spark",
+            "sourceRow": "thread",
+            "environmentRow": "settings",
+            "statusRow": "stop",
+            "viewAll": "search"
+          }
+        },
+        "projectPanels": {
+          "enabled": false
+        }
+      },
+      "paths": {
+        "search": "icons/buttons/cat-eye-search.svg",
+        "newTask": "icons/buttons/cat-paw-new-task.svg",
+        "back": "icons/buttons/cat-tail-back.svg",
+        "forward": "icons/buttons/cat-tail-forward.svg",
+        "stop": "icons/buttons/claw-stop.svg",
+        "settings": "icons/buttons/mecha-ear-settings.svg",
+        "project": "icons/buttons/neko-chip-project.svg",
+        "send": "icons/buttons/whisker-send.svg",
+        "tagTask": "icons/buttons/collar-tag-task.svg",
+        "files": "icons/buttons/fishbone-files.svg",
+        "thread": "icons/buttons/yarn-thread.svg",
+        "clean": "icons/buttons/litter-scoop-clean.svg",
+        "run": "icons/buttons/food-bowl-run.svg",
+        "package": "icons/buttons/cat-can-package.svg",
+        "spark": "icons/buttons/teaser-wand-spark.svg"
+      }
+    }
+  },
+  "backgroundImagePath": ""
+}

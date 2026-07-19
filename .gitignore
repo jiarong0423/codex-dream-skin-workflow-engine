@@ -1,0 +1,39 @@
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+node_modules/
+dist/
+build/
+coverage/
+.cache/
+.tmp/
+tmp/
+
+*.log
+*.pid
+*.swp
+*.swo
+
+# Local recording and review artifacts.
+*.mov
+*.mp4
+*.mkv
+*.webm
+*.mp3
+*.wav
+*.m4a
+*.aac
+/recordings/
+/submission/exports/
+/submission/public-package/
+
+# Internal screenshots and temporary defect evidence.
+/tmp/
+/screenshots/
+/macos/assets/backgrounds/*cyberpunk-orange-cat.png
+/docs/PROJECT_LOG.local-private.md
+
+# Local Codex Dream Skin state is installed outside the repository.
+/CodexInterfaceTheme/

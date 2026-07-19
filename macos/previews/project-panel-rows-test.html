@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Project Panel Rows Test Replacement</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #050607;
+      --surface: rgba(10, 12, 14, 0.76);
+      --surface-strong: rgba(13, 16, 18, 0.9);
+      --line: rgba(0, 213, 255, 0.16);
+      --cyan: #00d5ff;
+      --green: #00f5a0;
+      --pink: #ff4fd8;
+      --gold: #ffb000;
+      --red: #ff4f6d;
+      --text: #f4f7fb;
+      --muted: #9fb4c7;
+      --bg-art: url("../assets/backgrounds/cyber-ruins-pale.png");
+      --character-art: none;
+      --label-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --ui-font: ui-rounded, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --zh-font: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      font-family: var(--ui-font);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      padding: 28px;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at 84% 100%, rgba(255, 176, 0, 0.16), transparent 34%),
+        radial-gradient(ellipse at 56% 100%, rgba(0, 213, 255, 0.13), transparent 42%),
+        linear-gradient(0deg, rgba(255, 79, 216, 0.08) 0%, transparent 22%),
+        radial-gradient(circle at 9% 8%, rgba(255, 176, 0, 0.16), transparent 18rem),
+        radial-gradient(circle at 88% 12%, rgba(255, 79, 216, 0.12), transparent 22rem),
+        linear-gradient(135deg, #050607, #091015 58%, #050607);
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: var(--bg-art);
+      background-repeat: no-repeat;
+      background-size: auto 100%;
+      mix-blend-mode: screen;
+    }
+
+    body::before {
+      left: 0;
+      width: clamp(180px, 19vw, 340px);
+      background-position: left center;
+      opacity: 0.18;
+      mask-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0.72) 46%, transparent 100%);
+    }
+
+    body::after {
+      right: 0;
+      width: clamp(220px, 27vw, 470px);
+      background-position: right bottom;
+      opacity: 0.26;
+      mask-image: linear-gradient(270deg, black 0%, rgba(0, 0, 0, 0.76) 52%, transparent 100%);
+    }
+
+    .character-art {
+      position: fixed;
+      right: -22px;
+      bottom: -72px;
+      z-index: 0;
+      width: clamp(220px, 18vw, 350px);
+      aspect-ratio: 1 / 1;
+      pointer-events: none;
+      background-image: var(--character-art);
+      background-repeat: no-repeat;
+      background-position: right bottom;
+      background-size: contain;
+      opacity: 0.18;
+      mix-blend-mode: screen;
+      filter:
+        saturate(1.08)
+        drop-shadow(0 0 18px rgba(255, 176, 0, 0.30))
+        drop-shadow(0 0 22px rgba(0, 213, 255, 0.22));
+      mask-image: linear-gradient(180deg, black 0%, black 72%, rgba(0, 0, 0, 0.74) 100%);
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(1220px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+
+    .header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--cyan);
+      font-family: var(--label-font);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--pink));
+      box-shadow: 0 0 12px rgba(255, 176, 0, 0.34);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--zh-font);
+      font-size: 26px;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .header p {
+      margin: 7px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .guardrail {
+      flex: 0 0 auto;
+      color: var(--gold);
+      font-family: var(--label-font);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 176, 0, 0.28);
+      background: rgba(255, 176, 0, 0.07);
+      padding: 8px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .workspace {
+      min-height: 690px;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      background:
+        linear-gradient(90deg, rgba(0, 213, 255, 0.035), transparent 36%, rgba(255, 79, 216, 0.025)),
+        rgba(255, 255, 255, 0.025);
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .task-surface {
+      position: relative;
+      min-width: 0;
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018)),
+        rgba(4, 6, 8, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .task-surface::before {
+      content: "";
+      position: absolute;
+      inset: auto 22px 20px 22px;
+      height: 160px;
+      pointer-events: none;
+      background:
+        linear-gradient(rgba(0, 213, 255, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 213, 255, 0.08) 1px, transparent 1px);
+      background-size: 28px 28px;
+      transform: perspective(520px) rotateX(58deg);
+      transform-origin: bottom center;
+      opacity: 0.42;
+    }
+
+    .task-card {
+      position: relative;
+      max-width: 680px;
+      display: grid;
+      gap: 13px;
+    }
+
+    .line {
+      height: 13px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .line.short {
+      width: 56%;
+    }
+
+    .line.mid {
+      width: 76%;
+    }
+
+    .line.glow {
+      width: 44%;
+      background: linear-gradient(90deg, rgba(0, 245, 160, 0.28), rgba(0, 213, 255, 0.1));
+      box-shadow: 0 0 18px rgba(0, 245, 160, 0.08);
+    }
+
+    .panel {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border-radius: 10px;
+      border: 1px solid rgba(0, 213, 255, 0.13);
+      background:
+        linear-gradient(180deg, rgba(0, 213, 255, 0.04), transparent 86px),
+        linear-gradient(124deg, rgba(255, 79, 216, 0.03) 0%, transparent 42%, rgba(255, 176, 0, 0.04) 100%),
+        rgba(12, 15, 18, 0.76);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        inset 0 0 0 1px rgba(255, 176, 0, 0.05),
+        0 18px 42px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(9px) saturate(1.08);
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(0, 213, 255, 0.22), transparent 20%, transparent 82%, rgba(255, 79, 216, 0.16)),
+        repeating-linear-gradient(90deg, transparent 0 16px, rgba(255, 255, 255, 0.018) 16px 17px);
+      opacity: 0.34;
+      mask-image: linear-gradient(180deg, black, transparent 58%);
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: var(--bg-art);
+      background-repeat: no-repeat;
+      background-position: right bottom;
+      background-size: auto 100%;
+      opacity: 0.14;
+      mix-blend-mode: screen;
+      mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.34) 32%, black 100%);
+    }
+
+    .panel > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .panel-header {
+      position: relative;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 0 13px;
+      border-bottom: 1px solid rgba(0, 213, 255, 0.12);
+      background: linear-gradient(90deg, rgba(0, 213, 255, 0.08), transparent 58%);
+      font-family: var(--zh-font);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .panel-header span:last-child {
+      color: var(--gold);
+      font-family: var(--label-font);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .section {
+      position: relative;
+      padding: 12px 11px 4px;
+    }
+
+    .section::after {
+      content: "";
+      display: block;
+      height: 1px;
+      margin-top: 10px;
+      background: linear-gradient(90deg, rgba(0, 213, 255, 0.26), transparent 44%, rgba(255, 79, 216, 0.18));
+      opacity: 0.56;
+    }
+
+    .section-title {
+      margin: 0 0 8px;
+      color: color-mix(in srgb, var(--gold), var(--muted) 46%);
+      font-family: var(--label-font);
+      font-size: 10px;
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+    }
+
+    .row {
+      --row-accent: var(--cyan);
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 9px;
+      margin: 4px 0;
+      border-radius: 7px;
+      background:
+        linear-gradient(90deg, color-mix(in srgb, var(--row-accent), transparent 97%), transparent 36%),
+        rgba(12, 14, 16, 0.52);
+      box-shadow:
+        inset 2px 0 0 color-mix(in srgb, var(--row-accent), transparent 82%),
+        inset 0 0 0 1px color-mix(in srgb, var(--row-accent), transparent 95%);
+      color: color-mix(in srgb, var(--text), var(--row-accent) 8%);
+      font-size: 12px;
+      line-height: 1.25;
+    }
+
+    .row.output {
+      --row-accent: var(--cyan);
+    }
+
+    .row.agent {
+      --row-accent: var(--pink);
+    }
+
+    .row.source,
+    .row.view-all {
+      --row-accent: var(--gold);
+    }
+
+    .row.environment {
+      --row-accent: var(--green);
+    }
+
+    .row.status {
+      --row-accent: var(--red);
+    }
+
+    .glyph {
+      flex: 0 0 15px;
+      width: 15px;
+      height: 15px;
+      object-fit: contain;
+      filter:
+        saturate(1.14) contrast(1.08)
+        drop-shadow(0 0 4px color-mix(in srgb, var(--row-accent), transparent 70%))
+        drop-shadow(0 1px 1px rgba(0, 0, 0, 0.28));
+    }
+
+    .row-text {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .offscreen-check {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .offscreen-card {
+      min-height: 116px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .mini-panel {
+      width: 320px;
+      min-height: 116px;
+      border: 1px dashed rgba(255, 176, 0, 0.22);
+      border-radius: 8px;
+      background: rgba(255, 176, 0, 0.04);
+      transform: translateX(92px);
+      opacity: 0.42;
+    }
+
+    .offscreen-card h2 {
+      margin: 0 0 8px;
+      color: var(--gold);
+      font-family: var(--label-font);
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .offscreen-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    @media (max-width: 840px) {
+      body {
+        padding: 18px;
+      }
+
+      body::before,
+      body::after {
+        opacity: 0.1;
+      }
+
+      body {
+        background:
+          radial-gradient(ellipse at 84% 100%, rgba(255, 176, 0, 0.12), transparent 34%),
+          radial-gradient(ellipse at 56% 100%, rgba(0, 213, 255, 0.10), transparent 42%),
+          linear-gradient(0deg, rgba(255, 79, 216, 0.07) 0%, transparent 22%),
+          radial-gradient(circle at 9% 8%, rgba(255, 176, 0, 0.16), transparent 18rem),
+          radial-gradient(circle at 88% 12%, rgba(255, 79, 216, 0.12), transparent 22rem),
+          linear-gradient(135deg, #050607, #091015 58%, #050607);
+      }
+
+      .character-art {
+        right: -48px;
+        bottom: -58px;
+        width: 220px;
+        opacity: 0.15;
+      }
+
+      .header {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .guardrail {
+        white-space: normal;
+      }
+
+      .workspace,
+      .offscreen-check {
+        grid-template-columns: 1fr;
+      }
+
+      .panel {
+        width: min(320px, 100%);
+      }
+
+      .mini-panel {
+        width: 100%;
+        transform: translateX(42px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="character-art" aria-hidden="true"></div>
+  <main>
+    <div class="header">
+      <div>
+        <div class="eyebrow">module test 07</div>
+        <h1>右側資料列測試替換</h1>
+        <p>只看 projectPanelRows 的密度、跳色與透明度；橘貓本體不貼到 row 上。</p>
+      </div>
+      <div class="guardrail">visible panel only</div>
+    </div>
+
+    <section class="workspace" aria-label="project panel rows preview">
+      <div class="task-surface" aria-label="task workspace baseline">
+        <div class="task-card">
+          <div class="line glow"></div>
+          <div class="line mid"></div>
+          <div class="line"></div>
+          <div class="line short"></div>
+          <div class="line mid"></div>
+          <div class="line"></div>
+        </div>
+      </div>
+
+      <aside class="panel" aria-label="right project resource panel">
+        <div class="panel-header">
+          <span>專案資源</span>
+          <span>rows</span>
+        </div>
+
+        <section class="section">
+          <p class="section-title">輸出內容</p>
+          <div class="row output">
+            <img class="glyph" src="../assets/icons/buttons/fishbone-files.svg" alt="">
+            <span class="row-text">20260718_project_panel_rows_preview.html</span>
+          </div>
+          <div class="row output">
+            <img class="glyph" src="../assets/icons/buttons/fishbone-files.svg" alt="">
+            <span class="row-text">theme.css row density adjustment</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <p class="section-title">子代理</p>
+          <div class="row agent">
+            <img class="glyph" src="../assets/icons/buttons/teaser-wand-spark.svg" alt="">
+            <span class="row-text">design-scout: cyber pet controls</span>
+          </div>
+          <div class="row agent">
+            <img class="glyph" src="../assets/icons/buttons/teaser-wand-spark.svg" alt="">
+            <span class="row-text">layout-check: panel bounds only</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <p class="section-title">來源</p>
+          <div class="row source">
+            <img class="glyph" src="../assets/icons/buttons/yarn-thread.svg" alt="">
+            <span class="row-text">local theme workflow notes</span>
+          </div>
+          <div class="row view-all">
+            <img class="glyph" src="../assets/icons/buttons/cat-eye-search.svg" alt="">
+            <span class="row-text">查看全部</span>
+          </div>
+        </section>
+
+        <section class="section">
+          <p class="section-title">環境</p>
+          <div class="row environment">
+            <img class="glyph" src="../assets/icons/buttons/mecha-ear-settings.svg" alt="">
+            <span class="row-text">本機 main branch</span>
+          </div>
+          <div class="row status">
+            <img class="glyph" src="../assets/icons/buttons/claw-stop.svg" alt="">
+            <span class="row-text">無法取得 Pull Request 狀態</span>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="offscreen-check" aria-label="offscreen guard preview">
+      <div class="offscreen-card">
+        <h2>Offscreen Guard</h2>
+        <p>右側 panel 沒有完整進入 viewport 時，正式 runtime 應回報 projectPanelRows = 0，避免把隱藏面板套色到工作區。</p>
+      </div>
+      <div class="offscreen-card" aria-label="offscreen panel simulation">
+        <div class="mini-panel"></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

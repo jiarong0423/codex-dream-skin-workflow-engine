@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Dream Skin Workflow"
+  short_description: "整合 Codex 主題設計、實裝、驗證、回復與競賽提交流程"
+  default_prompt: "Use $codex-dream-skin-workflow to design, validate, apply, and package a safe Codex desktop theme."

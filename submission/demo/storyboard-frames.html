@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Dream Skin Demo Frames</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05080b;
+      --ink: #f4f7fb;
+      --muted: #9fb2bb;
+      --cyan: #10d7ee;
+      --green: #19e6a3;
+      --amber: #f2a23a;
+      --red: #ff4f5f;
+      --magenta: #ff3b9d;
+      --glass: rgba(5, 12, 15, 0.72);
+      --glass-strong: rgba(6, 9, 12, 0.88);
+      --line: rgba(16, 215, 238, 0.24);
+      --line-hot: rgba(242, 162, 58, 0.32);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(16, 215, 238, 0.18), transparent 28%),
+        radial-gradient(circle at 84% 18%, rgba(255, 59, 157, 0.16), transparent 25%),
+        #030507;
+      color: var(--ink);
+    }
+
+    main {
+      display: grid;
+      gap: 48px;
+      padding: 40px;
+    }
+
+    .frame {
+      position: relative;
+      overflow: hidden;
+      min-height: 720px;
+      aspect-ratio: 16 / 9;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(4, 20, 24, 0.82), rgba(9, 8, 11, 0.52), rgba(31, 6, 20, 0.74)),
+        url("../../macos/assets/backgrounds/cyberpunk-contrast-city-runtime.webp") center / cover no-repeat;
+      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
+    }
+
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(0, 0, 0, 0.2), transparent 34%, transparent 66%, rgba(0, 0, 0, 0.24)),
+        repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 110px);
+    }
+
+    .frame-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      padding: 54px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid rgba(16, 215, 238, 0.35);
+      border-radius: 999px;
+      color: var(--cyan);
+      background: rgba(2, 15, 19, 0.62);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin-top: 24px;
+      font-size: 76px;
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 44px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    p {
+      color: #d9e6eb;
+      font-size: 24px;
+      line-height: 1.45;
+    }
+
+    .hero-copy {
+      width: min(760px, 62%);
+    }
+
+    .hero-copy p {
+      margin-top: 28px;
+      max-width: 660px;
+    }
+
+    .hero-character {
+      position: absolute;
+      right: 6%;
+      bottom: -5%;
+      width: min(410px, 32vw);
+      filter: drop-shadow(0 0 34px rgba(16, 215, 238, 0.32));
+      z-index: 2;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.36);
+      color: #e8f4f7;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      height: calc(100% - 120px);
+      margin-top: 34px;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: var(--glass);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .panel.native {
+      background: rgba(6, 7, 8, 0.86);
+    }
+
+    .panel .panel-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 54px;
+      padding: 0 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      color: #edf8fb;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .mini-shell {
+      display: grid;
+      grid-template-columns: 230px 1fr 250px;
+      height: calc(100% - 54px);
+    }
+
+    .nav,
+    .right-panel {
+      padding: 22px;
+      background: rgba(3, 12, 15, 0.68);
+    }
+
+    .nav-item,
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 34px;
+      margin-bottom: 9px;
+      padding: 0 12px;
+      border-radius: 8px;
+      color: #dce9ee;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .nav-item.active,
+    .row.active {
+      border: 1px solid rgba(16, 215, 238, 0.38);
+      background: linear-gradient(90deg, rgba(16, 215, 238, 0.18), rgba(25, 230, 163, 0.08));
+    }
+
+    .glyph {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 45%, var(--cyan), #021318 58%);
+      border: 1px solid rgba(16, 215, 238, 0.55);
+      box-shadow: 0 0 12px rgba(16, 215, 238, 0.25);
+      flex: 0 0 auto;
+    }
+
+    .workspace {
+      padding: 28px;
+      background: rgba(2, 6, 8, 0.36);
+    }
+
+    .message-line {
+      height: 18px;
+      margin-bottom: 16px;
+      border-radius: 999px;
+      background: rgba(230, 245, 250, 0.16);
+    }
+
+    .message-line.short {
+      width: 58%;
+    }
+
+    .message-line.mid {
+      width: 74%;
+    }
+
+    .message-line.long {
+      width: 92%;
+    }
+
+    .composer {
+      position: absolute;
+      left: 25%;
+      right: 7%;
+      bottom: 42px;
+      height: 112px;
+      border: 1px solid rgba(16, 215, 238, 0.22);
+      border-radius: 8px;
+      background:
+        linear-gradient(100deg, rgba(0, 48, 56, 0.38), rgba(7, 8, 10, 0.78), rgba(88, 12, 45, 0.38));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    .architecture {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 36px;
+    }
+
+    .step {
+      min-height: 116px;
+      padding: 18px;
+      border: 1px solid rgba(16, 215, 238, 0.2);
+      border-radius: 8px;
+      background: rgba(2, 14, 18, 0.72);
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 12px;
+      color: #f4f7fb;
+      font-size: 18px;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 34px;
+    }
+
+    .metric {
+      min-height: 132px;
+      padding: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.11);
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.42);
+    }
+
+    .metric .number {
+      color: var(--green);
+      font-size: 38px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+
+    .metric .label {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .demo-stack {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 32px;
+      align-items: end;
+      height: calc(100% - 120px);
+      margin-top: 34px;
+    }
+
+    .control-card {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(3, 14, 18, 0.72);
+    }
+
+    .control-card img {
+      width: 48px;
+      height: 48px;
+      margin-right: 14px;
+      vertical-align: middle;
+    }
+
+    .table-poster {
+      display: block;
+      width: 360px;
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 8px;
+      filter: drop-shadow(0 0 18px rgba(242, 162, 58, 0.2));
+    }
+
+    .restore-card {
+      min-height: 300px;
+      padding: 34px;
+      border: 1px solid rgba(25, 230, 163, 0.28);
+      border-radius: 8px;
+      background: rgba(1, 16, 13, 0.78);
+    }
+
+    .terminal {
+      margin-top: 22px;
+      padding: 18px;
+      border-radius: 8px;
+      background: #020405;
+      color: #c8f8e2;
+      font: 15px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .accent-cyan {
+      color: var(--cyan);
+    }
+
+    .accent-amber {
+      color: var(--amber);
+    }
+
+    .accent-red {
+      color: var(--red);
+    }
+
+    @media (max-width: 900px) {
+      main {
+        padding: 16px;
+      }
+
+      .frame {
+        min-height: 860px;
+        aspect-ratio: auto;
+      }
+
+      .frame-content {
+        padding: 28px;
+      }
+
+      h1 {
+        font-size: 44px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      p {
+        font-size: 18px;
+      }
+
+      .hero-copy {
+        width: 100%;
+      }
+
+      .hero-character {
+        right: 4%;
+        width: 260px;
+      }
+
+      .split,
+      .architecture,
+      .metric-grid,
+      .demo-stack {
+        grid-template-columns: 1fr;
+      }
+
+      .mini-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .right-panel {
+        display: none;
+      }
+
+      .composer {
+        left: 24px;
+        right: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="frame" aria-label="Cover">
+      <div class="frame-content">
+        <div class="eyebrow">OpenAI Build Week 2026 - Developer Tools</div>
+        <div class="hero-copy">
+          <h1>Codex Dream Skin Workflow Engine</h1>
+          <p>A reversible workflow for turning Codex-assisted visual briefs into safe, modular, verified desktop themes.</p>
+          <div class="badge-row">
+            <span class="chip">macOS</span>
+            <span class="chip">Local CDP</span>
+            <span class="chip">No app patching</span>
+            <span class="chip">Restore-ready</span>
+          </div>
+        </div>
+        <img class="hero-character" src="../../macos/assets/icons/cyber-mecha-cat-male-helmet-900.png" alt="Cyber-mecha cat hero character">
+      </div>
+    </section>
+
+    <section class="frame" aria-label="Before and after interface comparison">
+      <div class="frame-content">
+        <div class="eyebrow">Safe Personalization</div>
+        <h2>From rigid native UI to a readable themed cockpit</h2>
+        <div class="split">
+          <div class="panel native">
+            <div class="panel-title">
+              <span>Native baseline</span>
+              <span class="accent-amber">Before</span>
+            </div>
+            <div class="mini-shell">
+              <div class="nav">
+                <div class="nav-item active"><span></span>New task</div>
+                <div class="nav-item"><span></span>Projects</div>
+                <div class="nav-item"><span></span>Pull Request</div>
+                <div class="nav-item"><span></span>Websites</div>
+              </div>
+              <div class="workspace">
+                <div class="message-line long"></div>
+                <div class="message-line mid"></div>
+                <div class="message-line short"></div>
+                <div class="message-line long"></div>
+                <div class="composer"></div>
+              </div>
+              <div class="right-panel">
+                <div class="row">Environment</div>
+                <div class="row">Local</div>
+                <div class="row">main</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">
+              <span>Dream Skin module</span>
+              <span class="accent-cyan">After</span>
+            </div>
+            <div class="mini-shell">
+              <div class="nav">
+                <div class="nav-item active"><span class="glyph"></span>New task</div>
+                <div class="nav-item"><span class="glyph"></span>Projects</div>
+                <div class="nav-item"><span class="glyph"></span>Pull Request</div>
+                <div class="nav-item"><span class="glyph"></span>Websites</div>
+              </div>
+              <div class="workspace">
+                <div class="message-line long"></div>
+                <div class="message-line mid"></div>
+                <div class="message-line short"></div>
+                <div class="message-line long"></div>
+                <div class="composer"></div>
+              </div>
+              <div class="right-panel">
+                <div class="row active"><span class="glyph"></span>Environment</div>
+                <div class="row"><span class="glyph"></span>Local</div>
+                <div class="row"><span class="glyph"></span>main</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="frame" aria-label="Workflow architecture">
+      <div class="frame-content">
+        <div class="eyebrow">Workflow Engine</div>
+        <h2>One product, separate modules, bounded runtime</h2>
+        <div class="architecture">
+          <div class="step"><strong>1. Brief</strong><span>Capture visual direction, safe areas, asset roles, and interaction behavior.</span></div>
+          <div class="step"><strong>2. Spec</strong><span>Normalize palette, modules, assets, activation policy, and runtime budgets.</span></div>
+          <div class="step"><strong>3. Asset</strong><span>Generate, cut out, resize, compress, and keep source/runtime ownership separate.</span></div>
+          <div class="step"><strong>4. Gate</strong><span>Run tests, module matrix, byte budgets, and selector regression checks.</span></div>
+          <div class="step"><strong>5. Apply</strong><span>Transfer only changed payload groups through local CDP and one-shot injection.</span></div>
+          <div class="step"><strong>6. Verify</strong><span>Check readability, geometry, panel retreat, clickable controls, and restore state.</span></div>
+          <div class="step"><strong>7. Install</strong><span>Sync the managed engine, launcher, hashes, and public instructions.</span></div>
+          <div class="step"><strong>8. Restore</strong><span>Remove injected DOM and classes without modifying the official application.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="frame" aria-label="Performance and restore evidence">
+      <div class="frame-content">
+        <div class="eyebrow">Subtractive Runtime</div>
+        <h2>Glass look without heavy idle effects</h2>
+        <div class="metric-grid">
+          <div class="metric"><div class="number">0</div><div class="label">theme backdrop blur at runtime</div></div>
+          <div class="metric"><div class="number">0</div><div class="label">idle theme animations</div></div>
+          <div class="metric"><div class="number">3</div><div class="label">remaining lightweight theme shadows</div></div>
+          <div class="metric"><div class="number">1x</div><div class="label">one-shot launcher apply policy</div></div>
+        </div>
+        <div class="demo-stack">
+          <div class="control-card">
+            <h3>Manual interaction</h3>
+            <p>The table-flip sprite loads only after the trigger is clicked, then releases its playback node.</p>
+            <img class="table-poster" src="../../macos/assets/icons/table-flip-cat-left-poster.png" alt="Table flip poster frame">
+          </div>
+          <div class="restore-card">
+            <h3>Judge path</h3>
+            <p>Install, apply once, verify the renderer, then restore the native interface without touching the official app bundle.</p>
+            <div class="terminal">bash macos/tests/run-tests.sh<br>bash macos/scripts/install.sh<br>bash macos/scripts/start.sh --no-launch --once --port 9341 --wait-ms 8000<br>bash macos/scripts/verify.sh --port 9341<br>bash macos/scripts/restore.sh --port 9341</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="frame" aria-label="Final product frame">
+      <div class="frame-content">
+        <div class="eyebrow">Codex + GPT-5.6 Build Loop</div>
+        <h2>Design, implement, verify, restore, and package as one repeatable developer workflow</h2>
+        <div class="badge-row">
+          <span class="chip">Structured theme spec</span>
+          <span class="chip">Image2 asset variants</span>
+          <span class="chip">Collision retreat</span>
+          <span class="chip">Low-frequency maintenance</span>
+          <span class="chip">Content-hash reuse</span>
+          <span class="chip">Public provenance</span>
+        </div>
+        <img class="hero-character" src="../../macos/assets/icons/cyber-mecha-cat-male-helmet-900.png" alt="Cyber-mecha cat hero character">
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sidebar Navigation Test Replacement</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #06090d;
+      --panel: rgba(8, 12, 15, 0.96);
+      --panel-2: rgba(12, 16, 20, 0.94);
+      --line: rgba(0, 213, 255, 0.22);
+      --cyan: #00d5ff;
+      --green: #00f5a0;
+      --pink: #ff4fd8;
+      --gold: #f2a23a;
+      --text: #f4f7fb;
+      --muted: #9fb4c7;
+      --bg-art: url("../assets/backgrounds/cyber-ruins-pale.png");
+      --character-art: url("../assets/icons/cyber-mecha-cat-male-helmet-900.png");
+      --label-font: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+      --ui-font: ui-rounded, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --zh-font: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      font-family: var(--ui-font);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(rgba(5, 7, 9, 0.72), rgba(5, 7, 9, 0.78)),
+        var(--bg-art) center / cover no-repeat,
+        radial-gradient(circle at 12% 8%, rgba(242, 162, 58, 0.16), transparent 18rem),
+        radial-gradient(circle at 84% 16%, rgba(255, 79, 216, 0.12), transparent 22rem),
+        linear-gradient(135deg, #050608, #091015 56%, #06080b);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 32px;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      display: grid;
+      gap: 18px;
+    }
+
+    .header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--cyan);
+      font-family: var(--label-font);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 18px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--pink));
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(242, 162, 58, 0.42);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--zh-font);
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 1.1;
+      text-shadow: 0 0 18px rgba(0, 213, 255, 0.16);
+    }
+
+    .header p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .guardrail {
+      color: var(--gold);
+      font-family: var(--label-font);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid rgba(242, 162, 58, 0.28);
+      background: rgba(242, 162, 58, 0.08);
+      padding: 8px 10px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .frame {
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 10px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .frame-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-family: var(--label-font);
+      font-size: 11px;
+      letter-spacing: 0.055em;
+      text-transform: uppercase;
+    }
+
+    .frame-title span:first-child {
+      color: #d9e8f5;
+    }
+
+    .frame-title span:last-child {
+      color: var(--gold);
+    }
+
+    .sidebar {
+      width: 292px;
+      min-height: 640px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at 9% 4%, rgba(242, 162, 58, 0.20), transparent 95px),
+        linear-gradient(180deg, rgba(0, 213, 255, 0.055), transparent 128px),
+        var(--panel);
+      box-shadow: 16px 0 36px rgba(0, 0, 0, 0.2);
+      padding: 18px 12px;
+    }
+
+    .sidebar-stage {
+      position: relative;
+      min-height: 640px;
+      width: 612px;
+      max-width: 100%;
+    }
+
+    .sidebar > * {
+      position: relative;
+      z-index: 2;
+    }
+
+    .sidebar::before {
+      content: "";
+      position: absolute;
+      top: -28px;
+      left: -40px;
+      width: 160px;
+      height: 86px;
+      background:
+        linear-gradient(132deg, transparent 0 24%, #ffb555 25% 41%, transparent 42%),
+        linear-gradient(90deg, #10151b, #c87925);
+      clip-path: polygon(0 0, 86% 0, 100% 32%, 72% 100%, 12% 78%);
+      filter: drop-shadow(0 0 14px rgba(0, 213, 255, 0.3));
+      opacity: 0.55;
+    }
+
+    .sidebar::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background-image: var(--bg-art);
+      background-repeat: no-repeat;
+      background-position: 8% center;
+      background-size: auto 100%;
+      opacity: 0.13;
+      mix-blend-mode: screen;
+      mask-image: linear-gradient(180deg, transparent 0%, black 15%, black 86%, transparent 100%);
+    }
+
+    .character-hero {
+      position: absolute;
+      left: 264px;
+      bottom: 52px;
+      z-index: 1;
+      width: 350px;
+      max-width: none;
+      height: auto;
+      pointer-events: none;
+      opacity: 1;
+      filter:
+        saturate(1.12)
+        contrast(1.04)
+        drop-shadow(0 0 18px rgba(242, 162, 58, 0.30))
+        drop-shadow(0 0 24px rgba(0, 213, 255, 0.24))
+        drop-shadow(0 22px 28px rgba(0, 0, 0, 0.38));
+    }
+
+    .brand {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-weight: 700;
+      font-family: var(--label-font);
+      font-size: 15px;
+      letter-spacing: 0.03em;
+      margin: 5px 4px 22px;
+      text-transform: uppercase;
+      text-shadow: 0 0 12px rgba(0, 213, 255, 0.22);
+    }
+
+    .brand-mark {
+      width: 20px;
+      height: 20px;
+      border: 1px solid rgba(0, 213, 255, 0.4);
+      border-radius: 5px;
+      background: linear-gradient(135deg, rgba(0, 213, 255, 0.3), rgba(255, 79, 216, 0.2));
+    }
+
+    .nav {
+      position: relative;
+      display: grid;
+      gap: 4px;
+    }
+
+    .item {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      border-radius: 7px;
+      color: #e8f2fb;
+      font-family: var(--zh-font);
+      font-size: 14px;
+      font-weight: 560;
+      letter-spacing: 0;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .item.active {
+      background: rgba(0, 213, 255, 0.11);
+      box-shadow: inset 3px 0 0 var(--cyan);
+      color: #ffffff;
+      text-shadow: 0 0 11px rgba(0, 213, 255, 0.28);
+    }
+
+    .item span:last-child {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .native-icon {
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid rgba(232, 242, 251, 0.76);
+      border-radius: 4px;
+      flex: 0 0 18px;
+    }
+
+    .native-icon.circle {
+      border-radius: 999px;
+    }
+
+    .native-icon.grid {
+      background:
+        linear-gradient(90deg, transparent 44%, rgba(232, 242, 251, 0.76) 45% 55%, transparent 56%),
+        linear-gradient(0deg, transparent 44%, rgba(232, 242, 251, 0.76) 45% 55%, transparent 56%);
+    }
+
+    .glyph {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      object-fit: contain;
+      filter:
+        drop-shadow(0 0 5px rgba(0, 213, 255, 0.46))
+        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.34));
+    }
+
+    .spacer {
+      height: 22px;
+    }
+
+    .section-label {
+      margin: 10px 10px 6px;
+      color: color-mix(in srgb, var(--gold), #7f94a7 54%);
+      font-family: var(--label-font);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .task {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      border-radius: 6px;
+      color: #d9e8f5;
+      font-family: var(--zh-font);
+      font-size: 13px;
+      font-weight: 520;
+      background: rgba(255, 255, 255, 0.03);
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cat-badge {
+      position: absolute;
+      right: 15px;
+      bottom: 62px;
+      width: 58px;
+      height: 58px;
+      object-fit: contain;
+      filter:
+        drop-shadow(0 0 10px rgba(0, 213, 255, 0.42))
+        drop-shadow(0 8px 18px rgba(0, 0, 0, 0.32));
+    }
+
+    .note {
+      border-left: 3px solid var(--pink);
+      padding: 10px 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      background: rgba(255, 79, 216, 0.06);
+      border-radius: 0 8px 8px 0;
+    }
+
+    @media (max-width: 760px) {
+      body {
+        padding: 18px;
+      }
+
+      .header {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .guardrail {
+        white-space: normal;
+      }
+
+      .compare {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="header">
+      <div>
+        <div class="eyebrow">module test 01</div>
+        <h1>側邊導覽測試替換</h1>
+        <p>只預覽第一個模組。圖示、文字、標籤一起看節奏；目前不改 live Codex。</p>
+      </div>
+      <div class="guardrail">sidebar hero character</div>
+    </div>
+
+    <section class="compare" aria-label="sidebar module comparison">
+      <div class="frame">
+        <div class="frame-title">
+          <span>Native baseline</span>
+          <span>before</span>
+        </div>
+        <aside class="sidebar" aria-label="native baseline sidebar">
+          <div class="brand"><span class="brand-mark"></span><span>Codex</span></div>
+          <nav class="nav">
+            <div class="item"><span class="native-icon circle"></span><span>搜尋</span></div>
+            <div class="item active"><span class="native-icon"></span><span>新增任務</span></div>
+            <div class="item"><span class="native-icon"></span><span>專案</span></div>
+            <div class="item"><span class="native-icon grid"></span><span>Pull Request</span></div>
+            <div class="item"><span class="native-icon grid"></span><span>網站</span></div>
+            <div class="item"><span class="native-icon circle"></span><span>已排程</span></div>
+            <div class="item"><span class="native-icon circle"></span><span>外掛程式</span></div>
+          </nav>
+          <div class="spacer"></div>
+          <div class="section-label">已釘選</div>
+          <div class="task">Build Week Demo</div>
+          <div class="task">模組校對</div>
+          <div class="section-label">任務</div>
+          <div class="task">分析並重建 Dream Skin 結構</div>
+        </aside>
+      </div>
+
+      <div class="frame">
+        <div class="frame-title">
+          <span>Cat mecha test</span>
+          <span>module 01</span>
+        </div>
+        <div class="sidebar-stage">
+          <img class="character-hero" src="../assets/icons/cyber-mecha-cat-male-helmet-900.png" alt="">
+          <aside class="sidebar hero" aria-label="cat mecha sidebar test">
+            <div class="brand"><span class="brand-mark"></span><span>Codex</span></div>
+            <nav class="nav">
+              <div class="item"><img class="glyph" src="../assets/icons/buttons/cat-eye-search.svg" alt=""><span>搜尋</span></div>
+              <div class="item active"><img class="glyph" src="../assets/icons/buttons/cat-paw-new-task.svg" alt=""><span>新增任務</span></div>
+              <div class="item"><img class="glyph" src="../assets/icons/buttons/neko-chip-project.svg" alt=""><span>專案</span></div>
+              <div class="item"><img class="glyph" src="../assets/icons/buttons/fishbone-files.svg" alt=""><span>Pull Request</span></div>
+              <div class="item"><img class="glyph" src="../assets/icons/buttons/teaser-wand-spark.svg" alt=""><span>網站</span></div>
+              <div class="item"><img class="glyph" src="../assets/icons/buttons/collar-tag-task.svg" alt=""><span>已排程</span></div>
+              <div class="item"><img class="glyph" src="../assets/icons/buttons/cat-can-package.svg" alt=""><span>外掛程式</span></div>
+            </nav>
+            <div class="spacer"></div>
+            <div class="section-label">已釘選</div>
+            <div class="task">Build Week Demo</div>
+            <div class="task">模組校對</div>
+            <div class="section-label">任務</div>
+            <div class="task">分析並重建 Dream Skin 結構</div>
+            <img class="cat-badge" src="../assets/icons/orange-hacker-cat-128.png" alt="">
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      這個頁面只檢查 sidebarNavigation。Titlebar、composer、right panel、global buttons 都還沒進入替換流程。
+    </div>
+  </main>
+</body>
+</html>

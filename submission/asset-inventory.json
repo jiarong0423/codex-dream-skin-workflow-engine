@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "stage": "stage-4-final-local-package-ready",
+  "reviewedAt": "2026-07-20T02:20:00+08:00",
+  "competitionTrack": "Developer Tools",
+  "statusDefinitions": {
+    "approved-source": "May be used as source material for a public submission asset.",
+    "conditional": "Must be sanitized, renamed, cropped, or regenerated before public use.",
+    "exclude": "Keep only as internal history or reference; do not package or publish."
+  },
+  "approvedSources": [
+    {
+      "path": "macos/assets/backgrounds/cyberpunk-contrast-city.png",
+      "role": "primary source background",
+      "status": "approved-source",
+      "requiredAction": "Export public copies under an original product-neutral name."
+    },
+    {
+      "path": "macos/assets/backgrounds/cyberpunk-contrast-city-runtime.webp",
+      "role": "optimized runtime background",
+      "status": "approved-source",
+      "requiredAction": "Retain WebP optimization and record the source PNG relationship."
+    },
+    {
+      "path": "macos/assets/backgrounds/cyber-ruins-pale.png",
+      "role": "alternate light background",
+      "status": "approved-source",
+      "requiredAction": "Use only if a light comparison panel is needed."
+    },
+    {
+      "path": "macos/assets/icons/cyber-mecha-cat-male-helmet-900.png",
+      "role": "selected runtime member of the original foreground hero character family",
+      "status": "approved-source",
+      "provenance": "Original character generated with Image2 from the user's prompt and selected from generated variants; no third-party character image was copied into the asset.",
+      "variants": [
+        "macos/assets/icons/cyber-mecha-cat-male-helmet-chroma.png",
+        "macos/assets/icons/cyber-mecha-cat-male-helmet-cutout.png",
+        "macos/assets/icons/cyber-mecha-cat-male-helmet-900.png"
+      ],
+      "requiredAction": "Choose the best generated variant for each layout, retain generation provenance, and use generic original cyber-mecha terminology in public copy."
+    },
+    {
+      "path": "macos/assets/icons/cyber-robot-orange-cat-768.png",
+      "role": "alternate original Image2-generated cyber cat character family",
+      "status": "approved-source",
+      "provenance": "Original alternate character family generated with Image2 during the same project design workflow.",
+      "variants": [
+        "macos/assets/icons/cyber-robot-orange-cat-chroma.png",
+        "macos/assets/icons/cyber-robot-orange-cat-cutout.png",
+        "macos/assets/icons/cyber-robot-orange-cat-512.png",
+        "macos/assets/icons/cyber-robot-orange-cat-768.png"
+      ],
+      "requiredAction": "Keep as an alternate composition source; do not mix multiple hero variants into one crowded submission image."
+    },
+    {
+      "path": "macos/assets/icons/buttons",
+      "role": "original semantic cat and pet control glyphs",
+      "status": "approved-source",
+      "requiredAction": "Keep the existing abstract icon treatment and action mapping."
+    },
+    {
+      "path": "macos/assets/icons/orange-hacker-cat-128.png",
+      "role": "sidebar mascot badge",
+      "status": "approved-source",
+      "provenance": "Generated from the user-provided orange hacker cat project reference, then processed locally into transparent runtime badge sizes.",
+      "variants": [
+        "macos/assets/icons/orange-hacker-cat-chroma.png",
+        "macos/assets/icons/orange-hacker-cat-cutout.png",
+        "macos/assets/icons/orange-hacker-cat-256.png",
+        "macos/assets/icons/orange-hacker-cat-128.png",
+        "macos/assets/icons/orange-hacker-cat-64.png"
+      ],
+      "requiredAction": "Use only as a contained sidebar badge and retain this provenance note in public copy."
+    },
+    {
+      "path": "macos/assets/icons/table-flip-cat-left-sprite.webp",
+      "role": "manual table-flip interaction",
+      "status": "approved-source",
+      "provenance": "Project-specific 2D orange-cat table-flip animation asset produced and locally regenerated during the Dream Skin workflow; transparent GIF, WebP, poster, and sprite variants were generated for runtime testing.",
+      "variants": [
+        "macos/assets/icons/table-flip-trigger-angry.svg",
+        "macos/assets/icons/table-flip-cat-left.gif",
+        "macos/assets/icons/table-flip-cat-left.webp",
+        "macos/assets/icons/table-flip-cat-left-poster.png",
+        "macos/assets/icons/table-flip-cat-left-sprite.png",
+        "macos/assets/icons/table-flip-cat-left-sprite.webp"
+      ],
+      "requiredAction": "Use generic table-flip wording; do not reference external meme names or third-party artwork in public copy."
+    }
+  ],
+  "conditionalSources": [
+    {
+      "path": "internal-evidence/full-interface-screenshot.png",
+      "role": "strongest full-interface screenshot source",
+      "status": "conditional",
+      "risk": "Contains a personal account name, private task names, development conversation text, and local artifact names.",
+      "requiredAction": "Capture a staged demo project or redact all private content before publication."
+    },
+    {
+      "path": "internal-evidence/wide-interface-screenshot.png",
+      "role": "wide interface screenshot source",
+      "status": "conditional",
+      "risk": "Contains live development content and identity markers.",
+      "requiredAction": "Use only after a clean-room recapture or complete sanitization."
+    },
+    {
+      "path": "internal-evidence/left-navigation-character-screenshot.png",
+      "role": "left navigation and character detail source",
+      "status": "conditional",
+      "risk": "Contains live task labels and account identity.",
+      "requiredAction": "Crop to the designed module and replace private labels with a demo fixture."
+    },
+    {
+      "path": "internal-evidence/right-environment-panel-screenshot.png",
+      "role": "right environment panel detail source",
+      "status": "conditional",
+      "risk": "Contains local screenshot names and live workspace content.",
+      "requiredAction": "Recapture the panel using neutral sample source names."
+    }
+  ],
+  "excludedSources": [
+    {
+      "path": "macos/assets/backgrounds/*cyberpunk-orange-cat.png",
+      "role": "legacy background",
+      "status": "exclude",
+      "reason": "Legacy reference-only experiment with third-party branded wording in the original prompt."
+    },
+    {
+      "path": "internal-evidence/flicker-defect-recording.mov",
+      "role": "flicker defect recording",
+      "status": "exclude",
+      "reason": "This is regression evidence, not a stable product demo."
+    },
+    {
+      "path": "internal-reference/keyboard-search-reference-01.png",
+      "role": "third-party keyboard search reference",
+      "status": "exclude",
+      "reason": "Contains third-party product imagery, brands, and search results."
+    },
+    {
+      "path": "internal-reference/keyboard-search-reference-02.png",
+      "role": "third-party keyboard search reference",
+      "status": "exclude",
+      "reason": "Contains third-party product imagery, brands, and search results."
+    },
+    {
+      "path": "internal-reference/keyboard-search-reference-03.png",
+      "role": "third-party keyboard search reference",
+      "status": "exclude",
+      "reason": "Contains third-party product imagery, brands, and search results."
+    },
+    {
+      "path": "internal-reference/mecha-product-reference.png",
+      "role": "third-party mecha reference",
+      "status": "exclude",
+      "reason": "Contains a third-party branded product image used only for design-language reference."
+    }
+  ],
+  "submissionVisuals": [
+    {
+      "id": "cover",
+      "status": "clean-frame-ready",
+      "sourcePlan": "Use the approved contrast-city background and the original Image2-generated cyber-mecha cat hero.",
+      "evidence": "submission/demo/storyboard-frames.html"
+    },
+    {
+      "id": "native-vs-themed",
+      "status": "clean-mock-frame-ready-live-capture-pending",
+      "sourcePlan": "Use the clean storyboard comparison for public explanation and capture live Codex only from a neutral demo workspace.",
+      "evidence": "submission/demo/storyboard-frames.html"
+    },
+    {
+      "id": "full-interface",
+      "status": "recording-pending",
+      "sourcePlan": "Recapture the final composition with neutral tasks, neutral files, and no personal identity.",
+      "evidence": "submission/demo/demo-timeline.json"
+    },
+    {
+      "id": "workflow-architecture",
+      "status": "clean-frame-ready",
+      "sourcePlan": "Render the existing unified state machine and runtime module boundaries as a competition diagram.",
+      "evidence": "submission/demo/storyboard-frames.html"
+    },
+    {
+      "id": "performance-restore-safety",
+      "status": "clean-frame-ready",
+      "sourcePlan": "Visualize payload budget, WebP reduction, static cache behavior, manual animation lifecycle, and restore gate.",
+      "evidence": "submission/demo/storyboard-frames.html"
+    }
+  ],
+  "publicPackage": {
+    "status": "local-package-ready",
+    "manifest": "submission/public-package-manifest.json",
+    "credits": "CREDITS.md",
+    "notice": "NOTICE.md",
+    "license": "LICENSE",
+    "checklist": "submission/submission-checklist.md"
+  },
+  "stageGate": {
+    "passed": true,
+    "nextStage": "stage-5-devpost-submit-ready",
+    "blockingIssues": []
+  }
+}

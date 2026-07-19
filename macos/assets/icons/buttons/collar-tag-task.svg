@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="collar tag task icon">
+  <path d="M6 9.5c5.7-3.4 14.3-3.4 20 0" fill="none" stroke="#00c8f8" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M11.5 13.5 16 9.7l4.5 3.8v8.7L16 27l-4.5-4.8v-8.7Z" fill="#11161b" stroke="#f2a23a" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M14 18h4M16 16v4" stroke="#19e6a3" stroke-width="1.8" stroke-linecap="round"/>
+  <circle cx="16" cy="13.2" r="1.2" fill="#ff5a45"/>
+</svg>

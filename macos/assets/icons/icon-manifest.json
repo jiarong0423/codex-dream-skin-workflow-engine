@@ -1,0 +1,90 @@
+{
+  "orangeHackerCat": {
+    "role": "sidebar badge",
+    "style": "cute hacker cat with cyberpunk jacket, cyan/magenta/amber accents",
+    "source": "icons/orange-hacker-cat-chroma.png",
+    "cutout": "icons/orange-hacker-cat-cutout.png",
+    "variants": {
+      "256": "icons/orange-hacker-cat-256.png",
+      "128": "icons/orange-hacker-cat-128.png",
+      "64": "icons/orange-hacker-cat-64.png"
+    },
+    "sha256": {
+      "source": "b7778e7d07cf744fdfbe63761a83c613e6af0506dacbe8fc7faa8b1df4ede3d0",
+      "cutout": "32902f3c134cc5a722ffdd64d9c5467a5dc36a5353b1e04a24ff8a3f3d26526c",
+      "256": "31a76416491a9d146e95cdf6ef7f12fd02a0c4423a15a8410ca4ec9d669cfc88",
+      "128": "a1d80c3123c668c8dab315efe736fb0029752de455309e915befe3a9a342056c",
+      "64": "aca1cceafc57adc1904e0fbee0c271d4de7c45cc437a6c5b1247bbe5e6eb0029"
+    },
+    "notes": [
+      "Generated from the user's orange hacker cat reference as a new clean asset.",
+      "Chroma-key source used flat green background, then local alpha cutout was created.",
+      "Use as a contained sidebar badge only; do not use as a full workspace wallpaper or button sticker."
+    ]
+  },
+  "sidebarHeroCharacter": {
+    "role": "large sidebar-adjacent foreground character",
+    "style": "male helmeted cyber mecha cat warrior with glossy black, red, and gold armor",
+    "source": "icons/cyber-mecha-cat-male-helmet-chroma.png",
+    "cutout": "icons/cyber-mecha-cat-male-helmet-cutout.png",
+    "runtime": "icons/cyber-mecha-cat-male-helmet-900.png",
+    "placement": "sidebar-hero",
+    "sha256": {
+      "source": "dc5150e1d6409cc23a2361097a80d194c56e7b5c13e6f0589a9edf78c68d3bac",
+      "cutout": "76c9e2a4280132f7091fb0dfe0add57341923c746b91382cd34affd4c75bd5e3",
+      "runtime": "ceefc3a01f7539f222f00f23011611d9c3a3034e13507d7288ffeaf129336da5"
+    },
+    "notes": [
+      "Original character generated with Image2 from the user's prompt; no third-party character image was copied into this asset.",
+      "Selected from the generated character variants after user review.",
+      "Chroma-key source used flat green background, then local alpha cutout was created.",
+      "Use as an opaque body-level foreground layer to the right of the sidebar, not behind navigation text."
+    ]
+  },
+  "generatedCharacterAlternates": {
+    "role": "approved alternate original cyber cat character family",
+    "provenance": "Generated with Image2 during the project design workflow.",
+    "status": "approved-source",
+    "files": [
+      "icons/cyber-robot-orange-cat-chroma.png",
+      "icons/cyber-robot-orange-cat-cutout.png",
+      "icons/cyber-robot-orange-cat-512.png",
+      "icons/cyber-robot-orange-cat-768.png"
+    ],
+    "notes": [
+      "These are generated alternates, not third-party reference images.",
+      "Select variants by composition and runtime size; do not place every variant in the same interface."
+    ]
+  },
+  "buttonGlyphs": {
+    "role": "abstract cat-mecha UI button glyph set",
+    "style": "transparent SVG icons using cat-adjacent symbols, not repeated cat-face stickers",
+    "guardrail": "Do not paste the orange cat badge or hero character onto every button. Use only abstract glyphs for buttons.",
+    "preview": "icons/buttons/button-glyphs-preview.svg",
+    "modulePreview": "../../previews/sidebar-navigation-test.html",
+    "actionMap": "icons/button-action-map.json",
+    "set": {
+      "search": "icons/buttons/cat-eye-search.svg",
+      "newTask": "icons/buttons/cat-paw-new-task.svg",
+      "back": "icons/buttons/cat-tail-back.svg",
+      "forward": "icons/buttons/cat-tail-forward.svg",
+      "stop": "icons/buttons/claw-stop.svg",
+      "settings": "icons/buttons/mecha-ear-settings.svg",
+      "project": "icons/buttons/neko-chip-project.svg",
+      "send": "icons/buttons/whisker-send.svg",
+      "tagTask": "icons/buttons/collar-tag-task.svg",
+      "files": "icons/buttons/fishbone-files.svg",
+      "thread": "icons/buttons/yarn-thread.svg",
+      "clean": "icons/buttons/litter-scoop-clean.svg",
+      "run": "icons/buttons/food-bowl-run.svg",
+      "package": "icons/buttons/cat-can-package.svg",
+      "spark": "icons/buttons/teaser-wand-spark.svg"
+    },
+    "notes": [
+      "Transparent by construction because every asset is SVG with no background rectangle.",
+      "Uses a shared cyberpunk palette: cyan, green, magenta, gold-orange, and black titanium.",
+      "Pet-supply motifs are allowed when they stay abstract and button-readable: collar tag, fishbone, yarn, scoop, bowl, can, and teaser wand.",
+      "Button replacement remains opt-in; these assets are packaged first and not automatically applied to the live Codex UI."
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+1
+00:00:00,200 --> 00:00:03,700
+Developers spend hours inside the same work surface.
+
+2
+00:00:04,220 --> 00:00:11,240
+Most themes are either too limited, or they cover the workspace,
+break layout, and add background overhead.
+
+3
+00:00:12,520 --> 00:00:19,300
+Codex Dream Skin makes Codex personal without sacrificing
+readability, stability, or control.
+
+4
+00:00:20,200 --> 00:00:22,060
+The workflow starts with a visual brief.
+
+5
+00:00:23,100 --> 00:00:34,450
+Codex and GPT-5.6 organize color, backgrounds,
+original Image2 mecha-cat variants, semantic icons, and animation.
+
+6
+00:00:35,320 --> 00:00:42,500
+Every item has a role, version, release status,
+and publication boundary.
+
+7
+00:00:43,480 --> 00:00:45,920
+This is not a static wallpaper.
+
+8
+00:00:46,280 --> 00:00:52,860
+The theme is split into independent background, character,
+glass-surface, button, and interaction modules.
+
+9
+00:00:53,580 --> 00:01:04,300
+Tests and payload budgets run first. Then a local CDP one-shot
+applies modules without patching the official app.
+
+10
+00:01:05,200 --> 00:01:08,420
+After activation, native functions remain intact.
+
+11
+00:01:09,270 --> 00:01:13,980
+The left navigation uses dimensional,
+semantic cat-inspired icons.
+
+12
+00:01:14,740 --> 00:01:18,200
+The background preserves a readable work-safe area.
