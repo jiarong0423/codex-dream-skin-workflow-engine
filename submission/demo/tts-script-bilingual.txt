@@ -1,0 +1,79 @@
+CODEX DREAM SKIN - BUILD WEEK DEMO
+Target duration: 2 minutes 50 seconds
+Recommended delivery: English voice with Simplified Chinese subtitles using Taiwan-neutral terminology
+Alternate delivery: Simplified Chinese voice with English subtitles
+Do not read both languages in the same final video.
+
+TTS VOICE DIRECTION
+
+Calm, precise, confident product-demo narration. Modern technical tone without dramatic acting. Medium pace, clear pronunciation, and short natural pauses between paragraphs. Do not read section titles, timestamps, file paths, or text inside brackets. Pronounce Codex as "code-ex", CDP as separate letters, WebP as "web pee", and GPT-5.6 as "G P T five point six".
+
+----------------------------------------------------------------
+SEGMENT 1 | 00:00-00:17 | PROBLEM
+----------------------------------------------------------------
+
+[ZH-HANS]
+开发者每天长时间使用同一套工作介面，但一般主题不是太单调，就是直接覆盖工作区、破坏排版，甚至增加背景程序负载。Codex Dream Skin 要解决的，是如何安全地个人化 Codex，而不牺牲可读性与稳定性。
+
+[EN]
+Developers spend hours inside the same work surface. Most themes are either too limited, or they cover the workspace, break layout, and add background overhead. Codex Dream Skin makes Codex personal without sacrificing readability, stability, or control.
+
+----------------------------------------------------------------
+SEGMENT 2 | 00:17-00:38 | VISUAL BRIEF AND ASSETS
+----------------------------------------------------------------
+
+[ZH-HANS]
+流程从一个视觉需求开始。Codex 与 GPT-5.6 把配色、背景、原创 Image2 机甲猫、功能图示与动画，整理成可追踪的素材库。每项素材都有用途、版本、参赛状态与公开边界。
+
+[EN]
+The workflow starts with a visual brief. Codex and GPT-5.6 organize color, backgrounds, original Image2 mecha-cat variants, semantic icons, and animation into a traceable asset library. Every item has a role, version, release status, and publication boundary.
+
+----------------------------------------------------------------
+SEGMENT 3 | 00:38-01:03 | STRUCTURED ENGINE
+----------------------------------------------------------------
+
+[ZH-HANS]
+这不是一张静态桌布。主题被拆成背景、角色、玻璃介面、按钮与互动动画等独立模组。系统先执行测试与资源预算检查，再透过本机 CDP 单次套用，不修改官方应用程序，也能随时完整还原。
+
+[EN]
+This is not a static wallpaper. The theme is split into independent background, character, glass-surface, button, and interaction modules. Tests and payload budgets run first, then a local CDP one-shot applies the selected modules without patching the official app, with a complete restore path.
+
+----------------------------------------------------------------
+SEGMENT 4 | 01:03-01:38 | LIVE INTERACTION
+----------------------------------------------------------------
+
+[ZH-HANS]
+套用后，原生功能仍然保留。左侧导览使用立体、语意化的猫系图示；背景维持清楚的工作安全区；输入框与右侧面板只增加局部玻璃层。当大型面板或文字进入角色范围，机甲猫会自动退让，关闭后再回到原位。右下角的翻桌动画只在手动点击时载入，播放完成便释放。
+
+[EN]
+After activation, native functions remain intact. The left navigation uses dimensional, semantic cat-inspired icons. The background preserves a readable work-safe area, while the composer and right panel receive only scoped glass treatment. When a large panel or text enters the character zone, the mecha cat retreats and returns after the space clears. The table-flip animation loads only on a manual click and releases after playback.
+
+----------------------------------------------------------------
+SEGMENT 5 | 01:38-02:02 | PERFORMANCE AND SAFETY
+----------------------------------------------------------------
+
+[ZH-HANS]
+轻量化是设计的一部分。执行背景从二点三 MB 的 PNG 压缩成四百二十四 KB 的 WebP。素材依群组内容指纹快取，没有变更就不重送。闲置状态不保留动画节点，也不使用逐格 JavaScript 轮询。
+
+[EN]
+Lightweight operation is part of the design. The runtime background drops from a two-point-three megabyte PNG to a four-hundred-twenty-four kilobyte WebP. Asset groups use content-hash caching, so unchanged data is not resent. Idle mode keeps no animation node and runs no per-frame JavaScript loop.
+
+----------------------------------------------------------------
+SEGMENT 6 | 02:02-02:30 | CODEX AND GPT-5.6
+----------------------------------------------------------------
+
+[ZH-HANS]
+Codex 与 GPT-5.6 不只产生程序码。它们分析截图与屏幕录影、定位黑底与闪烁的图层问题、把大型注入器重构成小模组，并建立测试矩阵、还原机制与开发证据。设计、除错、验证与打包因此成为同一条可重复工作流。
+
+[EN]
+Codex and GPT-5.6 do more than generate code. They analyze screenshots and recordings, locate black-layer and flicker defects, refactor a large injector into small modules, and maintain a test matrix, restore mechanism, and development evidence. Design, debugging, verification, and packaging become one repeatable workflow.
+
+----------------------------------------------------------------
+SEGMENT 7 | 02:30-02:50 | RESTORE AND PROMISE
+----------------------------------------------------------------
+
+[ZH-HANS]
+最后，一个还原指令就能移除主题，官方 Codex 档案保持不变。这只机甲猫只是第一个范例。Codex Dream Skin 的真正产品，是让每位开发者都能用结构化流程，建立安全、可测试、低负载，而且属于自己的 Codex 工作介面。
+
+[EN]
+Finally, one restore command removes the theme while official Codex files remain unchanged. This mecha cat is only the first example. The real product is a structured way for every developer to build a safe, testable, lightweight Codex workspace of their own.

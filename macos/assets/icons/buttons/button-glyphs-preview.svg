@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 560" role="img" aria-label="cat mecha button glyph preview sheet">
+  <rect width="980" height="560" rx="18" fill="#070a0d"/>
+  <text x="32" y="48" fill="#f4f7fb" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">Cat Mecha Button Glyphs</text>
+  <text x="32" y="76" fill="#9fb4c7" font-family="Inter, Arial, sans-serif" font-size="14">Abstract cat and pet-supply symbols. The orange cat badge is not reused on buttons.</text>
+  <g fill="#10161c" stroke="#22303a" stroke-width="1.2">
+    <rect x="32" y="112" width="164" height="110" rx="10"/>
+    <rect x="212" y="112" width="164" height="110" rx="10"/>
+    <rect x="392" y="112" width="164" height="110" rx="10"/>
+    <rect x="572" y="112" width="164" height="110" rx="10"/>
+    <rect x="752" y="112" width="164" height="110" rx="10"/>
+    <rect x="32" y="240" width="164" height="110" rx="10"/>
+    <rect x="212" y="240" width="164" height="110" rx="10"/>
+    <rect x="392" y="240" width="164" height="110" rx="10"/>
+    <rect x="572" y="240" width="164" height="110" rx="10"/>
+    <rect x="752" y="240" width="164" height="110" rx="10"/>
+    <rect x="32" y="368" width="164" height="110" rx="10"/>
+    <rect x="212" y="368" width="164" height="110" rx="10"/>
+    <rect x="392" y="368" width="164" height="110" rx="10"/>
+    <rect x="572" y="368" width="164" height="110" rx="10"/>
+    <rect x="752" y="368" width="164" height="110" rx="10"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-size="13" fill="#d9e8f5" text-anchor="middle">
+    <image href="cat-eye-search.svg" x="88" y="126" width="52" height="52"/>
+    <text x="114" y="197">search</text>
+    <image href="cat-paw-new-task.svg" x="268" y="126" width="52" height="52"/>
+    <text x="294" y="197">new task</text>
+    <image href="cat-tail-back.svg" x="448" y="126" width="52" height="52"/>
+    <text x="474" y="197">back</text>
+    <image href="cat-tail-forward.svg" x="628" y="126" width="52" height="52"/>
+    <text x="654" y="197">forward</text>
+    <image href="claw-stop.svg" x="808" y="126" width="52" height="52"/>
+    <text x="834" y="197">stop</text>
+    <image href="mecha-ear-settings.svg" x="88" y="254" width="52" height="52"/>
+    <text x="114" y="325">settings</text>
+    <image href="neko-chip-project.svg" x="268" y="254" width="52" height="52"/>
+    <text x="294" y="325">project</text>
+    <image href="whisker-send.svg" x="448" y="254" width="52" height="52"/>
+    <text x="474" y="325">send</text>
+    <image href="collar-tag-task.svg" x="628" y="254" width="52" height="52"/>
+    <text x="654" y="325">tag task</text>
+    <image href="fishbone-files.svg" x="808" y="254" width="52" height="52"/>
+    <text x="834" y="325">files</text>
+    <image href="yarn-thread.svg" x="88" y="382" width="52" height="52"/>
+    <text x="114" y="453">thread</text>
+    <image href="litter-scoop-clean.svg" x="268" y="382" width="52" height="52"/>
+    <text x="294" y="453">clean</text>
+    <image href="food-bowl-run.svg" x="448" y="382" width="52" height="52"/>
+    <text x="474" y="453">run</text>
+    <image href="cat-can-package.svg" x="628" y="382" width="52" height="52"/>
+    <text x="654" y="453">package</text>
+    <image href="teaser-wand-spark.svg" x="808" y="382" width="52" height="52"/>
+    <text x="834" y="453">spark</text>
+  </g>
+  <g fill="none" stroke-width="2" opacity="0.65">
+    <path d="M32 94h884" stroke="#00c8f8"/>
+    <path d="M32 500h884" stroke="#f2a23a"/>
+  </g>
+</svg>

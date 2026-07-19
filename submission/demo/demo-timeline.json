@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "title": "Codex Dream Skin - Build Week Demo",
+  "targetDurationSeconds": 170,
+  "recommendedAudio": "English TTS with Simplified Chinese subtitles using Taiwan-neutral terminology",
+  "audio": {
+    "publicVideo": "https://youtu.be/5viFZCJ57TQ",
+    "localVoiceoverSource": "not packaged in the public repository",
+    "localNormalizedEditAudio": "not packaged in the public repository",
+    "durationSeconds": 165.624,
+    "sourceFormat": "MP3 24 kHz mono 128 kbps",
+    "normalizedFormat": "WAV 48 kHz mono PCM",
+    "normalizedIntegratedLufs": -16.2,
+    "normalizedTruePeakDbtp": -1.5
+  },
+  "automation": {
+    "mode": "local-cdp-pointer-events",
+    "reason": "Computer Use is not allowed to control the Codex app directly.",
+    "requiredDebugPort": 9341,
+    "requiresSingleControlledRelaunch": true
+  },
+  "recordingRule": "Run one silent mouse rehearsal before the user starts screen recording.",
+  "segments": [
+    {
+      "id": "problem",
+      "start": "00:00",
+      "end": "00:17",
+      "screen": "Competition cover followed by a clean native-versus-themed comparison.",
+      "mouseActions": [
+        "Hold the cover for three seconds.",
+        "Advance to the native-versus-themed comparison.",
+        "Use only the neutral demo workspace."
+      ],
+      "validation": "Both states use the same neutral demo workspace and crop."
+    },
+    {
+      "id": "assets",
+      "start": "00:17",
+      "end": "00:38",
+      "screen": "Local asset library.",
+      "mouseActions": [
+        "Select Image2 character category.",
+        "Select the original-usable status filter.",
+        "Open the active mecha-cat variant preview.",
+        "Close the preview and return to the library grid."
+      ],
+      "validation": "The library shows seven Image2 character variants and no broken images."
+    },
+    {
+      "id": "engine",
+      "start": "00:38",
+      "end": "01:03",
+      "screen": "Workflow architecture visual followed by a prepared terminal gate result.",
+      "mouseActions": [
+        "Advance to the workflow architecture visual.",
+        "Switch to the prepared terminal window.",
+        "Run the staged runtime gate command with one Return key action.",
+        "Pause on the passing module budgets."
+      ],
+      "validation": "Runtime tests and module budgets pass before activation."
+    },
+    {
+      "id": "live-interaction",
+      "start": "01:03",
+      "end": "01:38",
+      "screen": "Clean live Codex demo workspace with the theme active.",
+      "mouseActions": [
+        "Move across the left navigation icons without opening personal workspace content.",
+        "Focus the composer to show the glass surface without sending text.",
+        "Open the large side panel to trigger character retreat.",
+        "Close the side panel and wait for the character to return.",
+        "Click only the angry trigger icon and wait for the table-flip animation to finish."
+      ],
+      "validation": "Native controls remain clickable, the character retreats and returns, and table-flip playback returns to idle."
+    },
+    {
+      "id": "performance",
+      "start": "01:38",
+      "end": "02:02",
+      "screen": "Performance, cache, and restore evidence visual.",
+      "mouseActions": [
+        "Advance to the optimized asset comparison.",
+        "Highlight PNG 2.33 MB to WebP 424 KB.",
+        "Advance to content-hash cache and idle animation lifecycle evidence."
+      ],
+      "validation": "Only measured project values are shown; no unsupported CPU or RAM percentage claim is used."
+    },
+    {
+      "id": "codex-gpt",
+      "start": "02:02",
+      "end": "02:30",
+      "screen": "Compact development evidence montage.",
+      "mouseActions": [
+        "Advance through screenshot diagnosis, module matrix, and restore evidence.",
+        "Pause on the unified workflow state machine."
+      ],
+      "validation": "The screen explicitly names Codex and GPT-5.6 and shows their role in the workflow."
+    },
+    {
+      "id": "restore",
+      "start": "02:30",
+      "end": "02:50",
+      "screen": "Prepared restore command followed by the final product mark.",
+      "mouseActions": [
+        "Run the staged restore command with one Return key action.",
+        "Pause on the clean restored state.",
+        "Advance to the final Codex Dream Skin product frame."
+      ],
+      "validation": "Restore completes without changing official Codex application files."
+    }
+  ],
+  "recordingSafety": [
+    "Use a neutral demo task with no private finance, client, account, or local-path content.",
+    "Disable desktop notifications before recording.",
+    "Do not send prompts or create external side effects during the mouse sequence.",
+    "Keep the TTS audio separate during capture and merge it in post-production.",
+    "Stop and restart the take if any private content or unexpected dialog appears."
+  ]
+}

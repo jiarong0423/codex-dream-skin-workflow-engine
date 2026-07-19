@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Dream Skin 素材庫</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070b0d;
+      --surface: #10171b;
+      --surface-raised: #151e23;
+      --line: #2b3c43;
+      --text: #f2f6f7;
+      --muted: #9aa8ad;
+      --cyan: #28d8e8;
+      --green: #42dc8b;
+      --gold: #f2aa3a;
+      --magenta: #ed4b9a;
+      --red: #ff6670;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    select,
+    a {
+      font: inherit;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7, 11, 13, 0.94);
+      backdrop-filter: blur(14px);
+    }
+
+    .topbar-inner,
+    main {
+      width: min(1480px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .topbar-inner {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) auto;
+      gap: 24px;
+      align-items: center;
+      min-height: 76px;
+      padding: 12px 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 750;
+    }
+
+    .summary {
+      display: flex;
+      gap: 14px;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .summary strong {
+      color: var(--text);
+      font-weight: 650;
+    }
+
+    .filters {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .segments {
+      display: inline-grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #0b1114;
+    }
+
+    .segments button {
+      min-height: 34px;
+      padding: 0 12px;
+      border: 0;
+      border-radius: 5px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .segments button[aria-pressed="true"] {
+      background: var(--surface-raised);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px #37515b;
+    }
+
+    select {
+      min-height: 40px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 34px 0 12px;
+      background: #0b1114;
+      color: var(--text);
+    }
+
+    main {
+      padding: 28px 0 72px;
+    }
+
+    .section {
+      margin-bottom: 38px;
+    }
+
+    .section-heading {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.3;
+    }
+
+    .count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 14px;
+    }
+
+    .asset {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 140ms ease, transform 140ms ease, background 140ms ease;
+    }
+
+    .asset:hover {
+      transform: translateY(-2px);
+      border-color: #4c6973;
+      background: var(--surface-raised);
+    }
+
+    .asset:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+
+    .asset-preview {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background-color: #d9e0e3;
+      background-image:
+        linear-gradient(45deg, #c8d0d4 25%, transparent 25%),
+        linear-gradient(-45deg, #c8d0d4 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #c8d0d4 75%),
+        linear-gradient(-45deg, transparent 75%, #c8d0d4 75%);
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    }
+
+    .asset[data-category="background"] .asset-preview {
+      background: #05090b;
+    }
+
+    .asset-preview img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .asset[data-category="background"] .asset-preview img {
+      object-fit: cover;
+    }
+
+    .asset-meta {
+      padding: 12px;
+    }
+
+    .asset-title {
+      margin: 0 0 8px;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 650;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .asset-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .status::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      content: "";
+    }
+
+    .status-approved {
+      color: var(--green);
+    }
+
+    .status-conditional {
+      color: var(--gold);
+    }
+
+    .status-exclude {
+      color: var(--red);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty {
+      padding: 60px 20px;
+      border: 1px dashed var(--line);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    dialog {
+      width: min(1180px, calc(100vw - 36px));
+      max-height: calc(100vh - 36px);
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid #45616b;
+      border-radius: 8px;
+      background: #090e11;
+      color: var(--text);
+      box-shadow: 0 22px 80px rgba(0, 0, 0, 0.62);
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.76);
+      backdrop-filter: blur(5px);
+    }
+
+    .viewer-bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 58px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .viewer-title {
+      overflow: hidden;
+      font-size: 14px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .viewer-link,
+    .viewer-close {
+      display: inline-grid;
+      place-items: center;
+      min-height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .viewer-link {
+      padding: 0 12px;
+    }
+
+    .viewer-close {
+      width: 36px;
+      padding: 0;
+      font-size: 22px;
+    }
+
+    .viewer-stage {
+      display: grid;
+      place-items: center;
+      height: min(760px, calc(100vh - 116px));
+      padding: 24px;
+      overflow: auto;
+      background-color: #d9e0e3;
+      background-image:
+        linear-gradient(45deg, #c8d0d4 25%, transparent 25%),
+        linear-gradient(-45deg, #c8d0d4 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #c8d0d4 75%),
+        linear-gradient(-45deg, transparent 75%, #c8d0d4 75%);
+      background-size: 30px 30px;
+      background-position: 0 0, 0 15px, 15px -15px, -15px 0;
+    }
+
+    .viewer-stage img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    @media (max-width: 840px) {
+      .topbar-inner {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 14px 0;
+      }
+
+      .filters {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .segments {
+        overflow-x: auto;
+      }
+
+      .segments button {
+        white-space: nowrap;
+      }
+
+      .grid {
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .topbar-inner,
+      main {
+        width: min(100% - 20px, 1480px);
+      }
+
+      .summary {
+        flex-wrap: wrap;
+      }
+
+      .grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .asset-preview {
+        height: 170px;
+      }
+
+      .asset-meta {
+        padding: 10px;
+      }
+
+      .viewer-link {
+        display: none;
+      }
+
+      .viewer-bar {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div>
+        <h1>Codex Dream Skin 素材庫</h1>
+        <div class="summary" id="summary"></div>
+      </div>
+      <div class="filters">
+        <div class="segments" aria-label="參賽狀態">
+          <button type="button" data-status-filter="all" aria-pressed="true">全部</button>
+          <button type="button" data-status-filter="approved" aria-pressed="false">原創可用</button>
+          <button type="button" data-status-filter="conditional" aria-pressed="false">待處理</button>
+          <button type="button" data-status-filter="exclude" aria-pressed="false">不公開</button>
+        </div>
+        <select id="categoryFilter" aria-label="素材類別">
+          <option value="all">所有類別</option>
+          <option value="background">背景</option>
+          <option value="character">Image2 角色</option>
+          <option value="mascot">橘貓徽章</option>
+          <option value="animation">翻桌動畫</option>
+          <option value="icon">功能圖示</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main id="library"></main>
+
+  <dialog id="viewer">
+    <div class="viewer-bar">
+      <div class="viewer-title" id="viewerTitle"></div>
+      <a class="viewer-link" id="viewerLink" target="_blank" rel="noreferrer">開啟原檔</a>
+      <button class="viewer-close" id="viewerClose" type="button" aria-label="關閉">×</button>
+    </div>
+    <div class="viewer-stage">
+      <img id="viewerImage" alt="">
+    </div>
+  </dialog>
+
+  <script>
+    const base = "../macos/assets/";
+    const assets = [
+      { category: "background", status: "approved", file: "backgrounds/cyberpunk-contrast-city.png", label: "撞色城市原圖", meta: "1672×941 · PNG · 2.33 MB" },
+      { category: "background", status: "approved", file: "backgrounds/cyberpunk-contrast-city-runtime.webp", label: "撞色城市執行版", meta: "1672×941 · WebP · 424 KB" },
+      { category: "background", status: "approved", file: "backgrounds/cyber-ruins-pale.png", label: "淡色賽博廢墟", meta: "1672×941 · PNG · 2.42 MB" },
+      { category: "background", status: "exclude", file: "", label: "舊版橘貓背景實驗", meta: "不公開 · 本地歷史，不載入預覽" },
+
+      { category: "character", status: "approved", file: "icons/cyber-mecha-cat-male-helmet-chroma.png", label: "機甲貓 · Image2 原始綠幕", meta: "1024×1536 · PNG · 1.86 MB" },
+      { category: "character", status: "approved", file: "icons/cyber-mecha-cat-male-helmet-cutout.png", label: "機甲貓 · 完整去背", meta: "1024×1536 · PNG · 1.11 MB" },
+      { category: "character", status: "approved", file: "icons/cyber-mecha-cat-male-helmet-900.png", label: "機甲貓 · 目前實裝版", meta: "600×900 · PNG · 431 KB" },
+      { category: "character", status: "approved", file: "icons/cyber-robot-orange-cat-chroma.png", label: "機器橘貓 · Image2 原始綠幕", meta: "1254×1254 · PNG · 2.09 MB" },
+      { category: "character", status: "approved", file: "icons/cyber-robot-orange-cat-cutout.png", label: "機器橘貓 · 完整去背", meta: "1254×1254 · PNG · 1.72 MB" },
+      { category: "character", status: "approved", file: "icons/cyber-robot-orange-cat-768.png", label: "機器橘貓 · 768", meta: "768×768 · PNG · 704 KB" },
+      { category: "character", status: "approved", file: "icons/cyber-robot-orange-cat-512.png", label: "機器橘貓 · 512", meta: "512×512 · PNG · 321 KB" },
+
+      { category: "mascot", status: "conditional", file: "icons/orange-hacker-cat-chroma.png", label: "駭客橘貓 · 原始綠幕", meta: "1254×1254 · PNG · 1.82 MB" },
+      { category: "mascot", status: "conditional", file: "icons/orange-hacker-cat-cutout.png", label: "駭客橘貓 · 完整去背", meta: "1254×1254 · PNG · 1.40 MB" },
+      { category: "mascot", status: "conditional", file: "icons/orange-hacker-cat-256.png", label: "駭客橘貓 · 256", meta: "256×256 · PNG · 73 KB" },
+      { category: "mascot", status: "conditional", file: "icons/orange-hacker-cat-128.png", label: "駭客橘貓 · 128", meta: "128×128 · PNG · 21 KB" },
+      { category: "mascot", status: "conditional", file: "icons/orange-hacker-cat-64.png", label: "駭客橘貓 · 64", meta: "64×64 · PNG · 6 KB" },
+
+      { category: "animation", status: "conditional", file: "icons/table-flip-cat-left.gif", label: "翻桌貓 · GIF", meta: "360×250 · GIF · 264 KB" },
+      { category: "animation", status: "conditional", file: "icons/table-flip-cat-left.webp", label: "翻桌貓 · 動態 WebP", meta: "360×250 · WebP · 533 KB" },
+      { category: "animation", status: "conditional", file: "icons/table-flip-cat-left-sprite.webp", label: "翻桌貓 · 執行用 Sprite", meta: "2880×250 · WebP · 151 KB" },
+      { category: "animation", status: "conditional", file: "icons/table-flip-cat-left-poster.png", label: "翻桌貓 · 起始影格", meta: "360×250 · PNG · 94 KB" },
+      { category: "animation", status: "conditional", file: "icons/table-flip-cat-left-black-preview.png", label: "翻桌貓 · 黑底影格表", meta: "1800×250 · PNG · 463 KB" },
+      { category: "animation", status: "conditional", file: "icons/table-flip-trigger-angry.svg", label: "翻桌觸發按鈕", meta: "SVG · 手動觸發" },
+
+      { category: "icon", status: "approved", file: "icons/buttons/button-glyphs-preview.svg", label: "功能圖示 · 總覽", meta: "SVG · 15 個語意圖示" },
+      { category: "icon", status: "approved", file: "icons/buttons/cat-eye-search.svg", label: "搜尋 · 貓眼", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/cat-paw-new-task.svg", label: "新增任務 · 貓掌", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/cat-tail-back.svg", label: "返回 · 貓尾", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/cat-tail-forward.svg", label: "前進 · 貓尾", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/claw-stop.svg", label: "停止 · 貓爪", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/mecha-ear-settings.svg", label: "設定 · 機甲耳", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/neko-chip-project.svg", label: "專案 · 貓晶片", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/whisker-send.svg", label: "送出 · 貓鬚", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/collar-tag-task.svg", label: "任務 · 項圈牌", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/fishbone-files.svg", label: "檔案 · 魚骨", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/yarn-thread.svg", label: "對話 · 毛線球", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/litter-scoop-clean.svg", label: "清理 · 貓砂鏟", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/food-bowl-run.svg", label: "執行 · 食物碗", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/cat-can-package.svg", label: "打包 · 貓罐頭", meta: "SVG" },
+      { category: "icon", status: "approved", file: "icons/buttons/teaser-wand-spark.svg", label: "特效 · 逗貓棒", meta: "SVG" }
+    ];
+
+    const categoryNames = {
+      background: "背景",
+      character: "Image2 原創角色",
+      mascot: "橘貓徽章",
+      animation: "翻桌動畫",
+      icon: "功能圖示"
+    };
+
+    const statusNames = {
+      approved: "原創可用",
+      conditional: "待處理",
+      exclude: "不公開"
+    };
+
+    const categoryOrder = ["background", "character", "mascot", "animation", "icon"];
+    const library = document.querySelector("#library");
+    const summary = document.querySelector("#summary");
+    const categoryFilter = document.querySelector("#categoryFilter");
+    const statusButtons = [...document.querySelectorAll("[data-status-filter]")];
+    const viewer = document.querySelector("#viewer");
+    const viewerImage = document.querySelector("#viewerImage");
+    const viewerTitle = document.querySelector("#viewerTitle");
+    const viewerLink = document.querySelector("#viewerLink");
+    const viewerClose = document.querySelector("#viewerClose");
+
+    let activeStatus = "all";
+
+    function assetUrl(asset) {
+      if (!asset.file) return "";
+      return base + asset.file;
+    }
+
+    function cardMarkup(asset) {
+      const url = assetUrl(asset);
+      const preview = url
+        ? `<img src="${url}" alt="${asset.label}" loading="lazy">`
+        : `<div class="empty">Excluded from public package</div>`;
+      return `
+        <article class="asset" tabindex="0" data-category="${asset.category}" data-status="${asset.status}" data-file="${url}" data-label="${asset.label}">
+          <div class="asset-preview">
+            ${preview}
+          </div>
+          <div class="asset-meta">
+            <h3 class="asset-title" title="${asset.label}">${asset.label}</h3>
+            <div class="asset-row">
+              <span class="status status-${asset.status}">${statusNames[asset.status]}</span>
+              <span>${asset.meta}</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function render() {
+      const activeCategory = categoryFilter.value;
+      const visible = assets.filter((asset) => {
+        const statusMatch = activeStatus === "all" || asset.status === activeStatus;
+        const categoryMatch = activeCategory === "all" || asset.category === activeCategory;
+        return statusMatch && categoryMatch;
+      });
+
+      library.innerHTML = categoryOrder.map((category) => {
+        const group = visible.filter((asset) => asset.category === category);
+        if (group.length === 0) return "";
+        return `
+          <section class="section" data-section="${category}">
+            <div class="section-heading">
+              <h2>${categoryNames[category]}</h2>
+              <span class="count">${group.length} 項</span>
+            </div>
+            <div class="grid">${group.map(cardMarkup).join("")}</div>
+          </section>
+        `;
+      }).join("");
+
+      if (visible.length === 0) {
+        library.innerHTML = '<div class="empty">目前篩選條件沒有素材</div>';
+      }
+
+      const approvedCount = assets.filter((asset) => asset.status === "approved").length;
+      const conditionalCount = assets.filter((asset) => asset.status === "conditional").length;
+      const excludedCount = assets.filter((asset) => asset.status === "exclude").length;
+      summary.innerHTML = `
+        <span><strong>${assets.length}</strong> 項素材</span>
+        <span><strong>${approvedCount}</strong> 原創可用</span>
+        <span><strong>${conditionalCount}</strong> 待處理</span>
+        <span><strong>${excludedCount}</strong> 不公開</span>
+      `;
+
+      bindCards();
+    }
+
+    function openViewer(card) {
+      const source = card.dataset.file;
+      if (!source) return;
+      const label = card.dataset.label;
+      viewerImage.src = source;
+      viewerImage.alt = label;
+      viewerTitle.textContent = label;
+      viewerLink.href = source;
+      viewer.showModal();
+    }
+
+    function bindCards() {
+      document.querySelectorAll(".asset").forEach((card) => {
+        card.addEventListener("click", () => openViewer(card));
+        card.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openViewer(card);
+          }
+        });
+      });
+    }
+
+    statusButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeStatus = button.dataset.statusFilter;
+        statusButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+        render();
+      });
+    });
+
+    categoryFilter.addEventListener("change", render);
+    viewerClose.addEventListener("click", () => viewer.close());
+    viewer.addEventListener("click", (event) => {
+      if (event.target === viewer) viewer.close();
+    });
+    viewer.addEventListener("close", () => {
+      viewerImage.removeAttribute("src");
+    });
+
+    render();
+  </script>
+</body>
+</html>

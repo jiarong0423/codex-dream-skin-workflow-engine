@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Angry cat trigger icon">
+  <defs>
+    <linearGradient id="faceGradient" x1="48" y1="12" x2="48" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff4f82"/>
+      <stop offset="0.48" stop-color="#ff8d3a"/>
+      <stop offset="1" stop-color="#ffd84a"/>
+    </linearGradient>
+    <linearGradient id="ringGradient" x1="10" y1="16" x2="88" y2="78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff2d86"/>
+      <stop offset="0.42" stop-color="#ff4f42"/>
+      <stop offset="0.72" stop-color="#f5a536"/>
+      <stop offset="1" stop-color="#00e5ff"/>
+    </linearGradient>
+    <filter id="softGlow" x="-28%" y="-28%" width="156%" height="156%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="0" stdDeviation="2.6" flood-color="#00e5ff" flood-opacity="0.46"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="4.2" flood-color="#000000" flood-opacity="0.46"/>
+    </filter>
+  </defs>
+  <circle cx="48" cy="48" r="41" fill="#101318" opacity="0.88"/>
+  <circle cx="48" cy="48" r="37" fill="url(#faceGradient)" stroke="url(#ringGradient)" stroke-width="6" filter="url(#softGlow)"/>
+  <path d="M23 35 L11 21 L28 24 Z" fill="#ff8d3a" stroke="#ff2d86" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M73 35 L85 21 L68 24 Z" fill="#ff8d3a" stroke="#00e5ff" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M14 52 h10" stroke="#00e5ff" stroke-width="3" stroke-linecap="round" opacity="0.72"/>
+  <path d="M72 52 h10" stroke="#ff2d86" stroke-width="3" stroke-linecap="round" opacity="0.72"/>
+  <path d="M28 38 C37 40 42 44 46 49" fill="none" stroke="#151515" stroke-width="8" stroke-linecap="round"/>
+  <path d="M68 38 C59 40 54 44 50 49" fill="none" stroke="#151515" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="35" cy="51" r="7" fill="#141414"/>
+  <circle cx="61" cy="51" r="7" fill="#141414"/>
+  <path d="M32 71 C38 62 58 62 64 71" fill="none" stroke="#141414" stroke-width="8" stroke-linecap="round"/>
+  <path d="M45 9 h6" stroke="#00e5ff" stroke-width="4" stroke-linecap="round"/>
+  <path d="M45 87 h6" stroke="#ff2d86" stroke-width="4" stroke-linecap="round"/>
+  <path d="M87 45 v6" stroke="#f5a536" stroke-width="4" stroke-linecap="round"/>
+  <path d="M9 45 v6" stroke="#00e5ff" stroke-width="4" stroke-linecap="round"/>
+</svg>

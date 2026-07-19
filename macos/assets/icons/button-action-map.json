@@ -1,0 +1,284 @@
+{
+  "version": 1,
+  "runtimeEnabled": false,
+  "currentPreviewModule": "sidebarNavigation",
+  "guardrails": [
+    "Replace one module at a time.",
+    "Keep the full orange cat as a sidebar badge or low-opacity bottom-right character only.",
+    "Use abstract cat, pet-supply, and mecha symbols for buttons.",
+    "Preserve native labels, aria labels, titles, tooltips, and button hit areas.",
+    "Do not enable additional runtime modules before a DOM map and screenshot check."
+  ],
+  "modules": {
+    "sidebarNavigation": {
+      "status": "runtime-wired-off-by-default",
+      "scope": "left sidebar navigation only",
+      "preview": "../../previews/sidebar-navigation-test.html",
+      "actions": {
+        "search": {
+          "glyph": "search",
+          "labels": ["Search", "搜尋"],
+          "asset": "icons/buttons/cat-eye-search.svg",
+          "reason": "cat-eye lens reads as search without using the cat body"
+        },
+        "newTask": {
+          "glyph": "newTask",
+          "labels": ["New Task", "新增任務"],
+          "asset": "icons/buttons/cat-paw-new-task.svg",
+          "reason": "paw plus reads as create/add"
+        },
+        "projects": {
+          "glyph": "project",
+          "labels": ["Projects", "專案"],
+          "asset": "icons/buttons/neko-chip-project.svg",
+          "reason": "neko chip reads as organized project space"
+        },
+        "pullRequests": {
+          "glyph": "files",
+          "labels": ["Pull Request", "Pull Requests"],
+          "asset": "icons/buttons/fishbone-files.svg",
+          "reason": "fishbone file motif reads as review/diff/file flow"
+        },
+        "websites": {
+          "glyph": "spark",
+          "labels": ["Websites", "網站"],
+          "asset": "icons/buttons/teaser-wand-spark.svg",
+          "reason": "teaser wand spark fits site creation"
+        },
+        "scheduled": {
+          "glyph": "tagTask",
+          "labels": ["Scheduled", "已排程"],
+          "asset": "icons/buttons/collar-tag-task.svg",
+          "reason": "collar tag works as a future task marker"
+        },
+        "extensions": {
+          "glyph": "package",
+          "labels": ["Extensions", "外掛程式"],
+          "asset": "icons/buttons/cat-can-package.svg",
+          "reason": "cat can package reads as packaged add-on"
+        }
+      }
+    },
+    "titlebarNavigation": {
+      "status": "runtime-wired-off-by-default",
+      "scope": "visible top-left titlebar back/forward buttons only",
+      "actions": {
+        "back": {
+          "glyph": "back",
+          "labels": ["上一步", "Back", "Go Back"],
+          "asset": "icons/buttons/cat-tail-back.svg",
+          "reason": "tail motion reads as backward navigation without using the cat body"
+        },
+        "forward": {
+          "glyph": "forward",
+          "labels": ["向前", "Forward", "Go Forward"],
+          "asset": "icons/buttons/cat-tail-forward.svg",
+          "reason": "tail motion reads as forward navigation and matches the mecha control rail"
+        }
+      }
+    },
+    "composerControls": {
+      "status": "runtime-wired-off-by-default",
+      "scope": "visible controls inside composer-surface-chrome only",
+      "excludedControls": ["model selector", "dictation", "attachment menu"],
+      "actions": {
+        "run": {
+          "glyph": "run",
+          "labels": ["代我核准", "Run", "Approve"],
+          "asset": "icons/buttons/food-bowl-run.svg",
+          "reason": "food bowl reads as controlled execution without crowding the composer"
+        },
+        "stop": {
+          "glyph": "stop",
+          "labels": ["停止", "停止產生", "Stop", "Stop generating"],
+          "asset": "icons/buttons/claw-stop.svg",
+          "reason": "claw mark reads as stop and keeps the pet/mecha language abstract"
+        },
+        "send": {
+          "glyph": "send",
+          "labels": ["送出", "送出訊息", "Send", "Send message", "Submit"],
+          "asset": "icons/buttons/whisker-send.svg",
+          "reason": "whisker flight line reads as send without using the cat body"
+        }
+      }
+    },
+    "topUtilityActions": {
+      "status": "runtime-wired-off-by-default",
+      "scope": "visible top toolbar and document toolbar buttons only",
+      "excludedControls": ["left sidebar", "composer controls", "message action buttons", "breadcrumb text links"],
+      "actions": {
+        "projectContext": {
+          "glyph": "project",
+          "labels": ["專案：", "Project:"],
+          "asset": "icons/buttons/neko-chip-project.svg",
+          "reason": "project chip matches the workspace selector without using the cat body"
+        },
+        "taskActions": {
+          "glyph": "settings",
+          "labels": ["任務動作", "Task actions"],
+          "asset": "icons/buttons/mecha-ear-settings.svg",
+          "reason": "mecha ear gear reads as task control"
+        },
+        "summaryToggle": {
+          "glyph": "thread",
+          "labels": ["切換摘要", "Toggle summary"],
+          "asset": "icons/buttons/yarn-thread.svg",
+          "reason": "thread symbol fits summary/context panel toggling"
+        },
+        "sideTab": {
+          "glyph": "project",
+          "labels": ["開啟側邊面板分頁", "Open side panel tab"],
+          "asset": "icons/buttons/neko-chip-project.svg",
+          "reason": "chip tab reads as side document surface"
+        },
+        "expandPanel": {
+          "glyph": "spark",
+          "labels": ["展開面板", "Expand panel"],
+          "asset": "icons/buttons/teaser-wand-spark.svg",
+          "reason": "spark reads as expand/reveal without adding visual weight"
+        },
+        "bottomPanel": {
+          "glyph": "tagTask",
+          "labels": ["切換底部面板", "Toggle bottom panel"],
+          "asset": "icons/buttons/collar-tag-task.svg",
+          "reason": "tag marker distinguishes bottom workspace state"
+        },
+        "sidePanel": {
+          "glyph": "files",
+          "labels": ["切換側邊面板", "Toggle side panel"],
+          "asset": "icons/buttons/fishbone-files.svg",
+          "reason": "fishbone/file motif fits side file/resource panel"
+        },
+        "sourceView": {
+          "glyph": "files",
+          "labels": ["查看原始碼", "View source"],
+          "asset": "icons/buttons/fishbone-files.svg",
+          "reason": "fishbone/file motif reads as source inspection"
+        },
+        "fileTree": {
+          "glyph": "thread",
+          "labels": ["切換檔案樹", "Toggle file tree"],
+          "asset": "icons/buttons/yarn-thread.svg",
+          "reason": "thread/tree line reads as file hierarchy"
+        },
+        "openExternal": {
+          "glyph": "package",
+          "labels": ["在 VS Code 中開啟", "Open in VS Code"],
+          "asset": "icons/buttons/cat-can-package.svg",
+          "reason": "package can reads as external app handoff"
+        },
+        "openOptions": {
+          "glyph": "settings",
+          "labels": ["開啟選項", "Open options"],
+          "asset": "icons/buttons/mecha-ear-settings.svg",
+          "reason": "gear-like mecha ear fits menu/options"
+        }
+      }
+    },
+    "messageActions": {
+      "status": "runtime-wired-off-by-default",
+      "scope": "visible message action buttons only",
+      "excludedControls": ["left sidebar", "composer controls", "top toolbar", "right project panel", "message minimap jump rows"],
+      "actions": {
+        "copyMessage": {
+          "glyph": "files",
+          "labels": ["複製訊息", "複製", "Copy message", "Copy"],
+          "asset": "icons/buttons/fishbone-files.svg",
+          "reason": "file/fishbone motif reads as copy without using the cat body"
+        },
+        "goodResponse": {
+          "glyph": "spark",
+          "labels": ["良好回覆", "Good response"],
+          "asset": "icons/buttons/teaser-wand-spark.svg",
+          "reason": "spark reads as positive feedback"
+        },
+        "badResponse": {
+          "glyph": "stop",
+          "labels": ["不佳回覆", "Bad response"],
+          "asset": "icons/buttons/claw-stop.svg",
+          "reason": "claw stop reads as negative feedback"
+        },
+        "continueTask": {
+          "glyph": "tagTask",
+          "labels": ["從此處繼續到新工作", "Continue from here in new task"],
+          "asset": "icons/buttons/collar-tag-task.svg",
+          "reason": "collar tag reads as a new task marker"
+        },
+        "guide": {
+          "glyph": "thread",
+          "labels": ["引導", "Guide"],
+          "asset": "icons/buttons/yarn-thread.svg",
+          "reason": "thread motif fits guided continuation"
+        },
+        "deleteAction": {
+          "glyph": "clean",
+          "labels": ["刪除", "Delete"],
+          "asset": "icons/buttons/litter-scoop-clean.svg",
+          "reason": "cleanup scoop reads as delete without being harsh"
+        },
+        "moreActions": {
+          "glyph": "settings",
+          "labels": ["更多", "More actions", "More"],
+          "asset": "icons/buttons/mecha-ear-settings.svg",
+          "reason": "mecha gear fits additional actions"
+        },
+        "scrollBottom": {
+          "glyph": "send",
+          "labels": ["捲動至底部", "Scroll to bottom"],
+          "asset": "icons/buttons/whisker-send.svg",
+          "reason": "whisker line reads as directional movement"
+        }
+      }
+    },
+    "projectPanelRows": {
+      "status": "runtime-wired-off-by-default",
+      "scope": "visible rows inside the marked right-side project/resource panel only",
+      "preview": "../../previews/project-panel-rows-test.html",
+      "excludedControls": ["section toggles", "workspace content", "top toolbar", "composer", "message actions"],
+      "actions": {
+        "outputRow": {
+          "glyph": "files",
+          "labels": ["輸出內容 row", "output row", "file row"],
+          "asset": "icons/buttons/fishbone-files.svg",
+          "reason": "fishbone/file motif fits generated files and output artifacts"
+        },
+        "agentRow": {
+          "glyph": "spark",
+          "labels": ["子代理 row", "agent row"],
+          "asset": "icons/buttons/teaser-wand-spark.svg",
+          "reason": "spark motif differentiates worker/agent entries"
+        },
+        "sourceRow": {
+          "glyph": "thread",
+          "labels": ["來源 row", "source row"],
+          "asset": "icons/buttons/yarn-thread.svg",
+          "reason": "thread motif fits source/reference links"
+        },
+        "environmentRow": {
+          "glyph": "settings",
+          "labels": ["環境 row", "environment row"],
+          "asset": "icons/buttons/mecha-ear-settings.svg",
+          "reason": "mecha settings motif fits branch/local/status environment rows"
+        },
+        "statusRow": {
+          "glyph": "stop",
+          "labels": ["error/status row"],
+          "asset": "icons/buttons/claw-stop.svg",
+          "reason": "claw stop highlights unavailable or failed status rows"
+        },
+        "viewAll": {
+          "glyph": "search",
+          "labels": ["查看全部", "View all"],
+          "asset": "icons/buttons/cat-eye-search.svg",
+          "reason": "cat-eye lens fits reveal/search all"
+        }
+      }
+    },
+    "projectPanels": {
+      "status": "chrome-wired-no-icon-replacement",
+      "scope": "right-side resource/project summary panel chrome only",
+      "runtimeStyle": "transparent keyboard shell with RGB chip rows",
+      "candidateGlyphs": ["files", "thread", "clean", "settings"]
+    }
+  }
+}

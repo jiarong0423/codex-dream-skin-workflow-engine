@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "event": {
+    "name": "OpenAI Build Week 2026",
+    "deadlinePdt": "2026-07-21T17:00:00-07:00",
+    "deadlineAsiaTaipei": "2026-07-22T08:00:00+08:00",
+    "officialUrl": "https://openai.com/zh-Hant/build-week/",
+    "submissionUrl": "https://openai.devpost.com/"
+  },
+  "product": {
+    "name": "Codex Dream Skin Workflow Engine",
+    "primaryTrack": "Developer Tools",
+    "valueAlignment": "Work & Productivity",
+    "supportedPlatforms": ["macOS"],
+    "oneProduct": true
+  },
+  "runtime": {
+    "status": "ready",
+    "evidence": "Tests, module matrix, live one-shot apply, restore path, and table-flip lifecycle verification passed after the one-shot low-load runtime work at revision e38142f7ae0c5a92."
+  },
+  "submission": [
+    {
+      "id": "working-project",
+      "status": "ready",
+      "evidence": "The macOS runtime, installer, verifier, restore path, sample theme, and workflow skill are present."
+    },
+    {
+      "id": "category",
+      "status": "ready",
+      "evidence": "Primary category is Developer Tools; Work & Productivity is the impact narrative."
+    },
+    {
+      "id": "project-description",
+      "status": "ready",
+      "evidence": "Final English Devpost copy is prepared in submission/devpost-project-description.md."
+    },
+    {
+      "id": "demo-video",
+      "status": "ready",
+      "evidence": "Public YouTube demo URL is https://youtu.be/5viFZCJ57TQ. English narration, SRT/ASS subtitle files, and the demo timeline are ready."
+    },
+    {
+      "id": "repository",
+      "status": "ready",
+      "evidence": "Public GitHub repository is https://github.com/jiarong0423/codex-dream-skin-workflow-engine. MIT license, notice, credits, English README, .gitignore, and public package manifest are prepared."
+    },
+    {
+      "id": "readme",
+      "status": "ready",
+      "evidence": "README and README.en.md include the unified product positioning, workflow, supported platform, runtime gate, setup, verification, restore, judge quick-test path, architecture diagram, tech stack, module ownership, and GPT-5.6/Codex usage evidence."
+    },
+    {
+      "id": "feedback-session-id",
+      "status": "ready",
+      "evidence": "Feedback session ID recorded: 019f706d-3b1a-7cb1-a1a6-42068bef79c1."
+    },
+    {
+      "id": "judge-test-path",
+      "status": "ready",
+      "evidence": "README provides a no-rebuild sequence for runtime gate, install, one-shot apply, verify, and restore on macOS."
+    },
+    {
+      "id": "asset-provenance",
+      "status": "ready",
+      "evidence": "CREDITS.md, NOTICE.md, submission/asset-inventory.json, and submission/public-package-manifest.json separate approved, conditional, and excluded assets."
+    },
+    {
+      "id": "public-package-plan",
+      "status": "ready",
+      "evidence": "submission/public-package-manifest.json defines public entry points, source includes, conditional assets, and excluded private or third-party materials."
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ENGINE_DIR="${CIT_ENGINE_DIR:-$HOME/.codex/codex-interface-theme}"
+PORT="${CIT_DEFAULT_PORT:-9341}"
+LOG_DIR="$HOME/Library/Application Support/CodexInterfaceTheme/logs"
+LOG_FILE="$LOG_DIR/launcher.log"
+
+mkdir -p "$LOG_DIR"
+exec >>"$LOG_FILE" 2>&1
+
+timestamp() {
+  date '+%Y-%m-%d %H:%M:%S'
+}
+
+log() {
+  printf '[%s] %s\n' "$(timestamp)" "$*"
+}
+
+notify() {
+  /usr/bin/osascript -e "display notification \"$1\" with title \"Codex Dream Skin\"" >/dev/null 2>&1 || true
+}
+
+alert() {
+  /usr/bin/osascript -e "display dialog \"$1\" buttons {\"OK\"} default button \"OK\" with title \"Codex Dream Skin\"" >/dev/null 2>&1 || true
+}
+
+stop_stale_injectors() {
+  if cit_port_is_open "$PORT"; then
+    return 0
+  fi
+
+  local pids
+  pids="$(ps -ww -o pid= -o command= -ax 2>/dev/null | awk -v port="$PORT" '
+    /codex-interface-theme\/scripts\/injector\.mjs/ && /--daemon/ {
+      for (field_index = 1; field_index <= NF; field_index += 1) {
+        if ($field_index == "--port" && $(field_index + 1) == port) {
+          print $1
+        }
+      }
+    }
+  ' || true)"
+  [ -n "$pids" ] || return 0
+
+  local pid
+  while IFS= read -r pid; do
+    [ -n "$pid" ] || continue
+    log "stopping stale injector daemon pid=$pid because CDP port $PORT is closed"
+    kill "$pid" >/dev/null 2>&1 || true
+  done <<< "$pids"
+}
+
+log "launcher started"
+
+if [ ! -x "$ENGINE_DIR/scripts/start.sh" ] || [ ! -f "$ENGINE_DIR/scripts/common.sh" ]; then
+  log "missing managed engine at $ENGINE_DIR"
+  alert "找不到主題引擎。請先在 repository root 執行 macos/scripts/install.sh"
+  exit 1
+fi
+
+source "$ENGINE_DIR/scripts/common.sh"
+stop_stale_injectors
+
+APP_PATH="$(cit_detect_app_or_die)"
+
+if cit_port_is_open "$PORT"; then
+  log "existing CDP port $PORT found; applying theme once"
+  notify "偵測到 debug port，正在套用主題。"
+  exec "$ENGINE_DIR/scripts/start.sh" --no-launch --once --port "$PORT" --wait-ms 30000
+fi
+
+if cit_is_app_running "$APP_PATH"; then
+  log "Codex already running without CDP port $PORT; leaving it untouched"
+  alert "Codex 目前已開啟，但沒有主題注入入口。啟動器不會強制關閉它。之後先退出 Codex，再從「Codex Dream Skin」啟動，就會自動套主題。"
+  exit 0
+fi
+
+log "launching Codex with one-shot theme apply"
+notify "正在啟動 Codex 並套用 Dream Skin。"
+exec "$ENGINE_DIR/scripts/start.sh" --once --port "$PORT" --wait-ms 60000
