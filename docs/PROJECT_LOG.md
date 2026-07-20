@@ -295,3 +295,87 @@ Validation evidence:
   asset path escape, and a one-byte runtime payload budget.
 - Privacy scans found no packaged personal paths or credential patterns; 14
   Markdown files contained 13 valid local links and zero broken links.
+
+### 2026-07-20: Sidebar Badge Mount Lifecycle Repair
+
+The small orange cat badge remained enabled and its runtime asset was intact,
+but it could disappear after a cold renderer mount.
+
+Direct cause addressed:
+
+- The badge was created before the native left sidebar existed, so its staging
+  parent was `document.body`. The visible CSS rule intentionally matches only a
+  badge owned by `aside.app-shell-left-panel`, leaving the staged node at
+  `display: none` with a zero-size rectangle.
+
+Root cause addressed:
+
+- The badge module participated only in initial installation. It did not have a
+  lifecycle action for the point at which the native sidebar became available
+  or was replaced during navigation.
+
+Changes:
+
+- Added an idempotent `maintainBadgeMount()` ownership repair.
+- Reused the existing one-time stabilization pass and 2.5-second light
+  maintenance phase; no timer, image transfer, or high-frequency DOM scan was
+  added.
+- Added regression checks that require the badge repair to remain wired to the
+  module registry.
+
+Validation evidence:
+
+- Runtime tests and the module matrix passed within existing CSS, renderer, and
+  payload budgets.
+- Source and installed renderer hashes matched after synchronization.
+- One-shot live application reused all asset groups and transferred zero asset
+  bytes.
+- The live screenshot confirmed the orange cat at the lower left of the native
+  sidebar while the workspace, composer, right panel, and large character kept
+  their prior geometry.
+
+## 2026-07-20 14:21 CST Closeout Governance
+
+Scope:
+
+- Owner project: Codex Dream Skin Workflow Engine.
+- Changed artifacts: badge lifecycle ownership, runtime regression checks,
+  public development history, installed engine, and public ZIP.
+- Latest validation evidence: source runtime gate, one-shot live application,
+  live screenshot review, installed/source hash comparison, extracted-package
+  SHA-256 inventory, package runtime tests, isolated strict submission gate, and
+  public-package privacy scan.
+
+DONE_CONFIRMED:
+
+- The orange sidebar badge repairs an early body mount after the native sidebar
+  appears.
+  - Evidence: live revision `dc88eed7a1421641` reused all cached asset groups;
+    the screenshot showed the badge at the lower left of the sidebar.
+- The fix stays inside the existing low-frequency module scheduler.
+  - Evidence: maintenance remains 2.5 seconds light and 10 seconds heavy; no new
+    observer or timer was added.
+- The installed engine and source renderer are synchronized.
+  - Evidence: both renderer files produced the same SHA-256 hash after install.
+- The judge package remains complete, private-data free, and within the upload
+  limit.
+  - Evidence: package inventory, runtime tests, strict submission gate, privacy
+    scan, and the 35 MB size gate passed.
+
+WATCH_LATER:
+
+- Recheck native sidebar ownership after a future Codex UI update.
+  - Trigger to revisit: `aside.app-shell-left-panel` changes, the badge has a
+    zero-size rectangle, or the visual verification no longer shows it.
+
+INTENTIONALLY_NOT_DO:
+
+- Do not add a new high-frequency badge poll, force a Codex restart, or patch the
+  official application bundle.
+  - Reason: the existing stabilization and light phases repair ownership without
+    expanding load or installation risk.
+
+Next resume point:
+
+- After a future Codex update, run `bash macos/scripts/verify.sh --port 9341`
+  and confirm the badge remains owned by the native left sidebar.
