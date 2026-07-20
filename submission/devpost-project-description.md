@@ -38,6 +38,25 @@ foreground character, cyberpunk background, glass-style surfaces, semantic pet
 tool icons, manual table-flip interaction, collision retreat behavior, and a
 low-load runtime policy.
 
+No prompt-engineering template is required. The user can start with an
+incomplete idea, explore alternatives with Codex, refine individual elements,
+select a scene, and progressively assemble a tested workspace. The architecture
+turns those open-ended decisions into bounded modules instead of allowing each
+iteration to become an untracked CSS patch.
+
+## Related Work And What Is Original
+
+I reviewed the public outcome of Fei-Away/Codex-Dream-Skin to confirm that Codex
+desktop personalization was feasible. I did not copy or vendor its code or
+assets. I independently built this repository after deciding that a static
+visual skin was not the interaction model I wanted.
+
+The original contribution is the control architecture around the theme:
+native-surface discovery, mount decisions, geometry validation, collision
+retreat, event-triggered transient surfaces, click-time animation loading,
+content-hash payload reuse, performance budgets, regression gates, and a
+reversible local runtime.
+
 ## What It Does
 
 - Applies a Codex desktop theme through local `127.0.0.1` CDP access.
@@ -50,6 +69,15 @@ low-load runtime policy.
   instead of covering the work surface.
 - Provides tests, module matrix checks, live verification, screenshots, and a
   restore path.
+
+## Challenges That Shaped The Architecture
+
+Real Codex UI testing exposed full-workspace masks, right-column overscope,
+composer black shells, geometry drift, transparent text bleed, dynamic DOM
+flicker, missing native controls, character collisions, animation preload
+costs, and excessive CPU/GPU use in early versions. These were not solved by
+changing opacity. Each failure was traced to a specific native layer and turned
+into a module boundary, mount rule, lifecycle rule, or regression check.
 
 ## How Codex And GPT-5.6 Were Used
 
@@ -73,6 +101,11 @@ The project is built around explicit ownership boundaries:
   manual animation lifecycle, cleanup, and restore.
 - `injector.mjs` owns CDP discovery, content-hash caching, payload transfer,
   one-shot apply, verification, and screenshots.
+
+The native mount model uses five policies: body-only scene painting,
+in-place styling of real native surfaces, independent pointer-safe decoration,
+event-triggered portal detection, and click-time interaction playback. This is
+why the project is an interactive theme runtime rather than a wallpaper.
 
 The workflow gate checks syntax, runtime budgets, module wiring, launcher
 policy, restore compatibility, and animation lifecycle. The final optimized

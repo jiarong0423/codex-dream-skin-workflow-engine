@@ -15,6 +15,18 @@
     "singleIconBytes": 4194304,
     "buttonIconBytes": 262144
   },
+  "retainedSourceAssets": [
+    "backgrounds/cyber-ruins-pale.png",
+    "backgrounds/cyberpunk-contrast-city.png",
+    "icons/cyber-mecha-cat-male-helmet-chroma.png",
+    "icons/cyber-mecha-cat-male-helmet-cutout.png",
+    "icons/cyber-robot-orange-cat-768.png",
+    "icons/cyber-robot-orange-cat-chroma.png",
+    "icons/cyber-robot-orange-cat-cutout.png",
+    "icons/orange-hacker-cat-chroma.png",
+    "icons/orange-hacker-cat-cutout.png",
+    "icons/table-flip-cat-left.webp"
+  ],
   "modules": [
     {
       "id": "background",
@@ -133,7 +145,7 @@
     },
     {
       "scenario": "asset-budget",
-      "expected": "runtime referenced assets stay under payload budget; unused heavy assets are only reported"
+      "expected": "runtime referenced assets stay under payload budget; declared design sources stay outside the runtime payload; unclassified heavy assets are reported"
     }
   ]
 }

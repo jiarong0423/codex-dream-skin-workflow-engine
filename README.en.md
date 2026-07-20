@@ -17,6 +17,26 @@ The project demonstrates safe developer-environment personalization rather than
 a static CSS skin. The current cyber-mecha cat theme is the sample theme used to
 prove the workflow.
 
+No prompt engineering template is required. A user can begin with an incomplete
+idea, explore alternatives with Codex, refine individual elements, select a
+scene, and progressively assemble a tested interactive workspace. The
+architecture is the control plane that keeps this open-ended design process
+inside explicit module, geometry, performance, and restore boundaries.
+
+## Related Work And Independent Implementation
+
+The public outcome of
+[Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin) was
+reviewed as a feasibility and product reference before implementation. No code
+or visual asset from that repository is copied, vendored, or required by this
+project. This repository independently implements its local CDP bridge,
+native-surface discovery, geometry validation, collision retreat, event policy,
+lazy animation lifecycle, payload caching, verification, and restore path.
+
+The engineering work began where a static visual result stopped: determining
+which native Codex surface owns each treatment without covering text, changing
+hitboxes, leaking through transient panels, or adding a high-frequency runtime.
+
 ## Safety Model
 
 - Does not modify `/Applications/ChatGPT.app`
@@ -34,6 +54,8 @@ Visual brief
   -> theme specification
   -> asset pipeline
   -> runtime module manifest
+  -> native UI adapter and mount contracts
+  -> placement, collision, and lifecycle policy
   -> static tests and payload budget
   -> one-shot CDP apply
   -> visual and interaction verification
@@ -59,15 +81,27 @@ flowchart LR
   A["Visual brief / image"] --> B["Theme spec<br/>theme.json"]
   B --> C["Asset pipeline<br/>cutouts, compression, icon manifest"]
   C --> D["Runtime module manifest<br/>runtime-modules.json"]
-  D --> E["Static gate<br/>tests, budgets, module matrix"]
-  E --> F["Local CDP one-shot apply<br/>injector.mjs"]
-  F --> G["Renderer modules<br/>CSS + DOM markers"]
-  G --> H{"Visual gate"}
-  H -->|pass| I["Install / submission package"]
-  H -->|fail| J["Scoped restore / module fix"]
-  J --> B
-  I --> K["restore.sh"]
+  D --> E["Native UI adapter<br/>anchors + geometry validation"]
+  E --> F["Mount contracts<br/>surface + collision + lifecycle"]
+  F --> G["Static gate<br/>tests, budgets, module matrix"]
+  G --> H["Local CDP one-shot apply<br/>injector.mjs"]
+  H --> I["Renderer modules<br/>CSS + DOM markers"]
+  I --> J{"Visual gate"}
+  J -->|pass| K["Install / submission package"]
+  J -->|fail| L["Scoped restore / module fix"]
+  L --> B
+  K --> M["restore.sh"]
 ```
+
+## Native Mount Model
+
+| Plane | Mount rule | Examples |
+|-------|------------|----------|
+| Scene | Paint only on the document body; never cover content with a full-workspace overlay | Background image and low-cost color layers |
+| Native surface | Mark and style the real Codex node in place; do not recreate its geometry | Sidebar, composer, conversation bubbles, project panel |
+| Independent decoration | Attach a body-level, pointer-safe element with explicit safe areas and retreat rules | Cyber-mecha character and small badge |
+| Transient portal | Detect the visible shell after an interaction, mark only that shell, and clean it when closed | Dialog, menu, listbox, workspace picker |
+| Manual interaction | Keep only the trigger idle; create playback state after click and release it after completion | Table-flip cat animation |
 
 ## Tech Stack
 

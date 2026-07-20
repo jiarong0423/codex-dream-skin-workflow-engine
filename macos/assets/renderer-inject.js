@@ -47,11 +47,7 @@
   let workspacePickerTriggerHandler = null;
   let workspacePickerHoldUntil = 0;
   const staticAccess = {
-    generation: 0,
-    hits: 0,
-    misses: 0,
     lastInvalidatedAt: 0,
-    reason: "init",
     nodes: Object.create(null)
   };
 
@@ -116,38 +112,23 @@
     }
   }
 
-  function publishStaticAccessStats() {
-    root.dataset.citStaticAccessGeneration = String(staticAccess.generation);
-    root.dataset.citStaticAccessHits = String(staticAccess.hits);
-    root.dataset.citStaticAccessMisses = String(staticAccess.misses);
-    root.dataset.citStaticAccessReason = staticAccess.reason;
-  }
-
-  function invalidateStaticAccess(reason, force) {
+  function invalidateStaticAccess(_reason, force) {
     const now = Date.now();
-    const nextReason = String(reason || "unknown").slice(0, 64);
     if (!force && now - staticAccess.lastInvalidatedAt < STATIC_ACCESS_INVALIDATION_MIN_MS) {
       return;
     }
     staticAccess.nodes = Object.create(null);
-    staticAccess.generation += 1;
-    staticAccess.reason = nextReason;
     staticAccess.lastInvalidatedAt = now;
-    publishStaticAccessStats();
   }
 
   function cachedElement(key, queryFn, validateFn) {
     const cacheKey = String(key || "");
     const cached = staticAccess.nodes[cacheKey];
     if (cached && cached.node && cached.node.isConnected && (typeof validateFn !== "function" || validateFn(cached.node))) {
-      staticAccess.hits += 1;
-      publishStaticAccessStats();
       return cached.node;
     }
-    staticAccess.misses += 1;
     const node = typeof queryFn === "function" ? queryFn() : null;
     staticAccess.nodes[cacheKey] = { node: node || null };
-    publishStaticAccessStats();
     return node || null;
   }
 
@@ -161,14 +142,10 @@
         return node && node.isConnected && (typeof validateFn !== "function" || validateFn(node));
       })
     ) {
-      staticAccess.hits += 1;
-      publishStaticAccessStats();
       return cached.nodes;
     }
-    staticAccess.misses += 1;
     const nodes = typeof queryFn === "function" ? Array.from(queryFn() || []) : [];
     staticAccess.nodes[cacheKey] = { nodes };
-    publishStaticAccessStats();
     return nodes;
   }
 
@@ -2380,10 +2357,6 @@
     delete root.dataset.citComposerFrame;
     delete root.dataset.citMaintenanceIntervalMs;
     delete root.dataset.citHeavyMaintenanceMs;
-    delete root.dataset.citStaticAccessGeneration;
-    delete root.dataset.citStaticAccessHits;
-    delete root.dataset.citStaticAccessMisses;
-    delete root.dataset.citStaticAccessReason;
     delete root.dataset.citRoute;
     delete root.dataset.citPageKind;
     root.style.removeProperty("--cit-accent");

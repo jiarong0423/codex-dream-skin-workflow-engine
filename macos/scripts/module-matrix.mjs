@@ -212,17 +212,46 @@ function listFilesRecursive(rootDir) {
   return result.sort();
 }
 
-function collectArchiveCandidates(assetsDir, referencedPaths) {
+function collectRetainedSourceAssets(assetsDir, configuredPaths) {
+  const absoluteAssetsDir = path.resolve(assetsDir);
+  const result = { paths: [], entries: [], errors: [] };
+  for (const configuredPath of configuredPaths || []) {
+    const value = String(configuredPath || "").trim();
+    if (!value || path.isAbsolute(value)) {
+      result.errors.push(`retained source asset must be a relative path: ${value || "<empty>"}`);
+      continue;
+    }
+    let filePath = "";
+    try {
+      filePath = resolveAsset(absoluteAssetsDir, value, "retainedSourceAssets");
+    } catch (error) {
+      result.errors.push(String(error && error.message ? error.message : error));
+      continue;
+    }
+    if (!existsFile(filePath)) {
+      result.errors.push(`retained source asset missing file: ${value}`);
+      continue;
+    }
+    result.paths.push(filePath);
+    result.entries.push({ path: value.split(path.sep).join("/"), bytes: fileSize(filePath) });
+  }
+  return result;
+}
+
+function collectArchiveCandidates(assetsDir, referencedPaths, retainedSourcePaths) {
   const absoluteAssetsDir = path.resolve(assetsDir);
   const referenced = new Set(referencedPaths.map((filePath) => path.resolve(filePath)));
+  const retained = new Set(retainedSourcePaths.map((filePath) => path.resolve(filePath)));
   return listFilesRecursive(absoluteAssetsDir)
     .filter((filePath) => /\.(png|jpe?g|gif|webp|svg)$/i.test(filePath))
     .map((filePath) => ({
       path: portableArchivePath(absoluteAssetsDir, filePath),
+      absolutePath: path.resolve(filePath),
       bytes: fileSize(filePath),
       referenced: referenced.has(path.resolve(filePath))
     }))
-    .filter((entry) => !entry.referenced && entry.bytes >= 512 * 1024 && !isRetiredArchiveCandidate(entry.path))
+    .filter((entry) => !entry.referenced && !retained.has(entry.absolutePath) && entry.bytes >= 512 * 1024 && !isRetiredArchiveCandidate(entry.path))
+    .map(({ absolutePath: _absolutePath, ...entry }) => entry)
     .sort((left, right) => right.bytes - left.bytes)
     .slice(0, 20);
 }
@@ -250,8 +279,9 @@ function buildMatrix(stateDir, assetsDir) {
   const declaredModules = new Set((manifest.modules || []).map((moduleConfig) => moduleConfig.id));
   const missingModules = Array.from(requiredModules).filter((id) => !declaredModules.has(id));
   const referencedPaths = [...defaultPlan.assets, ...activePlan.assets].map((asset) => asset.path);
-  const archiveCandidates = collectArchiveCandidates(absoluteAssetsDir, referencedPaths);
-  const errors = [...defaultPlan.errors, ...activePlan.errors];
+  const retainedSourceAssets = collectRetainedSourceAssets(absoluteAssetsDir, manifest.retainedSourceAssets);
+  const archiveCandidates = collectArchiveCandidates(absoluteAssetsDir, referencedPaths, retainedSourceAssets.paths);
+  const errors = [...defaultPlan.errors, ...activePlan.errors, ...retainedSourceAssets.errors];
   if (missingModules.length > 0) {
     errors.push(`runtime module manifest missing: ${missingModules.join(", ")}`);
   }
@@ -310,8 +340,14 @@ function buildMatrix(stateDir, assetsDir) {
       `payloadBytes=${activePlan.payloadBytes} budget=${budgets.runtimePayloadBytes}`
     ),
     matrixRow(
+      "retained-source-assets",
+      "declared design sources exist and remain outside the active runtime payload",
+      retainedSourceAssets.errors.length === 0 ? "passed" : "blocked",
+      `count=${retainedSourceAssets.entries.length}`
+    ),
+    matrixRow(
       "archive-candidates",
-      "unused heavy assets are reported only",
+      "unclassified unused heavy assets are reported only",
       archiveCandidates.length > 0 ? "warning" : "passed",
       `count=${archiveCandidates.length}`
     )
@@ -333,6 +369,7 @@ function buildMatrix(stateDir, assetsDir) {
       defaultTheme: defaultPlan,
       activeTheme: activePlan
     },
+    retainedSourceAssets: retainedSourceAssets.entries,
     archiveCandidates,
     errors
   };
@@ -352,6 +389,7 @@ function formatText(report) {
   for (const [moduleId, state] of Object.entries(report.plans.activeTheme.modules)) {
     lines.push(`- ${moduleId}=${state}`);
   }
+  lines.push(`retained source assets=${report.retainedSourceAssets.length}`);
   if (report.archiveCandidates.length > 0) {
     lines.push("archive candidates:");
     for (const candidate of report.archiveCandidates.slice(0, 8)) {

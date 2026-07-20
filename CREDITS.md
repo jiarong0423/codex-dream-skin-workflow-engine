@@ -10,6 +10,17 @@ Engine. The canonical machine-readable inventory is
   during the Codex Dream Skin development workflow.
 - License: MIT, as defined in `LICENSE`.
 
+## Related Work
+
+- [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin)
+  - Role: public feasibility and product-outcome reference reviewed before this
+    implementation.
+  - Boundary: no code or visual asset from that repository is copied, vendored,
+    redistributed, or required by this project.
+  - Independent work in this repository includes the local CDP bridge,
+    native-surface discovery, geometry checks, collision retreat, event policy,
+    click-time animation lifecycle, payload caching, verification, and restore.
+
 ## Approved Visual Assets
 
 - `macos/assets/backgrounds/cyberpunk-contrast-city.png`
