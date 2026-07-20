@@ -619,13 +619,15 @@ module_matrix = json.loads(pathlib.Path("/tmp/codex-interface-theme-module-matri
 if module_matrix["ok"] is not True:
     raise SystemExit(f"module matrix must pass: {module_matrix.get('errors')}")
 matrix_rows = {row["scenario"]: row for row in module_matrix["rows"]}
-for scenario_name in ["default-theme", "active-theme", "table-flip-enabled", "table-flip-disabled", "button-glyphs-disabled", "asset-budget"]:
+for scenario_name in ["default-theme", "active-theme", "table-flip-enabled", "table-flip-disabled", "button-glyphs-disabled", "asset-budget", "retained-source-assets", "archive-candidates"]:
     if matrix_rows[scenario_name]["status"] != "passed":
         raise SystemExit(f"module matrix scenario must pass: {scenario_name}")
 if module_matrix["plans"]["activeTheme"]["modules"]["tableFlipCatLoad"] != "static-cache-click":
     raise SystemExit("module matrix must confirm click-time static-cache table flip loading")
 if module_matrix["plans"]["activeTheme"]["payloadBytes"] <= 0:
     raise SystemExit("module matrix must report a positive active payload size")
+if len(module_matrix["retainedSourceAssets"]) != 10:
+    raise SystemExit("module matrix must classify the ten retained source assets")
 for archive_candidate in module_matrix["archiveCandidates"]:
     archive_path = archive_candidate["path"]
     retired_background = "-".join(["matrix", "cyberpunk", "orange", "cat"])

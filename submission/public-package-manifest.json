@@ -14,6 +14,8 @@
     "LICENSE",
     "NOTICE.md",
     "CREDITS.md",
+    "submission/PACKAGE_README.md",
+    "submission/build-public-package.sh",
     "submission/submission-checklist.md",
     "submission/devpost-project-description.md",
     "submission/demo/storyboard-frames.html",
@@ -24,6 +26,8 @@
   ],
   "sourceInclude": [
     ".agents/skills/codex-dream-skin-workflow/SKILL.md",
+    ".agents/skills/codex-dream-skin-workflow/agents/openai.yaml",
+    ".agents/skills/codex-dream-skin-workflow/competition-manifest.json",
     ".agents/skills/codex-dream-skin-workflow/references/architecture.md",
     ".agents/skills/codex-dream-skin-workflow/references/competition.md",
     ".agents/skills/codex-dream-skin-workflow/references/guardrails.md",
@@ -60,14 +64,24 @@
     "macos/assets/icons/table-flip-cat-left-poster.png",
     "macos/assets/icons/table-flip-cat-left-sprite.png",
     "macos/assets/icons/table-flip-cat-left-sprite.webp",
+    "macos/launcher",
+    "macos/previews",
     "macos/scripts",
     "macos/tests"
+  ],
+  "bundleExtras": [
+    {
+      "source": "submission/exports/gallery",
+      "destination": "media/gallery",
+      "optional": true
+    }
   ],
   "conditionalInclude": [],
   "exclude": [
     ".DS_Store",
     "submission/exports",
     "submission/public-package",
+    "submission/exports/codex-dream-skin-demo-short-voiceover-captioned.mp4 (public YouTube copy is canonical)",
     "macos/assets/backgrounds/*cyberpunk-orange-cat.png",
     "desktop screenshots",
     "screen recordings used only as defect evidence",

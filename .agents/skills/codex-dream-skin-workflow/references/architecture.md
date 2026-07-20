@@ -16,6 +16,29 @@ Codex Dream Skin is a local, reversible workflow engine for Codex desktop person
 8. `Lifecycle`: install, launcher policy, current session, hash synchronization, and restore.
 9. `Evidence`: tests, module matrix, live verification, screenshot, project log, demo, and submission manifest.
 
+## Native Mount Contract
+
+Every visual or interactive module must declare these decisions before it is
+implemented:
+
+1. `anchor`: semantic selectors, roles, labels, or stable parent relationship.
+2. `validator`: visibility, geometry, content, and route checks that reject a
+   false-positive node.
+3. `mountType`: body scene, native in-place surface, independent decoration,
+   transient portal, or manual interaction.
+4. `paintOrder`: the intended relationship to native text, controls, portals,
+   and pointer hitboxes.
+5. `activation`: theme flag, route, user event, or visible native state.
+6. `retreat`: collision, narrow-window, major-panel, or content-priority rule.
+7. `cleanup`: classes, nodes, timers, observers, listeners, assets, and cached
+   state that must be released.
+8. `fallback`: safe no-op behavior when the native anchor cannot be verified.
+9. `budget`: payload, DOM residency, scheduler, and composition limits.
+
+Do not use a detached overlay to imitate a native component. Stable Codex
+surfaces are styled in place; independent artwork is attached separately and
+must yield to native content.
+
 ## Module Ownership
 
 - `background`: active-theme-only visual asset; never a content overlay.

@@ -1,4 +1,4 @@
-# Codex Interface Theme
+# Codex Dream Skin Workflow Engine
 
 English judge copy: [README.en.md](README.en.md)
 
@@ -7,6 +7,8 @@ English judge copy: [README.en.md](README.en.md)
 ## Codex Dream Skin Workflow Engine
 
 Codex Dream Skin 不是單一 CSS 皮膚，而是一套由 Codex 協助運作的主題工作流：把視覺需求轉為結構化 theme spec，處理並壓縮素材，依模組套用，驗證原生介面幾何與互動，最後可完整還原。
+
+使用者不需要先寫好專門提示詞。可以從不完整的想法開始，和 Codex 一起探索變體、逐項修正、選擇場景，再把接受的結果組成可測試的互動工作區。架構圖不是事後文件，而是限制模組歸屬、原生掛載位置、碰撞、效能與還原行為的控制平面。
 
 OpenAI Build Week 定位：
 
@@ -21,12 +23,20 @@ OpenAI Build Week 定位：
   -> 主題規格
   -> 去背與 runtime 素材最佳化
   -> 獨立模組與內容雜湊
+  -> 原生 UI adapter 與掛載契約
+  -> 位置、碰撞與生命週期策略
   -> 靜態測試與資產預算
   -> CDP 單次套用
   -> 幾何、可讀性、碰撞與動畫驗證
   -> 接受安裝或範圍化還原
   -> 證據與競賽提交包
 ```
+
+## 相關成果與獨立實作
+
+實作前曾查看 [Fei-Away/Codex-Dream-Skin](https://github.com/Fei-Away/Codex-Dream-Skin) 的公開成果，作為可行性與產品方向參考。本專案沒有複製、內嵌或依賴該 repository 的原始碼或視覺素材；本 repo 的本機 CDP bridge、原生介面辨識、幾何驗證、碰撞退讓、事件策略、動畫延遲載入、payload cache、驗證與還原流程均為獨立實作。
+
+真正的工程問題不是換一張桌布，而是判斷每個效果應掛在哪個 Codex 原生節點，並確保不覆蓋文字、不改變 hitbox、不讓 transient panel 穿透，也不引入高頻常駐程序。
 
 ## 框架圖
 
@@ -35,15 +45,27 @@ flowchart LR
   A["視覺需求 / 圖片"] --> B["主題規格 theme.json"]
   B --> C["素材管線<br/>去背、壓縮、圖示 manifest"]
   C --> D["模組清單 runtime-modules.json"]
-  D --> E["靜態檢查<br/>測試、預算、module matrix"]
-  E --> F["本機 CDP 單次套用<br/>injector.mjs"]
-  F --> G["Renderer 模組<br/>CSS + DOM markers"]
-  G --> H{"視覺驗證"}
-  H -->|通過| I["安裝 / 送件包"]
-  H -->|失敗| J["範圍化還原 / 單模組修補"]
-  J --> B
-  I --> K["restore.sh 還原"]
+  D --> E["原生 UI adapter<br/>錨點 + 幾何驗證"]
+  E --> F["掛載契約<br/>surface + collision + lifecycle"]
+  F --> G["靜態檢查<br/>測試、預算、module matrix"]
+  G --> H["本機 CDP 單次套用<br/>injector.mjs"]
+  H --> I["Renderer 模組<br/>CSS + DOM markers"]
+  I --> J{"視覺驗證"}
+  J -->|通過| K["安裝 / 送件包"]
+  J -->|失敗| L["範圍化還原 / 單模組修補"]
+  L --> B
+  K --> M["restore.sh 還原"]
 ```
+
+## 原生掛載模型
+
+| 平面 | 掛載規則 | 範例 |
+|------|----------|------|
+| 場景底層 | 只畫在 document body，不建立覆蓋工作內容的全頁遮罩 | 背景圖與低成本色彩層 |
+| 原生 surface | 標記並就地處理真正的 Codex 節點，不重建其尺寸 | Sidebar、composer、對話泡泡、project panel |
+| 獨立裝飾 | 掛在 body 的 pointer-safe 元件，必須有 safe area 與退讓規則 | 機甲角色與小型 badge |
+| 動態 portal | 互動後辨識可見外殼，只標記該外殼，關閉後清理 | Dialog、menu、listbox、workspace picker |
+| 手動互動 | Idle 只保留 trigger，點擊後才建立播放狀態，完成後釋放 | 翻桌貓動畫 |
 
 ## 技術棧
 

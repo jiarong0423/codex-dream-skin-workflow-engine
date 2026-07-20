@@ -188,3 +188,110 @@ assets, setup instructions, verification gates, and restore path.
 
 The public release contains no local raw troubleshooting log, private media,
 personal workspace paths, or credentials.
+
+### 2026-07-20: Native Mount Architecture And Public Bundle Refresh
+
+The judge-facing explanation was updated to distinguish the workflow engine
+from a static wallpaper or copied skin. The public result of
+Fei-Away/Codex-Dream-Skin is disclosed as a feasibility reference; no code or
+visual asset from that project is copied, vendored, or required here.
+
+The architecture now documents five native mount policies:
+
+- Body-only scene painting without a full-workspace content overlay.
+- In-place styling of verified native Codex surfaces.
+- Independent pointer-safe decoration with collision retreat.
+- Event-triggered discovery and cleanup of transient portal shells.
+- Click-time interaction playback with deterministic release.
+
+Direct cause addressed:
+
+- Earlier public copy described modules and effects but did not clearly explain
+  that native layer discovery and mount decisions are part of the product.
+
+Root cause addressed:
+
+- The visual sample could be mistaken for the product itself even though the
+  implementation contains geometry, collision, scheduling, caching, lifecycle,
+  verification, and restore algorithms.
+
+A manifest-driven package builder was added. It copies only allowlisted public
+files, optionally adds the final gallery and captioned demo, removes metadata
+artifacts, rejects known private-path and credential patterns, writes a SHA-256
+inventory, and enforces the Devpost 35 MB upload limit.
+
+The first read-only archive audit found that the final manifest entry,
+`macos/tests`, was missing. The manifest reader emitted no trailing newline and
+the shell loop did not consume the final record. The loop now accepts a final
+unterminated record; the rebuilt archive must contain `macos/tests/run-tests.sh`
+before it can pass package review.
+
+The first judge-path simulation then found that the skill-local
+`competition-manifest.json` was not in the allowlist even though the root
+manifest was present. The workflow gate requires both paths. The skill-local
+manifest and `agents/openai.yaml` are now explicit public-package entries, and
+the final gate is executed from a freshly extracted archive rather than only
+from the source workspace.
+
+The extracted runtime tests also require the launcher fixtures for shell and
+property-list validation. `macos/launcher` is now an explicit package entry;
+Finder metadata inside that directory is removed by the packaging cleanup pass.
+
+The selector and asset-reference regression checks also consume the HTML files
+under `macos/previews`. That directory is now packaged as a test fixture rather
+than being treated as optional presentation output.
+
+Final evidence: a freshly extracted public archive passed its internal SHA-256
+inventory, runtime tests, module matrix, and strict submission gate without
+reading files from the source workspace.
+
+### 2026-07-20: Release Bundle Load And Size Convergence
+
+The public release remains a source and judge-review ZIP rather than a signed
+macOS installer. The launcher, setup scripts, runtime tests, restore path,
+generated source art, and display-sized runtime variants remain included.
+
+Direct causes addressed:
+
+- The static DOM cache published hit, miss, generation, and reason counters to
+  `documentElement.dataset` on every cache access even though no runtime or test
+  consumed those values.
+- The package duplicated the public YouTube demo as a local MP4, leaving little
+  room under the 35 MB Devpost upload limit.
+- Ten intentional generated source, chroma, cutout, and alternate animation
+  assets were reported as unclassified archive candidates.
+
+Root causes addressed:
+
+- Diagnostic telemetry was coupled to the hot cache path instead of remaining
+  outside production behavior.
+- Submission media and auditable source assets had not been separated from
+  runtime payload ownership in the package policy.
+
+Changes:
+
+- Removed unused static-cache dataset telemetry while preserving cache lookup,
+  invalidation, route, mutation, resize, and right-trigger behavior.
+- Added `retainedSourceAssets` to `runtime-modules.json`; the module matrix now
+  verifies these files exist but excludes them from runtime payload and archive
+  warnings.
+- Kept original generated source art and runtime variants in the public bundle,
+  but omitted the redundant local MP4 because the public YouTube URL is the
+  canonical demo.
+- Updated the judge package README to state that the ZIP is not an Apple-signed
+  installer.
+
+Validation evidence:
+
+- Renderer size reduced from 105,959 to 104,961 bytes under the 106,000-byte
+  budget.
+- Module matrix passed all scenarios with 10 classified retained source assets,
+  zero unclassified archive candidates, and a 604,901-byte active payload under
+  the 9,000,000-byte budget.
+- Source and freshly extracted package both passed runtime tests, internal
+  SHA-256 verification, runtime gate, and strict submission gate in an isolated
+  `HOME`.
+- Source and package both failed closed for a missing table-flip sprite, an
+  asset path escape, and a one-byte runtime payload budget.
+- Privacy scans found no packaged personal paths or credential patterns; 14
+  Markdown files contained 13 valid local links and zero broken links.
