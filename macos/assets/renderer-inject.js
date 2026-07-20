@@ -861,6 +861,23 @@
     root.dataset.citIconBadge = "true";
   }
 
+  function maintainBadgeMount() {
+    let badge = doc.getElementById(BADGE_ID);
+    if (!badge) {
+      if (root.dataset.citIconBadge === "true") {
+        installBadge();
+      }
+      return;
+    }
+    if (root.dataset.citIconBadge !== "true") {
+      return;
+    }
+    const sidebar = staticLeftSidebar();
+    if (sidebar && badge.parentElement !== sidebar) {
+      sidebar.appendChild(badge);
+    }
+  }
+
   function normalizeText(value) {
     return String(value || "").replace(/\s+/g, " ").trim().toLowerCase();
   }
@@ -2192,7 +2209,10 @@
     },
     {
       id: "badge",
-      install: installBadge
+      install: installBadge,
+      route: installBadge,
+      light: maintainBadgeMount,
+      stabilize: maintainBadgeMount
     },
     {
       id: "projectPanels",
