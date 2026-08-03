@@ -1,0 +1,29 @@
+/* Source preview quarantine: dynamic screenshot/source/attachment previews are native-owned.
+   Do not recolor, blur, scale, or auto-drag these surfaces; the registry only marks them. */
+html[data-codex-interface-theme="active"] [data-cit-source-preview-block="true"] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  transform: none !important;
+  isolation: isolate !important;
+}
+
+html[data-codex-interface-theme="active"] [data-cit-source-preview-block="true"] :is(img, video, canvas, picture, source),
+html[data-codex-interface-theme="active"] [data-cit-source-preview-block="true"] img,
+html[data-codex-interface-theme="active"] [data-cit-source-preview-block="true"] video,
+html[data-codex-interface-theme="active"] [data-cit-source-preview-block="true"] canvas {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  transform: none !important;
+}
+
+html[data-codex-interface-theme="active"] [data-cit-source-preview-block="true"] :is(button, [role="button"], a, [role="option"], [role="menuitem"], [tabindex]) {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  transform: none !important;
+}

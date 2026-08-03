@@ -127,6 +127,8 @@ cit_ensure_state_dirs() {
 
 cit_assert_source_layout() {
   [ -f "$CIT_ROOT_DIR/assets/theme.css" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme.css"
+  [ -f "$CIT_ROOT_DIR/assets/theme-kernel.css" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme-kernel.css"
+  [ -f "$CIT_ROOT_DIR/assets/theme-framework.css" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme-framework.css"
   [ -f "$CIT_ROOT_DIR/assets/theme.json" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme.json"
   [ -f "$CIT_ROOT_DIR/assets/runtime-modules.json" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/runtime-modules.json"
   [ -f "$CIT_ROOT_DIR/assets/renderer-inject.js" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/renderer-inject.js"

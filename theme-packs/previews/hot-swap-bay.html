@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Codex Dream Skin Hot Swap Bay</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --accent: #70d7e8;
+      --secondary: #eef2dc;
+      --warm: #e6b55a;
+      --alert: #d87888;
+      --surface: rgba(8, 11, 12, 0.68);
+      --surface-strong: rgba(4, 7, 8, 0.86);
+      --text: #f2f4ea;
+      --muted: rgba(242, 244, 234, 0.68);
+      --line: rgba(112, 215, 232, 0.42);
+      --slot-width: 35.4%;
+      --slot-height: 10.6%;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(112, 215, 232, 0.16), transparent 28%),
+        radial-gradient(circle at 88% 25%, rgba(216, 120, 136, 0.18), transparent 30%),
+        #080b0f;
+      color: var(--text);
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .stage {
+      width: min(1120px, calc(100vw - 32px));
+      aspect-ratio: 16 / 9;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(112, 215, 232, 0.3);
+      background: #071015;
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.5),
+        inset 0 0 0 1px rgba(230, 181, 90, 0.08);
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      transform: scale(1.01);
+      transition: opacity 180ms ease, filter 180ms ease;
+    }
+
+    .scene img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .scene.is-swapping {
+      opacity: 0.72;
+      filter: saturate(0.92);
+    }
+
+    .chrome {
+      position: absolute;
+      inset: 4%;
+      border: 1px solid rgba(112, 215, 232, 0.28);
+      background:
+        linear-gradient(90deg, rgba(4, 14, 17, 0.22), transparent 34%, rgba(35, 5, 14, 0.24)),
+        rgba(0, 0, 0, 0.1);
+      pointer-events: none;
+    }
+
+    .chrome::before,
+    .chrome::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(180deg, transparent, var(--line), transparent);
+    }
+
+    .chrome::before {
+      left: 24%;
+    }
+
+    .chrome::after {
+      right: 24%;
+    }
+
+    .titlebar {
+      position: absolute;
+      top: 5.2%;
+      left: 5%;
+      right: 5%;
+      height: 7.2%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 18px;
+      border: 1px solid rgba(112, 215, 232, 0.26);
+      background: linear-gradient(90deg, rgba(2, 13, 16, 0.78), rgba(20, 9, 14, 0.72));
+      backdrop-filter: blur(9px) saturate(1.1);
+    }
+
+    .titlebar strong {
+      font-size: 15px;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .titlebar span {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .hero {
+      position: absolute;
+      left: 8%;
+      bottom: 7%;
+      width: 22%;
+      height: 58%;
+      filter: drop-shadow(0 18px 26px rgba(0, 0, 0, 0.48));
+      pointer-events: none;
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+
+    .hero img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: contain;
+      object-position: left bottom;
+    }
+
+    .hero.is-swapping {
+      opacity: 0.25;
+      transform: translateX(-8px);
+    }
+
+    .hot-swap-bay {
+      position: absolute;
+      left: 32.4%;
+      top: 31.2%;
+      width: var(--slot-width);
+      height: var(--slot-height);
+      min-height: 64px;
+      display: grid;
+      grid-template-columns: 54px 1fr 54px;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(3, 21, 24, 0.72), rgba(8, 8, 9, 0.76) 48%, rgba(39, 5, 18, 0.7)),
+        var(--surface);
+      backdrop-filter: blur(13px) saturate(1.16);
+      box-shadow:
+        0 14px 36px rgba(0, 0, 0, 0.38),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+        inset 0 -18px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .hot-swap-bay::before {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border: 1px solid rgba(230, 181, 90, 0.18);
+      pointer-events: none;
+    }
+
+    .swap-button,
+    .trigger-button {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(112, 215, 232, 0.4);
+      border-radius: 50%;
+      background: rgba(4, 8, 11, 0.74);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 0 18px rgba(112, 215, 232, 0.22);
+      color: var(--text);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      padding: 0;
+    }
+
+    .swap-button:hover,
+    .trigger-button:hover,
+    .swap-button:focus-visible,
+    .trigger-button:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--accent), white 18%);
+      outline-offset: 3px;
+    }
+
+    .swap-button img,
+    .trigger-button img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    .bay-readout {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .bay-readout small {
+      color: var(--warm);
+      font-size: 11px;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bay-readout strong {
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.1;
+      letter-spacing: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bay-readout span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .selector {
+      position: absolute;
+      right: 5%;
+      top: 17%;
+      width: min(300px, 28%);
+      display: grid;
+      gap: 8px;
+    }
+
+    .selector-button {
+      display: grid;
+      grid-template-columns: 42px 1fr 16px;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 56px;
+      padding: 8px 12px;
+      border: 1px solid rgba(112, 215, 232, 0.24);
+      background: rgba(4, 8, 11, 0.66);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      backdrop-filter: blur(8px) saturate(1.08);
+    }
+
+    .selector-button[aria-pressed="true"] {
+      border-color: color-mix(in srgb, var(--accent), white 12%);
+      background:
+        linear-gradient(90deg, rgba(112, 215, 232, 0.18), transparent),
+        rgba(4, 8, 11, 0.78);
+    }
+
+    .selector-button img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .selector-button strong,
+    .selector-button span {
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .selector-button strong {
+      font-size: 13px;
+      line-height: 1.15;
+    }
+
+    .selector-button span {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 3px;
+    }
+
+    .selector-button .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+
+    .selector-button[aria-pressed="true"] .dot {
+      background: var(--warm);
+      box-shadow: 0 0 14px var(--warm);
+    }
+
+    .composer-ghost {
+      position: absolute;
+      left: 18%;
+      right: 18%;
+      bottom: 7%;
+      height: 12%;
+      border: 1px solid rgba(112, 215, 232, 0.3);
+      background:
+        linear-gradient(90deg, rgba(6, 27, 31, 0.56), rgba(7, 7, 8, 0.72) 50%, rgba(42, 6, 20, 0.58)),
+        rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(11px) saturate(1.08);
+      pointer-events: none;
+    }
+
+    .hud-note {
+      position: absolute;
+      left: 5%;
+      bottom: 4%;
+      max-width: 46%;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+      padding: 8px 10px;
+      border-left: 2px solid var(--accent);
+      background: rgba(0, 0, 0, 0.34);
+      pointer-events: none;
+    }
+
+    .playback {
+      position: absolute;
+      right: 7%;
+      bottom: 13%;
+      width: 192px;
+      height: 192px;
+      background-repeat: no-repeat;
+      background-size: var(--frames) 100%;
+      background-position: 0 0;
+      filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.45));
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .playback.is-running {
+      animation: sprite-play var(--duration) steps(var(--frame-count)) 1 forwards;
+    }
+
+    @keyframes sprite-play {
+      to {
+        background-position: 100% 0;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .stage {
+        width: min(100vw - 16px, 560px);
+      }
+
+      .titlebar span,
+      .selector,
+      .hud-note {
+        display: none;
+      }
+
+      .hero {
+        width: 26%;
+        height: 42%;
+      }
+
+      .hot-swap-bay {
+        left: 20%;
+        width: 60%;
+        grid-template-columns: 48px 1fr 48px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scene,
+      .hero,
+      .playback {
+        transition: none;
+        animation: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="stage" aria-label="Theme hot swap bay preview">
+    <div class="scene" id="scene" aria-hidden="true">
+      <img id="sceneImage" alt="" decoding="async" fetchpriority="high">
+    </div>
+    <div class="chrome" aria-hidden="true"></div>
+    <header class="titlebar">
+      <strong>Codex Dream Skin Material Bay</strong>
+      <span>Fixed transparent frame, replaceable theme payload</span>
+    </header>
+    <div class="hero" id="hero" aria-hidden="true">
+      <img id="heroImage" alt="" decoding="async" fetchpriority="low">
+    </div>
+
+    <section class="hot-swap-bay" aria-label="Hot swap material slot">
+      <button class="swap-button" id="previousPack" type="button" aria-label="Previous theme pack">
+        <img id="previousIcon" alt="" src="../knife-shield-dog/runtime/icons/back.svg">
+      </button>
+      <div class="bay-readout" aria-live="polite">
+        <small id="bayLabel">active pack</small>
+        <strong id="packName">Knife Shield Dog</strong>
+        <span id="packPolicy">visual group hot swapped, frame unchanged</span>
+      </div>
+      <button class="trigger-button" id="trigger" type="button" aria-label="Play active theme interaction">
+        <img id="triggerIcon" alt="" src="../knife-shield-dog/runtime/icons/trigger.svg">
+      </button>
+    </section>
+
+    <nav class="selector" aria-label="Theme pack selector">
+      <button class="selector-button" type="button" data-pack="knife-shield-dog" aria-pressed="true">
+        <img alt="" src="../knife-shield-dog/runtime/icons/trigger.svg">
+        <span>
+          <strong>Knife Shield Dog</strong>
+          <span>castle left, city right</span>
+        </span>
+        <span class="dot" aria-hidden="true"></span>
+      </button>
+      <button class="selector-button" type="button" data-pack="orbital-stargazer-black-cat" aria-pressed="false">
+        <img alt="" src="../orbital-stargazer-black-cat/runtime/icons/trigger.svg">
+        <span>
+          <strong>Orbital Black Cat</strong>
+          <span>capsule left, stargazer right</span>
+        </span>
+        <span class="dot" aria-hidden="true"></span>
+      </button>
+      <button class="selector-button" type="button" data-pack="orange-mecha-cat" aria-pressed="false">
+        <img alt="" src="../orange-mecha-cat/runtime/icons/trigger.svg">
+        <span>
+          <strong>Orange Mecha Cat</strong>
+          <span>cyber ruins baseline</span>
+        </span>
+        <span class="dot" aria-hidden="true"></span>
+      </button>
+    </nav>
+
+    <div class="composer-ghost" aria-hidden="true"></div>
+    <p class="hud-note">The bay swaps only theme assets. Glass geometry, safe areas, and interaction policy stay locked to the first runtime contract.</p>
+  </main>
+
+  <script>
+    const packs = [
+      {
+        id: 'knife-shield-dog',
+        name: 'Knife Shield Dog',
+        label: 'castle city guard',
+        background: '../knife-shield-dog/runtime/backgrounds/castle-left-city-right.webp',
+        hero: '../knife-shield-dog/runtime/characters/mecha-dog-hero-900.png',
+        trigger: '../knife-shield-dog/runtime/icons/trigger.svg',
+        previous: '../knife-shield-dog/runtime/icons/back.svg',
+        sprite: '../knife-shield-dog/runtime/animations/forward-slash-sprite.webp',
+        frameCount: 6,
+        durationMs: 1120,
+        accent: '#3ba7ff',
+        secondary: '#dce6f0',
+        warm: '#e5a945',
+        alert: '#ff6b55',
+        text: '#f4f7fb'
+      },
+      {
+        id: 'orbital-stargazer-black-cat',
+        name: 'Orbital Black Cat',
+        label: 'capsule stargazer',
+        background: '../orbital-stargazer-black-cat/runtime/backgrounds/capsule-left-observatory-right.webp',
+        hero: '../orbital-stargazer-black-cat/runtime/characters/astronaut-black-cat-hero-900.png',
+        trigger: '../orbital-stargazer-black-cat/runtime/icons/trigger.svg',
+        previous: '../orbital-stargazer-black-cat/runtime/icons/back.svg',
+        sprite: '../orbital-stargazer-black-cat/runtime/animations/roll-groom-sprite.webp',
+        frameCount: 8,
+        durationMs: 1760,
+        accent: '#70d7e8',
+        secondary: '#eef2dc',
+        warm: '#e6b55a',
+        alert: '#d87888',
+        text: '#f2f4ea'
+      },
+      {
+        id: 'orange-mecha-cat',
+        name: 'Orange Mecha Cat',
+        label: 'cyber ruins baseline',
+        background: '../orange-mecha-cat/runtime/backgrounds/cyberpunk-contrast-city.webp',
+        hero: '../orange-mecha-cat/runtime/characters/mecha-cat-hero-900.png',
+        trigger: '../orange-mecha-cat/runtime/icons/trigger.svg',
+        previous: '../orange-mecha-cat/runtime/icons/back.svg',
+        sprite: '../orange-mecha-cat/runtime/animations/table-flip-sprite.webp',
+        frameCount: 8,
+        durationMs: 1430,
+        accent: '#03d9ff',
+        secondary: '#ff9d2e',
+        warm: '#ffca55',
+        alert: '#ff3f78',
+        text: '#f5f8f4'
+      }
+    ];
+
+    const scene = document.getElementById('scene');
+    const sceneImage = document.getElementById('sceneImage');
+    const hero = document.getElementById('hero');
+    const heroImage = document.getElementById('heroImage');
+    const packName = document.getElementById('packName');
+    const bayLabel = document.getElementById('bayLabel');
+    const packPolicy = document.getElementById('packPolicy');
+    const trigger = document.getElementById('trigger');
+    const triggerIcon = document.getElementById('triggerIcon');
+    const previousIcon = document.getElementById('previousIcon');
+    const previousPack = document.getElementById('previousPack');
+    const selectorButtons = Array.from(document.querySelectorAll('.selector-button'));
+    const root = document.documentElement;
+    let activeIndex = 0;
+    let playbackNode = null;
+    let hasAppliedTheme = false;
+
+    function releaseImageElement(image) {
+      image.removeAttribute('src');
+      image.src = '';
+    }
+
+    function releasePlayback() {
+      if (!playbackNode) {
+        return;
+      }
+      playbackNode.style.backgroundImage = 'none';
+      playbackNode.remove();
+      playbackNode = null;
+    }
+
+    function applyPack(pack) {
+      sceneImage.src = pack.background;
+      heroImage.src = pack.hero;
+      root.style.setProperty('--accent', pack.accent);
+      root.style.setProperty('--secondary', pack.secondary);
+      root.style.setProperty('--warm', pack.warm);
+      root.style.setProperty('--alert', pack.alert);
+      root.style.setProperty('--text', pack.text);
+      root.style.setProperty('--line', `${pack.accent}66`);
+      packName.textContent = pack.name;
+      bayLabel.textContent = pack.label;
+      packPolicy.textContent = 'frame locked, payload swapped';
+      triggerIcon.src = pack.trigger;
+      previousIcon.src = pack.previous;
+      selectorButtons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.pack === pack.id));
+      });
+    }
+
+    function setTheme(index) {
+      activeIndex = (index + packs.length) % packs.length;
+      const pack = packs[activeIndex];
+
+      if (!hasAppliedTheme) {
+        applyPack(pack);
+        hasAppliedTheme = true;
+        return;
+      }
+
+      scene.classList.add('is-swapping');
+      hero.classList.add('is-swapping');
+      releasePlayback();
+      releaseImageElement(sceneImage);
+      releaseImageElement(heroImage);
+
+      window.setTimeout(() => {
+        applyPack(pack);
+        scene.classList.remove('is-swapping');
+        hero.classList.remove('is-swapping');
+      }, 90);
+    }
+
+    function playInteraction() {
+      const pack = packs[activeIndex];
+      releasePlayback();
+
+      playbackNode = document.createElement('div');
+      playbackNode.className = 'playback is-running';
+      playbackNode.style.backgroundImage = `url("${pack.sprite}")`;
+      playbackNode.style.setProperty('--frame-count', pack.frameCount);
+      playbackNode.style.setProperty('--frames', `${pack.frameCount * 100}%`);
+      playbackNode.style.setProperty('--duration', `${pack.durationMs}ms`);
+      playbackNode.setAttribute('aria-hidden', 'true');
+      document.querySelector('.stage').appendChild(playbackNode);
+
+      window.setTimeout(() => {
+        releasePlayback();
+      }, pack.durationMs + 80);
+    }
+
+    previousPack.addEventListener('click', () => setTheme(activeIndex - 1));
+    trigger.addEventListener('click', playInteraction);
+    selectorButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const nextIndex = packs.findIndex((pack) => pack.id === button.dataset.pack);
+        setTheme(nextIndex);
+      });
+    });
+
+    window.addEventListener('pagehide', releasePlayback);
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        releasePlayback();
+      }
+    });
+
+    setTheme(0);
+  </script>
+</body>
+</html>

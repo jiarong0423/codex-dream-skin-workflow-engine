@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Atomic Control Workbench</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #07090a;
+      --panel: rgba(10, 13, 14, 0.88);
+      --panel-2: rgba(20, 18, 16, 0.74);
+      --line: rgba(118, 219, 230, 0.32);
+      --line-strong: rgba(118, 219, 230, 0.72);
+      --gold: #e1b45f;
+      --green: #3bdd87;
+      --red: #ee6677;
+      --text: #f2f5ee;
+      --muted: rgba(242, 245, 238, 0.66);
+      --soft: rgba(242, 245, 238, 0.09);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        linear-gradient(90deg, rgba(9, 69, 72, 0.36), transparent 42%, rgba(91, 31, 43, 0.34)),
+        radial-gradient(circle at 18% 12%, rgba(118, 219, 230, 0.18), transparent 32%),
+        radial-gradient(circle at 88% 84%, rgba(225, 180, 95, 0.1), transparent 28%),
+        linear-gradient(135deg, rgba(13, 31, 34, 0.74), rgba(9, 9, 10, 0.9) 50%, rgba(48, 16, 28, 0.72)),
+        var(--bg);
+      color: var(--text);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 5, 6, 0.56);
+      pointer-events: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      width: min(1180px, calc(100vw - 28px));
+      min-height: calc(100vh - 28px);
+      margin: 14px auto;
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 16px;
+    }
+
+    .rail,
+    .main {
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(8, 31, 34, 0.72), rgba(13, 12, 13, 0.82) 46%, rgba(39, 15, 22, 0.7)),
+        var(--panel);
+      box-shadow: 0 20px 56px rgba(0, 0, 0, 0.38);
+      backdrop-filter: blur(12px) saturate(1.08);
+    }
+
+    .rail {
+      padding: 16px;
+      align-self: start;
+    }
+
+    .brand {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(242, 245, 238, 0.1);
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(118, 219, 230, 0.62);
+      background:
+        linear-gradient(90deg, transparent 45%, rgba(225, 180, 95, 0.62) 45% 55%, transparent 55%),
+        linear-gradient(180deg, transparent 45%, rgba(118, 219, 230, 0.68) 45% 55%, transparent 55%),
+        rgba(5, 15, 18, 0.82);
+      box-shadow:
+        inset 0 0 0 8px rgba(118, 219, 230, 0.08),
+        0 10px 18px rgba(0, 0, 0, 0.45);
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 20px;
+      letter-spacing: 0;
+      line-height: 1.15;
+    }
+
+    .brand p,
+    .hint,
+    .field small,
+    .mode-card span,
+    .status span {
+      color: var(--muted);
+    }
+
+    .rail-section {
+      margin-top: 18px;
+    }
+
+    .rail-section h2,
+    .panel-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(242, 245, 238, 0.74);
+      margin-bottom: 10px;
+    }
+
+    .status-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .status {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      align-items: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 1px solid rgba(242, 245, 238, 0.11);
+      background: rgba(0, 0, 0, 0.22);
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid var(--line-strong);
+      box-shadow: inset 0 0 0 4px rgba(118, 219, 230, 0.12);
+    }
+
+    .dot.green {
+      border-color: rgba(61, 221, 135, 0.8);
+      box-shadow: inset 0 0 0 4px rgba(61, 221, 135, 0.16);
+    }
+
+    .dot.gold {
+      border-color: rgba(225, 180, 95, 0.82);
+      box-shadow: inset 0 0 0 4px rgba(225, 180, 95, 0.15);
+    }
+
+    .main {
+      min-width: 0;
+      padding: 20px;
+    }
+
+    .topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(242, 245, 238, 0.1);
+    }
+
+    .topline h2 {
+      font-size: 28px;
+      letter-spacing: 0;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      white-space: nowrap;
+      border: 1px solid rgba(61, 221, 135, 0.42);
+      background: rgba(10, 72, 43, 0.28);
+      color: #dffbe9;
+      padding: 8px 10px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .asset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .asset-card {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 10px;
+      align-items: center;
+      min-height: 78px;
+      border: 1px solid rgba(242, 245, 238, 0.12);
+      background: rgba(0, 0, 0, 0.22);
+      padding: 10px;
+    }
+
+    .asset-thumb {
+      width: 58px;
+      height: 58px;
+      border: 1px solid rgba(118, 219, 230, 0.26);
+      background: rgba(3, 5, 6, 0.42);
+      object-fit: contain;
+    }
+
+    .asset-meta {
+      min-width: 0;
+    }
+
+    .asset-meta strong,
+    .asset-meta span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .panel {
+      border: 1px solid rgba(242, 245, 238, 0.12);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.16)), var(--panel-2);
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .mode-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mode-card {
+      width: 100%;
+      min-height: 78px;
+      padding: 12px;
+      text-align: left;
+      color: var(--text);
+      border: 1px solid rgba(242, 245, 238, 0.12);
+      background: rgba(0, 0, 0, 0.22);
+      cursor: pointer;
+    }
+
+    .mode-card[aria-pressed="true"] {
+      border-color: var(--line-strong);
+      background: rgba(20, 68, 72, 0.48);
+      box-shadow: inset 4px 0 0 var(--gold);
+    }
+
+    .mode-card strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 17px;
+    }
+
+    .switches {
+      display: grid;
+      gap: 10px;
+    }
+
+    .switch {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 58px;
+      padding: 10px 12px;
+      border: 1px solid rgba(242, 245, 238, 0.12);
+      background: rgba(0, 0, 0, 0.22);
+      cursor: pointer;
+    }
+
+    .switch input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .switch strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .track {
+      width: 46px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(242, 245, 238, 0.18);
+      background: rgba(255, 255, 255, 0.09);
+      padding: 3px;
+      transition: background 140ms ease, border-color 140ms ease;
+    }
+
+    .thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(242, 245, 238, 0.86);
+      transition: transform 140ms ease;
+    }
+
+    .switch input:checked + .track {
+      border-color: rgba(61, 221, 135, 0.8);
+      background: rgba(61, 221, 135, 0.26);
+    }
+
+    .switch input:checked + .track .thumb {
+      transform: translateX(20px);
+      background: #eafff1;
+    }
+
+    .field-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid rgba(242, 245, 238, 0.16);
+      background: rgba(0, 0, 0, 0.34);
+      color: var(--text);
+      padding: 0 10px;
+    }
+
+    .command {
+      margin-top: 16px;
+      border: 1px solid rgba(242, 245, 238, 0.12);
+      background: rgba(0, 0, 0, 0.42);
+      padding: 14px;
+    }
+
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #eaf8f6;
+      line-height: 1.48;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-button {
+      min-height: 38px;
+      border: 1px solid rgba(242, 245, 238, 0.14);
+      background: rgba(118, 219, 230, 0.14);
+      color: var(--text);
+      padding: 0 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .action-button.primary {
+      background: rgba(225, 180, 95, 0.2);
+      border-color: rgba(225, 180, 95, 0.54);
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    .switch:focus-within {
+      outline: 2px solid var(--line-strong);
+      outline-offset: 2px;
+    }
+
+    .error {
+      margin-top: 10px;
+      color: #ffd8de;
+      min-height: 20px;
+    }
+
+    @media (max-width: 900px) {
+      body {
+        background-attachment: scroll;
+      }
+
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .asset-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .topline {
+        display: block;
+      }
+
+      .badge {
+        display: inline-block;
+        margin-top: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <aside class="rail" aria-label="Atomic control status">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div>
+          <h1 data-i18n="brandTitle">Atomic Control</h1>
+          <p data-i18n="brandSubtitle">offline command planner</p>
+        </div>
+      </div>
+      <section class="rail-section">
+        <h2 data-i18n="defaultGuard">Default Guard</h2>
+        <div class="status-list">
+          <div class="status"><span class="dot green"></span><span data-i18n="noLaunch">No launch</span></div>
+          <div class="status"><span class="dot green"></span><span data-i18n="noRestart">No restart</span></div>
+          <div class="status"><span class="dot green"></span><span data-i18n="noClick">No click</span></div>
+          <div class="status"><span class="dot green"></span><span data-i18n="noDrag">No drag</span></div>
+          <div class="status"><span class="dot gold"></span><span data-i18n="carrierFirst">Carrier-first</span></div>
+        </div>
+      </section>
+      <section class="rail-section">
+        <h2 data-i18n="hardDeny">Hard Deny</h2>
+        <p class="hint" data-i18n="hardDenyBody">Delete, permission, source preview, high-memory drag, push, and create-PR controls are never generated as automatic actions.</p>
+      </section>
+    </aside>
+
+    <section class="main" aria-label="Atomic control workbench">
+      <div class="topline">
+        <div>
+          <h2 data-i18n="mainTitle">載入模式與可點控制計畫</h2>
+          <p class="hint" data-i18n="mainHint">這個頁面只產生命令，不執行命令，不連 CDP，不修改 live UI。</p>
+        </div>
+        <div class="top-actions">
+          <button class="action-button" type="button" id="languageToggle" data-i18n="languageToggle">中文 / EN</button>
+          <span class="badge" data-i18n="offlineBadge">offline / non-mutating</span>
+        </div>
+      </div>
+
+      <section class="panel" style="margin-top: 16px;">
+        <div class="panel-title" data-i18n="assetMountTitle">Asset Mounts</div>
+        <p class="hint" data-i18n="assetMountHint">Read-only local asset inventory. Previewing these files does not apply the theme.</p>
+        <div class="asset-grid" id="assetGrid" style="margin-top: 12px;"></div>
+      </section>
+
+      <div class="grid">
+        <section class="panel">
+          <div class="panel-title" data-i18n="planKindTitle">Plan Type</div>
+          <div class="mode-grid" id="planKindGrid">
+            <button class="mode-card plan-card" type="button" data-plan-kind="atomic-gate" aria-pressed="true">
+              <strong data-i18n="planAtomicGate">Atomic Gate</strong>
+              <span data-i18n="planAtomicGateDesc">full reversible atomic pipeline plan</span>
+            </button>
+            <button class="mode-card plan-card" type="button" data-plan-kind="dynamic-coverage" aria-pressed="false">
+              <strong data-i18n="planDynamicCoverage">Dynamic Coverage</strong>
+              <span data-i18n="planDynamicCoverageDesc">read-only native boundary coverage only</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title" data-i18n="loadModeTitle">Load Mode</div>
+          <div class="mode-grid" id="modeGrid">
+            <button class="mode-card" type="button" data-mode="carrier-only" aria-pressed="true">
+              <strong data-i18n="modeCarrier">Carrier</strong>
+              <span data-i18n="modeCarrierDesc">structural carrier template, zero visual asset payload</span>
+            </button>
+            <button class="mode-card" type="button" data-mode="framework-only" aria-pressed="false">
+              <strong data-i18n="modeFramework">Framework</strong>
+              <span data-i18n="modeFrameworkDesc">marker-only boundary diagnosis and restore sentinel</span>
+            </button>
+            <button class="mode-card" type="button" data-mode="control-only" aria-pressed="false">
+              <strong data-i18n="modeControl">Control</strong>
+              <span data-i18n="modeControlDesc">in-window atomic command workbench with zero visual assets</span>
+            </button>
+            <button class="mode-card" type="button" data-mode="visual" aria-pressed="false">
+              <strong data-i18n="modeVisual">Visual</strong>
+              <span data-i18n="modeVisualDesc">full visual payload after carrier and framework gates pass</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-title" data-i18n="executionGuard">Execution Guard</div>
+          <div class="switches">
+            <label class="switch">
+              <span><strong data-i18n="launchIfMissing">Launch if missing</strong><span class="hint" data-i18n="launchIfMissingDesc">only when Codex is not already running</span></span>
+              <input id="launchIfMissing" type="checkbox">
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+            <label class="switch">
+              <span><strong data-i18n="interact">Interact</strong><span class="hint" data-i18n="interactDesc">requires allow indexes or auto allowlist</span></span>
+              <input id="interact" type="checkbox">
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+            <label class="switch">
+              <span><strong data-i18n="statefulControls">Stateful controls</strong><span class="hint" data-i18n="statefulControlsDesc">project/sidebar/top-toolbar candidates stay opt-in</span></span>
+              <input id="allowStatefulControls" type="checkbox">
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+            <label class="switch">
+              <span><strong data-i18n="autoAllowlist">Auto allowlist</strong><span class="hint" data-i18n="autoAllowlistDesc">derive from dry-run with hard-deny filters</span></span>
+              <input id="autoAllowlist" type="checkbox">
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+            <label class="switch">
+              <span><strong data-i18n="localControlClicks">Local control clicks</strong><span class="hint" data-i18n="localControlClicksDesc">control-only panel buttons and toggles only</span></span>
+              <input id="verifyLocalControlClicks" type="checkbox">
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+            <label class="switch">
+              <span><strong data-i18n="drag">Drag</strong><span class="hint" data-i18n="dragDesc">requires explicit reviewed indexes</span></span>
+              <input id="drag" type="checkbox">
+              <span class="track"><span class="thumb"></span></span>
+            </label>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" style="margin-top: 16px;">
+        <div class="panel-title" data-i18n="planFields">Plan Fields</div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="outDir" data-i18n="evidenceDirectory">Evidence directory</label>
+            <input id="outDir" value="/tmp/codex-interface-theme-atomic-control-evidence">
+            <small data-i18n="evidenceDirectoryDesc">must be absolute; generated command writes evidence here only when you run it manually</small>
+          </div>
+          <div class="field">
+            <label for="allowIndexes" data-i18n="reviewedAllowIndexes">Reviewed allow indexes</label>
+            <input id="allowIndexes" inputmode="numeric" placeholder="example: 0,4,12" data-i18n-placeholder="allowIndexesPlaceholder">
+            <small data-i18n="reviewedAllowIndexesDesc">required for interact without auto allowlist; required for drag</small>
+          </div>
+          <div class="field">
+            <label for="samples" data-i18n="samples">Samples</label>
+            <input id="samples" inputmode="numeric" value="3">
+            <small data-i18n="samplesDesc">used by read-only dynamic coverage inventory</small>
+          </div>
+          <div class="field">
+            <label for="intervalMs" data-i18n="intervalMs">Interval ms</label>
+            <input id="intervalMs" inputmode="numeric" value="700">
+            <small data-i18n="intervalMsDesc">sample spacing for read-only dynamic coverage inventory</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="command" aria-live="polite">
+        <pre id="commandOutput"></pre>
+        <div class="actions">
+          <button class="action-button primary" type="button" id="copyCommand" data-i18n="copyCommand">Copy command</button>
+          <button class="action-button" type="button" id="copyJson" data-i18n="copyJson">Copy JSON plan</button>
+        </div>
+        <div class="error" id="errorOutput"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const I18N = {
+      "zh-Hant": {
+        brandTitle: "Atomic Control",
+        brandSubtitle: "離線命令規劃器",
+        defaultGuard: "預設防線",
+        noLaunch: "不啟動",
+        noRestart: "不重啟",
+        noClick: "不點擊",
+        noDrag: "不拖曳",
+        carrierFirst: "先跑載體",
+        hardDeny: "硬性拒絕",
+        hardDenyBody: "刪除、權限、來源預覽、高記憶體拖曳、推送與建立 PR 不會被產生成自動動作。",
+        mainTitle: "載入模式與可點控制計畫",
+        mainHint: "這個頁面只產生命令，不執行命令，不連 CDP，不修改 live UI。",
+        languageToggle: "中文 / EN",
+        offlineBadge: "離線 / 不改狀態",
+        planKindTitle: "計畫類型",
+        planAtomicGate: "Atomic Gate",
+        planAtomicGateDesc: "完整可還原原子流程計畫",
+        planDynamicCoverage: "Dynamic Coverage",
+        planDynamicCoverageDesc: "只讀官方動態邊界 coverage",
+        loadModeTitle: "載入模式",
+        modeCarrier: "Carrier",
+        modeCarrierDesc: "結構載體模板，零視覺素材 payload",
+        modeFramework: "Framework",
+        modeFrameworkDesc: "只放標記，用於邊界診斷與 restore sentinel",
+        modeControl: "Control",
+        modeControlDesc: "視窗內命令控制台，零視覺素材",
+        modeVisual: "Visual",
+        modeVisualDesc: "完整視覺 payload；只在 carrier/framework gate 通過後使用",
+        executionGuard: "執行防線",
+        launchIfMissing: "缺少時啟動",
+        launchIfMissingDesc: "只在 Codex 尚未執行時允許",
+        interact: "互動",
+        interactDesc: "需要 allow indexes 或 auto allowlist",
+        statefulControls: "有狀態控制",
+        statefulControlsDesc: "專案、側欄、上方工具列候選必須手動開啟",
+        autoAllowlist: "自動白名單",
+        autoAllowlistDesc: "從 dry-run 報告產生，並套用硬性拒絕規則",
+        localControlClicks: "本地控制點擊",
+        localControlClicksDesc: "只點 control-only 面板自己的按鈕與切換",
+        drag: "拖曳",
+        dragDesc: "需要明確審核過的 indexes",
+        planFields: "計畫欄位",
+        evidenceDirectory: "證據輸出資料夾",
+        evidenceDirectoryDesc: "必須是絕對路徑；只有你手動執行命令時才會寫入",
+        reviewedAllowIndexes: "審核後允許 indexes",
+        reviewedAllowIndexesDesc: "互動且未開 auto allowlist 時必填；拖曳也必填",
+        allowIndexesPlaceholder: "例如：0,4,12",
+        samples: "取樣次數",
+        samplesDesc: "用於只讀 dynamic coverage inventory",
+        intervalMs: "取樣間隔 ms",
+        intervalMsDesc: "只讀 dynamic coverage inventory 的取樣間隔",
+        copyCommand: "複製命令",
+        copyJson: "複製 JSON 計畫",
+        copiedCommand: "命令已複製",
+        copiedJson: "JSON 計畫已複製",
+        assetMountTitle: "素材掛載",
+        assetMountHint: "只讀本地素材清單。這裡預覽檔案不代表已套用主題。",
+        assetRuntime: "runtime 合格",
+        assetSourceOnly: "source / fallback",
+        assetBytes: "bytes"
+      },
+      en: {
+        brandTitle: "Atomic Control",
+        brandSubtitle: "offline command planner",
+        defaultGuard: "Default Guard",
+        noLaunch: "No launch",
+        noRestart: "No restart",
+        noClick: "No click",
+        noDrag: "No drag",
+        carrierFirst: "Carrier-first",
+        hardDeny: "Hard Deny",
+        hardDenyBody: "Delete, permission, source preview, high-memory drag, push, and create-PR controls are never generated as automatic actions.",
+        mainTitle: "Load Modes and Clickable Control Plan",
+        mainHint: "This page generates commands only. It does not execute commands, connect to CDP, or mutate live UI.",
+        languageToggle: "中文 / EN",
+        offlineBadge: "offline / non-mutating",
+        planKindTitle: "Plan Type",
+        planAtomicGate: "Atomic Gate",
+        planAtomicGateDesc: "full reversible atomic pipeline plan",
+        planDynamicCoverage: "Dynamic Coverage",
+        planDynamicCoverageDesc: "read-only native boundary coverage only",
+        loadModeTitle: "Load Mode",
+        modeCarrier: "Carrier",
+        modeCarrierDesc: "structural carrier template, zero visual asset payload",
+        modeFramework: "Framework",
+        modeFrameworkDesc: "marker-only boundary diagnosis and restore sentinel",
+        modeControl: "Control",
+        modeControlDesc: "in-window atomic command workbench with zero visual assets",
+        modeVisual: "Visual",
+        modeVisualDesc: "full visual payload after carrier and framework gates pass",
+        executionGuard: "Execution Guard",
+        launchIfMissing: "Launch if missing",
+        launchIfMissingDesc: "only when Codex is not already running",
+        interact: "Interact",
+        interactDesc: "requires allow indexes or auto allowlist",
+        statefulControls: "Stateful controls",
+        statefulControlsDesc: "project/sidebar/top-toolbar candidates stay opt-in",
+        autoAllowlist: "Auto allowlist",
+        autoAllowlistDesc: "derive from dry-run with hard-deny filters",
+        localControlClicks: "Local control clicks",
+        localControlClicksDesc: "control-only panel buttons and toggles only",
+        drag: "Drag",
+        dragDesc: "requires explicit reviewed indexes",
+        planFields: "Plan Fields",
+        evidenceDirectory: "Evidence directory",
+        evidenceDirectoryDesc: "must be absolute; generated command writes evidence here only when you run it manually",
+        reviewedAllowIndexes: "Reviewed allow indexes",
+        reviewedAllowIndexesDesc: "required for interact without auto allowlist; required for drag",
+        allowIndexesPlaceholder: "example: 0,4,12",
+        samples: "Samples",
+        samplesDesc: "used by read-only dynamic coverage inventory",
+        intervalMs: "Interval ms",
+        intervalMsDesc: "sample spacing for read-only dynamic coverage inventory",
+        copyCommand: "Copy command",
+        copyJson: "Copy JSON plan",
+        copiedCommand: "command copied",
+        copiedJson: "JSON plan copied",
+        assetMountTitle: "Asset Mounts",
+        assetMountHint: "Read-only local asset inventory. Previewing these files does not apply the theme.",
+        assetRuntime: "runtime fit",
+        assetSourceOnly: "source / fallback",
+        assetBytes: "bytes"
+      }
+    };
+
+    const ASSET_GROUPS = [
+      {
+        id: "runtimeBackground",
+        mount: "body-background-preview",
+        label: "Runtime Background",
+        labelZh: "執行背景",
+        item: {
+          id: "cyberpunkContrastCityRuntime",
+          label: "Cyberpunk contrast city runtime",
+          labelZh: "賽博城市 runtime 背景",
+          path: "backgrounds/cyberpunk-contrast-city-runtime.webp",
+          width: 1672,
+          height: 941,
+          bytes: 423528,
+          runtime: true
+        }
+      },
+      {
+        id: "sidebarBadge",
+        mount: "sidebar-dock-preview",
+        label: "Sidebar Badge",
+        labelZh: "側欄徽章",
+        item: {
+          id: "orangeHackerCat128",
+          label: "Orange hacker cat 128",
+          labelZh: "橘貓徽章 128",
+          path: "icons/orange-hacker-cat-128.png",
+          width: 128,
+          height: 128,
+          bytes: 20613,
+          runtime: true
+        }
+      },
+      {
+        id: "heroCharacter",
+        mount: "sidebar-hero-preview",
+        label: "Hero Character",
+        labelZh: "主角色",
+        item: {
+          id: "cyberMechaCatRuntime",
+          label: "Cyber mecha cat runtime",
+          labelZh: "機甲貓 runtime",
+          path: "icons/cyber-mecha-cat-male-helmet-900.png",
+          width: 600,
+          height: 900,
+          bytes: 430624,
+          runtime: true
+        }
+      },
+      {
+        id: "tableFlipCat",
+        mount: "manual-trigger-preview",
+        label: "Table Flip Cat",
+        labelZh: "翻桌貓",
+        item: {
+          id: "tableFlipTrigger",
+          label: "Trigger icon",
+          labelZh: "觸發圖示",
+          path: "icons/table-flip-trigger-angry.svg",
+          bytes: 2386,
+          runtime: true
+        }
+      },
+      {
+        id: "buttonGlyphs",
+        mount: "semantic-button-preview",
+        label: "Button Glyphs",
+        labelZh: "按鈕圖示",
+        item: {
+          id: "newTask",
+          label: "New task glyph",
+          labelZh: "新聊天圖示",
+          path: "icons/buttons/cat-paw-new-task.svg",
+          bytes: 650,
+          runtime: true
+        }
+      }
+    ];
+
+    const state = {
+      locale: "zh-Hant",
+      planKind: "atomic-gate",
+      loadMode: "carrier-only",
+      port: 9341,
+      waitMs: 8000,
+      samples: 3,
+      intervalMs: 700,
+      outDir: "/tmp/codex-interface-theme-atomic-control-evidence",
+      launchIfMissing: false,
+      interact: false,
+      allowStatefulControls: false,
+      autoAllowlist: false,
+      verifyLocalControlClicks: false,
+      allowIndexes: "",
+      drag: false
+    };
+
+    const commandOutput = document.getElementById("commandOutput");
+    const errorOutput = document.getElementById("errorOutput");
+    const assetGrid = document.getElementById("assetGrid");
+    const outDir = document.getElementById("outDir");
+    const allowIndexes = document.getElementById("allowIndexes");
+    const samples = document.getElementById("samples");
+    const intervalMs = document.getElementById("intervalMs");
+    const toggleIds = ["launchIfMissing", "interact", "allowStatefulControls", "autoAllowlist", "verifyLocalControlClicks", "drag"];
+
+    function text(key) {
+      return (I18N[state.locale] && I18N[state.locale][key]) || I18N.en[key] || key;
+    }
+
+    function applyLocale() {
+      document.documentElement.lang = state.locale;
+      document.querySelectorAll("[data-i18n]").forEach((node) => {
+        node.textContent = text(node.dataset.i18n);
+      });
+      document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+        node.setAttribute("placeholder", text(node.dataset.i18nPlaceholder));
+      });
+    }
+
+    function renderAssets() {
+      assetGrid.replaceChildren();
+      ASSET_GROUPS.forEach((group) => {
+        const card = document.createElement("div");
+        card.className = "asset-card";
+        card.dataset.assetGroup = group.id;
+        card.dataset.assetMount = group.mount;
+        const image = document.createElement("img");
+        image.className = "asset-thumb";
+        image.alt = state.locale === "zh-Hant" ? group.labelZh : group.label;
+        image.src = `../assets/${group.item.path}`;
+        const meta = document.createElement("div");
+        meta.className = "asset-meta";
+        const title = document.createElement("strong");
+        title.textContent = state.locale === "zh-Hant" ? group.labelZh : group.label;
+        const item = document.createElement("span");
+        item.className = "hint";
+        item.textContent = state.locale === "zh-Hant" ? group.item.labelZh : group.item.label;
+        const spec = document.createElement("span");
+        spec.className = "hint";
+        const dimensions = group.item.width && group.item.height ? `${group.item.width}x${group.item.height} / ` : "";
+        spec.textContent = `${dimensions}${group.item.bytes} ${text("assetBytes")}`;
+        const status = document.createElement("span");
+        status.textContent = group.item.runtime ? text("assetRuntime") : text("assetSourceOnly");
+        meta.append(title, item, spec, status);
+        card.append(image, meta);
+        assetGrid.appendChild(card);
+      });
+    }
+
+    function shellQuote(value) {
+      const text = String(value);
+      return /^[A-Za-z0-9_./:@%+=,-]+$/.test(text) ? text : "'" + text.replace(/'/g, "'\\''") + "'";
+    }
+
+    function validate() {
+      const errors = [];
+      if (!state.outDir.startsWith("/")) {
+        errors.push("out-dir must be absolute");
+      }
+      if (state.allowIndexes && !/^[0-9]+(,[0-9]+)*$/.test(state.allowIndexes)) {
+        errors.push("allow indexes must be comma-separated numeric values");
+      }
+      if (!/^[0-9]+$/.test(String(state.samples))) {
+        errors.push("samples must be numeric");
+      }
+      if (!/^[0-9]+$/.test(String(state.intervalMs))) {
+        errors.push("interval ms must be numeric");
+      }
+      if (state.planKind === "dynamic-coverage") {
+        if (state.launchIfMissing || state.interact || state.autoAllowlist || state.verifyLocalControlClicks || state.allowIndexes || state.drag) {
+          errors.push("dynamic coverage is read-only; disable launch, interact, auto allowlist, local clicks, allow indexes, and drag");
+        }
+        return errors;
+      }
+      if (state.interact && !state.autoAllowlist && !state.allowIndexes) {
+        errors.push("interactive plan requires auto allowlist or reviewed allow indexes");
+      }
+      if (state.drag && !state.interact) {
+        errors.push("drag requires interact");
+      }
+      if (state.drag && !state.allowIndexes) {
+        errors.push("drag requires explicit reviewed allow indexes");
+      }
+      if (state.verifyLocalControlClicks && state.loadMode !== "control-only") {
+        errors.push("local control click verification requires control-only mode");
+      }
+      return errors;
+    }
+
+    function buildPlan() {
+      if (state.planKind === "dynamic-coverage") {
+        const command = [
+          "bash",
+          "macos/scripts/dynamic-boundary-readonly-gate.sh",
+          "--port",
+          String(state.port),
+          "--out-dir",
+          state.outDir,
+          "--samples",
+          String(state.samples),
+          "--interval-ms",
+          String(state.intervalMs),
+          "--allow-stateful-controls",
+          String(state.allowStatefulControls)
+        ];
+        return {
+          ok: validate().length === 0,
+          mode: "offline-command-plan",
+          executes: false,
+          mutates: false,
+          connectsToCdp: false,
+          options: { ...state },
+          command,
+          commandText: command.map(shellQuote).join(" ")
+        };
+      }
+      const command = [
+        "bash",
+        "macos/scripts/atomic-ui-automation-gate.sh",
+        "--port",
+        String(state.port),
+        "--out-dir",
+        state.outDir,
+        "--wait-ms",
+        String(state.waitMs),
+        "--load-mode",
+        state.loadMode,
+        "--launch-if-missing",
+        String(state.launchIfMissing),
+        "--interact",
+        String(state.interact),
+        "--allow-stateful-controls",
+        String(state.allowStatefulControls),
+        "--auto-allowlist",
+        String(state.autoAllowlist),
+        "--verify-local-control-clicks",
+        String(state.verifyLocalControlClicks),
+        "--drag",
+        String(state.drag)
+      ];
+      if (state.allowIndexes) {
+        command.push("--allow-indexes", state.allowIndexes);
+      }
+      return {
+        ok: validate().length === 0,
+        mode: "offline-command-plan",
+        executes: false,
+        mutates: false,
+        connectsToCdp: false,
+        options: { ...state },
+        command,
+        commandText: command.map(shellQuote).join(" ")
+      };
+    }
+
+    function render() {
+      applyLocale();
+      renderAssets();
+      document.querySelectorAll(".plan-card").forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.planKind === state.planKind));
+      });
+      document.querySelectorAll(".mode-card").forEach((button) => {
+        if (button.dataset.mode) {
+          button.setAttribute("aria-pressed", String(button.dataset.mode === state.loadMode));
+        }
+      });
+      toggleIds.forEach((id) => {
+        document.getElementById(id).checked = Boolean(state[id]);
+      });
+      const errors = validate();
+      const plan = buildPlan();
+      commandOutput.textContent = plan.commandText;
+      errorOutput.textContent = errors.join(" / ");
+      return plan;
+    }
+
+    document.querySelectorAll(".mode-card").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (!button.dataset.mode) {
+          return;
+        }
+        state.loadMode = button.dataset.mode;
+        render();
+      });
+    });
+
+    document.querySelectorAll(".plan-card").forEach((button) => {
+      button.addEventListener("click", () => {
+        state.planKind = button.dataset.planKind;
+        render();
+      });
+    });
+
+    toggleIds.forEach((id) => {
+      document.getElementById(id).addEventListener("change", (event) => {
+        state[id] = event.target.checked;
+        render();
+      });
+    });
+
+    outDir.addEventListener("input", () => {
+      state.outDir = outDir.value.trim();
+      render();
+    });
+
+    allowIndexes.addEventListener("input", () => {
+      state.allowIndexes = allowIndexes.value.trim();
+      render();
+    });
+
+    samples.addEventListener("input", () => {
+      state.samples = samples.value.trim();
+      render();
+    });
+
+    intervalMs.addEventListener("input", () => {
+      state.intervalMs = intervalMs.value.trim();
+      render();
+    });
+
+    document.getElementById("copyCommand").addEventListener("click", async () => {
+      const plan = render();
+      await navigator.clipboard.writeText(plan.commandText);
+      errorOutput.textContent = text("copiedCommand");
+    });
+
+    document.getElementById("copyJson").addEventListener("click", async () => {
+      const plan = render();
+      await navigator.clipboard.writeText(JSON.stringify(plan, null, 2));
+      errorOutput.textContent = text("copiedJson");
+    });
+
+    document.getElementById("languageToggle").addEventListener("click", () => {
+      state.locale = state.locale === "zh-Hant" ? "en" : "zh-Hant";
+      render();
+    });
+
+    render();
+  </script>
+</body>
+</html>

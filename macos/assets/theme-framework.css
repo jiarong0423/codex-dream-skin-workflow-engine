@@ -1,0 +1,12 @@
+html[data-codex-interface-theme="active"] {
+  color-scheme: dark;
+}
+
+#codex-interface-theme-backdrop,
+#codex-interface-theme-marker,
+#codex-interface-theme-right-hud,
+#codex-interface-theme-character,
+#codex-interface-theme-badge {
+  display: none !important;
+  pointer-events: none !important;
+}

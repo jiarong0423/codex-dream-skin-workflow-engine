@@ -1,0 +1,220 @@
+{
+  "version": 1,
+  "generatedAt": "2026-08-04T05:30:00+08:00",
+  "mode": "static-known-black-range-ledger",
+  "sideEffects": {
+    "mutates": false,
+    "connectsToCdp": false,
+    "appliesTheme": false,
+    "restores": false,
+    "clicks": false,
+    "drags": false,
+    "launches": false
+  },
+  "sourceEvidence": {
+    "auditText": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+    "auditOptions": "/tmp/codex-black-gap-inventory-20260804-0508/00-options.json",
+    "target": "app://-/index.html",
+    "viewport": "1920x1080",
+    "themeRevision": "507a88b1bf714029",
+    "note": "Coordinates are retained only as visual evidence; identity comes from layer, owner, role/state, and semantic signals."
+  },
+  "formula": "known_black_range_total - retained_or_protected_range_total = modification_detection_candidates",
+  "counts": {
+    "knownBlackRangeTotal": 8,
+    "controlled": 1,
+    "retainNative": 2,
+    "protected": 2,
+    "independentReview": 1,
+    "dirtyLayerSuspect": 2,
+    "retainedOrProtectedRangeTotal": 6,
+    "modificationDetectionCandidates": 2
+  },
+  "surfaces": [
+    {
+      "id": "known-black-001-main-shell",
+      "surfaceLabel": "main workspace shell",
+      "rectOrVisualEvidence": "rect=288,0,1632x1080 area=1762990",
+      "identityBasis": [
+        "DOM ancestry: main",
+        "nearest painted ancestor: body",
+        "large native workspace shell"
+      ],
+      "currentOwner": "native",
+      "bucket": "RETAIN_NATIVE",
+      "reason": "Primary workspace shell should not be globally repainted; visual changes must target smaller owner-scoped modules.",
+      "allowedAction": "readability audit only",
+      "forbiddenAction": "global repaint overlay or black-shell fill",
+      "rollbackArtifact": "existing restore.sh plus namespaced marker cleanup",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "keep as retained native background and do not enter modification detection"
+    },
+    {
+      "id": "known-black-002-left-sidebar",
+      "surfaceLabel": "left sidebar shell and rows",
+      "rectOrVisualEvidence": "rect=0,0,288x1080 area=310610",
+      "identityBasis": [
+        "DOM ancestry: aside",
+        "semantic signals: Codex navigation and recent project rows",
+        "native sidebar selection state"
+      ],
+      "currentOwner": "native",
+      "bucket": "DIRTY_LAYER_SUSPECT",
+      "reason": "Observed stacked row/capsule styling should be cleaned by removing duplicate layers, not adding another black layer.",
+      "allowedAction": "owner-scoped sidebar cleanup",
+      "forbiddenAction": "global row background or duplicate active border",
+      "rollbackArtifact": "remove namespaced sidebar classes and markers",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "queue scoped sidebar layer cleanup"
+    },
+    {
+      "id": "known-black-003-right-panel-cluster",
+      "surfaceLabel": "right panel environment/source/status cluster",
+      "rectOrVisualEvidence": "rect=1604,58,316x510 area=161160",
+      "identityBasis": [
+        "semantic signals: environment, branch, PR/status, source rows",
+        "rightPanelStatusRows",
+        "rightPanelPreviewBlocks risk"
+      ],
+      "currentOwner": "native",
+      "bucket": "INDEPENDENT_REVIEW",
+      "reason": "Right-side template mixes status rows, source rows, and tracking controls; it is not a black-shell candidate.",
+      "allowedAction": "layer-first independent review",
+      "forbiddenAction": "coordinate identity or black-shell fill",
+      "rollbackArtifact": "restore-marker only",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "promote only passive shell after separate right-panel review"
+    },
+    {
+      "id": "known-black-004-composer",
+      "surfaceLabel": "bottom composer surface",
+      "rectOrVisualEvidence": "rect=736,966,736x98 area=72128",
+      "identityBasis": [
+        "semantic signals: model and approval controls",
+        "bottom dock composer placement",
+        "text input risk"
+      ],
+      "currentOwner": "native",
+      "bucket": "PROTECTED",
+      "reason": "Composer is text input and action surface; no global shell fill or input interception.",
+      "allowedAction": "native-size reset only",
+      "forbiddenAction": "full-width overlay, black-shell fill, input intercept",
+      "rollbackArtifact": "remove composer-surface namespaced classes",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "exclude from modification detection"
+    },
+    {
+      "id": "known-black-005-message-bubble-1",
+      "surfaceLabel": "user message bubble",
+      "rectOrVisualEvidence": "rect=1046,406,426x42 area=17892",
+      "identityBasis": [
+        "conversation message row",
+        "user text bubble",
+        "native chat surface"
+      ],
+      "currentOwner": "native",
+      "bucket": "MODIFICATION_CANDIDATE",
+      "reason": "Non-protected chat bubble styling may be cleaned if scoped to conversation surface and rollback is proven.",
+      "allowedAction": "owner-scoped conversation layer cleanup",
+      "forbiddenAction": "global chat row repaint",
+      "rollbackArtifact": "remove conversation namespaced classes",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "queue conversation bubble layer cleanup"
+    },
+    {
+      "id": "known-black-006-message-bubble-2",
+      "surfaceLabel": "user message bubble",
+      "rectOrVisualEvidence": "rect=1176,599,296x40 area=11840",
+      "identityBasis": [
+        "conversation message row",
+        "user text bubble",
+        "native chat surface"
+      ],
+      "currentOwner": "native",
+      "bucket": "MODIFICATION_CANDIDATE",
+      "reason": "Same owner and cleanup path as message bubble 1; keep as one conversation-surface task.",
+      "allowedAction": "owner-scoped conversation layer cleanup",
+      "forbiddenAction": "global chat row repaint",
+      "rollbackArtifact": "remove conversation namespaced classes",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "merge into conversation bubble cleanup task"
+    },
+    {
+      "id": "known-black-007-pr-status-row",
+      "surfaceLabel": "right panel PR status row",
+      "rectOrVisualEvidence": "rect=1619,235,270x32 area=8640",
+      "identityBasis": [
+        "semantic signals: Pull Request status",
+        "rightPanelStatusRows",
+        "branch/status control risk"
+      ],
+      "currentOwner": "native",
+      "bucket": "PROTECTED",
+      "reason": "Status row belongs to right-panel tracking/status controls; not a styling candidate.",
+      "allowedAction": "inventory and restore-marker only",
+      "forbiddenAction": "hide action icons or duplicate plate",
+      "rollbackArtifact": "restore-marker only",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "exclude from modification detection"
+    },
+    {
+      "id": "known-black-008-hot-swap-bay",
+      "surfaceLabel": "theme pack hot swap bay",
+      "rectOrVisualEvidence": "rect=16,962,178x36 area=6408",
+      "identityBasis": [
+        "theme-owned region",
+        "role=region",
+        "text: Theme pack hot swap bay"
+      ],
+      "currentOwner": "theme",
+      "bucket": "CONTROLLED",
+      "reason": "Already theme-owned; final closeout should keep it low-interference or collapse it, not count it as native black shell.",
+      "allowedAction": "low-interference placement cleanup",
+      "forbiddenAction": "cover main content, composer, right browser, or source preview",
+      "rollbackArtifact": "existing restore removes codex-interface-theme-right-hud subtree",
+      "evidencePath": "/tmp/codex-black-gap-inventory-20260804-0508/01-black-shell-layer-audit.txt",
+      "nextAction": "queue hot-swap source/live parity and placement cleanup"
+    }
+  ],
+  "modificationQueue": [
+    {
+      "id": "Q1",
+      "title": "sidebar duplicate layer cleanup",
+      "priority": "P1",
+      "surfaceIds": [
+        "known-black-002-left-sidebar"
+      ],
+      "entryGate": "visual-layer-governance-contract must pass",
+      "exitGate": "screenshot plus restore residue proof"
+    },
+    {
+      "id": "Q2",
+      "title": "conversation bubble scoped cleanup",
+      "priority": "P1",
+      "surfaceIds": [
+        "known-black-005-message-bubble-1",
+        "known-black-006-message-bubble-2"
+      ],
+      "entryGate": "conversation owner classification only",
+      "exitGate": "no right-panel, composer, source preview, or account popover style drift"
+    },
+    {
+      "id": "Q3",
+      "title": "hot-swap low-interference placement and source-live parity",
+      "priority": "P1",
+      "surfaceIds": [
+        "known-black-008-hot-swap-bay"
+      ],
+      "entryGate": "installed engine and source implementation diff reviewed",
+      "exitGate": "one-shot apply, verify, restore, residue scan"
+    },
+    {
+      "id": "Q4",
+      "title": "character natural-rect retreat fix",
+      "priority": "P0",
+      "surfaceIds": [],
+      "entryGate": "video evidence confirms current-retreated-rect release flicker",
+      "exitGate": "CSS-only retreat keeps the character geometry at its natural rect while transparent; no extra renderer state or watcher is added"
+    }
+  ]
+}

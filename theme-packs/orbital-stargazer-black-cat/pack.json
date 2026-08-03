@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "orbital-stargazer-black-cat",
+  "displayName": "Black Cat: Orbital Stargazer",
+  "status": "asset-ready-unmounted",
+  "palette": {
+    "accent": "#70d7e8",
+    "secondary": "#eef2dc",
+    "warm": "#e6b55a",
+    "sage": "#799b6a",
+    "alert": "#d87888",
+    "surface": "rgba(13, 17, 18, 0.64)",
+    "surfaceStrong": "rgba(8, 11, 12, 0.84)",
+    "text": "#f2f4ea"
+  },
+  "assets": {
+    "background": "runtime/backgrounds/capsule-left-observatory-right.webp",
+    "heroCharacter": "runtime/characters/astronaut-black-cat-hero-900.png",
+    "interactionMascot": "runtime/characters/black-cat-mascot-320.png",
+    "interactionPoster": "runtime/animations/roll-groom-poster.png",
+    "interactionSprite": "runtime/animations/roll-groom-sprite.webp",
+    "interactionTrigger": "runtime/icons/trigger.svg"
+  },
+  "interaction": {
+    "id": "roll-and-groom",
+    "activation": "manual-click-only",
+    "placement": "right-bottom",
+    "frameCount": 8,
+    "durationMs": 1760,
+    "preload": false,
+    "idlePlaybackDom": false,
+    "cleanup": "remove playback node and decoded sprite immediately after completion"
+  },
+  "mountContracts": {
+    "background": {
+      "anchor": "document body scene",
+      "mountType": "body-scene",
+      "paintOrder": "below native content and controls",
+      "activation": "active pack only",
+      "retreat": "none; artwork safe area is center",
+      "fallback": "native Codex background",
+      "budgetBytes": 220000
+    },
+    "heroCharacter": {
+      "anchor": "verified left app shell",
+      "mountType": "independent-decoration",
+      "paintOrder": "above background and below native text hitboxes",
+      "activation": "wide layout with active pack",
+      "retreat": "hide on narrow layout, side-panel collision, or text collision",
+      "fallback": "no character",
+      "budgetBytes": 520000
+    },
+    "interaction": {
+      "anchor": "body HUD root",
+      "mountType": "manual-interaction",
+      "paintOrder": "above background without intercepting unrelated controls",
+      "activation": "paw-pad trigger click",
+      "retreat": "hide during major right panel or composer collision",
+      "fallback": "trigger-only no-op",
+      "budgetBytes": 260000
+    }
+  },
+  "iconMap": {
+    "search": "runtime/icons/search.svg",
+    "newTask": "runtime/icons/newTask.svg",
+    "back": "runtime/icons/back.svg",
+    "forward": "runtime/icons/forward.svg",
+    "stop": "runtime/icons/stop.svg",
+    "settings": "runtime/icons/settings.svg",
+    "project": "runtime/icons/project.svg",
+    "send": "runtime/icons/send.svg",
+    "tagTask": "runtime/icons/tagTask.svg",
+    "files": "runtime/icons/files.svg",
+    "thread": "runtime/icons/thread.svg",
+    "clean": "runtime/icons/clean.svg",
+    "run": "runtime/icons/run.svg",
+    "spark": "runtime/icons/spark.svg",
+    "package": "runtime/icons/package.svg"
+  },
+  "payloadGroups": {
+    "visual": [
+      "background",
+      "heroCharacter"
+    ],
+    "animationShell": [
+      "interactionTrigger"
+    ],
+    "animationPlayback": [
+      "interactionPoster",
+      "interactionSprite"
+    ],
+    "buttons": [
+      "iconMap"
+    ]
+  }
+}

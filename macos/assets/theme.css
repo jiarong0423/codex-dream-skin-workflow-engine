@@ -43,6 +43,36 @@ html[data-codex-interface-theme="active"] {
   --cit-glass-border-soft: rgba(255, 255, 255, 0.08);
   --cit-glass-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
   --cit-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.045);
+  --cit-route-card-fill: rgba(14, 24, 30, 0.60);
+  --cit-route-card-fill-strong: rgba(9, 15, 18, 0.78);
+  --cit-route-card-line: rgba(176, 227, 238, 0.15);
+  --cit-route-card-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+  --cit-picker-shell-fill: rgba(9, 16, 20, 0.86);
+  --cit-picker-shell-line: rgba(189, 236, 246, 0.22);
+  --cit-picker-shell-shadow: 0 20px 50px rgba(0, 0, 0, 0.46);
+  --cit-page-header-shell-fill: rgba(16, 27, 33, 0.54);
+  --cit-page-header-shell-line: rgba(176, 227, 238, 0.14);
+  --cit-page-header-shell-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
+  --cit-route-search-band-fill: rgba(14, 24, 30, 0.56);
+  --cit-route-search-band-line: rgba(176, 227, 238, 0.13);
+  --cit-route-search-band-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
+  --cit-shortcut-list-shell-fill: rgba(8, 12, 15, 0.72);
+  --cit-shortcut-list-shell-line: rgba(176, 227, 238, 0.13);
+  --cit-shortcut-list-shell-row-line: rgba(255, 255, 255, 0.055);
+  --cit-shortcut-list-shell-shadow: 0 20px 52px rgba(0, 0, 0, 0.20);
+  --cit-archived-row-shell-fill: rgba(8, 12, 15, 0.76);
+  --cit-archived-row-shell-line: rgba(176, 227, 238, 0.13);
+  --cit-archived-row-shell-shadow: 0 18px 46px rgba(0, 0, 0, 0.22);
+  --cit-project-list-row-fill: rgba(8, 12, 15, 0.78);
+  --cit-project-list-row-line: rgba(176, 227, 238, 0.13);
+  --cit-project-list-row-shadow: 0 18px 46px rgba(0, 0, 0, 0.24);
+  --cit-project-list-action-fill: rgba(13, 23, 28, 0.88);
+  --cit-project-list-action-line: rgba(176, 227, 238, 0.16);
+  --cit-settings-control-card-fill: rgba(15, 26, 32, 0.70);
+  --cit-settings-control-card-line: rgba(176, 227, 238, 0.16);
+  --cit-settings-control-card-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+  --cit-settings-control-action-fill: rgba(8, 14, 18, 0.90);
+  --cit-settings-control-action-line: rgba(176, 227, 238, 0.18);
   --cit-glass-radius: 18px;
   --cit-glass-radius-tight: 12px;
   --cit-glass-radius-pill: 24px;
@@ -229,7 +259,7 @@ html[data-codex-interface-theme="active"][data-cit-character-retreat="side-panel
 html[data-codex-interface-theme="active"][data-cit-character-retreat="text-overlap"] body > #codex-interface-theme-character,
 html[data-codex-interface-theme="active"][data-cit-character-retreat="narrow"] body > #codex-interface-theme-character {
   opacity: 0 !important;
-  transform: translate3d(-22px, 26px, 0) scale(0.92) !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
   filter:
     saturate(0.94)
     contrast(0.96)
@@ -424,24 +454,6 @@ html[data-codex-interface-theme="active"] [data-testid="app-shell-header-context
   color: var(--cit-text) !important;
 }
 
-html[data-codex-interface-theme="active"] [role="dialog"],
-html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper],
-html[data-codex-interface-theme="active"] [class*="popover" i],
-html[data-codex-interface-theme="active"] [class*="modal" i],
-html[data-codex-interface-theme="active"] [class*="menu" i] {
-  overflow: hidden;
-  border-radius: var(--cit-glass-radius-tight) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 24%, rgba(255, 255, 255, 0.018)),
-    color-mix(in srgb, var(--cit-popover-surface), transparent 18%) !important;
-  border-color: color-mix(in srgb, var(--cit-glass-border), var(--cit-popover-border) 44%) !important;
-  box-shadow:
-    var(--cit-glass-inset),
-    var(--cit-glass-shadow) !important;
-  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 1.08)) saturate(1.38) contrast(1.04);
-  backdrop-filter: blur(calc(var(--cit-blur) * 1.08)) saturate(1.38) contrast(1.04);
-}
-
 html[data-codex-interface-theme="active"] .composer-surface-chrome {
   overflow: hidden;
   border-radius: var(--cit-glass-radius-pill) !important;
@@ -465,18 +477,116 @@ html[data-codex-interface-theme="active"] .composer-surface-chrome {
   backdrop-filter: blur(calc(var(--cit-blur) * 1.04)) saturate(1.42) contrast(1.05);
 }
 
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([class*="bg-token-dropdown-background"]):not([class*="max-h-"]) {
+/* Route-level black shells: theme-owned route cards only. */
+html[data-codex-interface-theme="active"] [data-cit-route-card-shell="true"] {
   overflow: hidden;
   border-radius: var(--cit-glass-radius-tight) !important;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.028) 24%, rgba(255, 255, 255, 0.014)),
-    color-mix(in srgb, var(--cit-glass-surface), transparent 10%) !important;
-  border-color: color-mix(in srgb, var(--cit-glass-border), var(--cit-secondary) 10%) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.112), rgba(255, 255, 255, 0.026) 24%, rgba(0, 0, 0, 0)),
+    linear-gradient(112deg, rgba(0, 216, 224, 0.060), rgba(12, 22, 27, 0.20) 46%, rgba(242, 162, 58, 0.035)),
+    var(--cit-route-card-fill) !important;
+  background-color: var(--cit-route-card-fill) !important;
+  border-color: var(--cit-route-card-line) !important;
   box-shadow:
     var(--cit-glass-inset),
-    0 14px 34px rgba(0, 0, 0, 0.18) !important;
+    var(--cit-route-card-shadow) !important;
   -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.74)) saturate(1.26) contrast(1.03);
   backdrop-filter: blur(calc(var(--cit-blur) * 0.74)) saturate(1.26) contrast(1.03);
+}
+
+/* Page header shells: theme-owned route headers only. */
+html[data-codex-interface-theme="active"] [data-cit-route-header-shell="true"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.096), rgba(255, 255, 255, 0.024) 28%, rgba(0, 0, 0, 0)),
+    linear-gradient(112deg, rgba(0, 216, 224, 0.048), rgba(12, 22, 27, 0.18) 50%, rgba(242, 162, 58, 0.030)),
+    var(--cit-page-header-shell-fill) !important;
+  background-color: var(--cit-page-header-shell-fill) !important;
+  border-color: var(--cit-page-header-shell-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    inset 0 -1px 0 rgba(176, 227, 238, 0.060),
+    var(--cit-page-header-shell-shadow) !important;
+  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.68)) saturate(1.20) contrast(1.02);
+  backdrop-filter: blur(calc(var(--cit-blur) * 0.68)) saturate(1.20) contrast(1.02);
+}
+
+/* Route search band shell: only explicit theme-owned search bands. */
+html[data-codex-interface-theme="active"] [data-cit-route-search-band="true"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.070), rgba(255, 255, 255, 0.018) 34%, rgba(0, 0, 0, 0)),
+    linear-gradient(96deg, rgba(0, 216, 224, 0.040), rgba(12, 22, 27, 0.16) 54%, rgba(242, 162, 58, 0.024)),
+    var(--cit-route-search-band-fill) !important;
+  background-color: var(--cit-route-search-band-fill) !important;
+  border-color: var(--cit-route-search-band-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.060),
+    inset 0 -1px 0 rgba(176, 227, 238, 0.050),
+    var(--cit-route-search-band-shadow) !important;
+  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.62)) saturate(1.16) contrast(1.02);
+  backdrop-filter: blur(calc(var(--cit-blur) * 0.62)) saturate(1.16) contrast(1.02);
+}
+
+/* Keyboard shortcut list shell: only explicit theme-owned tables. */
+html[data-codex-interface-theme="active"] [data-cit-shortcut-list-shell="true"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.060), rgba(255, 255, 255, 0.015) 32%, rgba(0, 0, 0, 0)),
+    linear-gradient(90deg, rgba(20, 31, 36, 0.28), rgba(6, 8, 11, 0.68)),
+    var(--cit-shortcut-list-shell-fill) !important;
+  background-color: var(--cit-shortcut-list-shell-fill) !important;
+  border-color: var(--cit-shortcut-list-shell-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.060),
+    inset 0 -1px 0 rgba(176, 227, 238, 0.045),
+    var(--cit-shortcut-list-shell-shadow) !important;
+  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.62)) saturate(1.16) contrast(1.02);
+  backdrop-filter: blur(calc(var(--cit-blur) * 0.62)) saturate(1.16) contrast(1.02);
+}
+
+html[data-codex-interface-theme="active"] [data-cit-shortcut-list-shell="true"] > [data-cit-shortcut-list-row="true"] {
+  border-color: var(--cit-shortcut-list-shell-row-line) !important;
+}
+
+/* Archived chat rows: only explicit theme-owned rows. */
+html[data-codex-interface-theme="active"] [data-cit-archived-chat-row="true"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.014) 30%, rgba(0, 0, 0, 0)),
+    linear-gradient(96deg, rgba(0, 216, 224, 0.045), rgba(7, 10, 13, 0.66) 54%, rgba(242, 162, 58, 0.020)),
+    var(--cit-archived-row-shell-fill) !important;
+  background-color: var(--cit-archived-row-shell-fill) !important;
+  border-color: var(--cit-archived-row-shell-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 -1px 0 rgba(176, 227, 238, 0.040),
+    var(--cit-archived-row-shell-shadow) !important;
+  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.56)) saturate(1.14) contrast(1.02);
+  backdrop-filter: blur(calc(var(--cit-blur) * 0.56)) saturate(1.14) contrast(1.02);
+}
+
+/* Project list row shell: route-scoped row cards stay glass while plus/actions stay opaque. */
+html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋專案"]) [data-cit-project-list-row="true"],
+html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search projects"]) [data-cit-project-list-row="true"] {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.014) 30%, rgba(0, 0, 0, 0)),
+    linear-gradient(96deg, rgba(0, 216, 224, 0.045), rgba(7, 10, 13, 0.66) 54%, rgba(242, 162, 58, 0.020)),
+    var(--cit-project-list-row-fill) !important;
+  background-color: var(--cit-project-list-row-fill) !important;
+  border-color: var(--cit-project-list-row-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 -1px 0 rgba(176, 227, 238, 0.040),
+    var(--cit-project-list-row-shadow) !important;
+  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.56)) saturate(1.14) contrast(1.02);
+  backdrop-filter: blur(calc(var(--cit-blur) * 0.56)) saturate(1.14) contrast(1.02);
+}
+
+html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋專案"]) [data-cit-project-list-row="true"] :is(button, [role="button"]):not(:has(input)):not(:has(textarea)):not([data-cit-source-preview-block="true"]),
+html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search projects"]) [data-cit-project-list-row="true"] :is(button, [role="button"]):not(:has(input)):not(:has(textarea)):not([data-cit-source-preview-block="true"]) {
+  background-color: var(--cit-project-list-action-fill) !important;
+  background-image: none !important;
+  border-color: var(--cit-project-list-action-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.080),
+    0 8px 22px rgba(0, 0, 0, 0.22) !important;
 }
 
 html[data-codex-interface-theme="active"] button,
@@ -2015,12 +2125,18 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud,
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud:focus,
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud:focus-visible,
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud[role="button"]:focus-visible {
+  position: fixed !important;
+  z-index: 2147482600 !important;
   top: auto !important;
   left: auto !important;
   right: clamp(14px, 1.2vw, 24px) !important;
   bottom: clamp(14px, 1.4vh, 24px) !important;
   width: calc(var(--cit-table-flip-cat-size, 118px) + 18px) !important;
   height: calc(var(--cit-table-flip-cat-size, 118px) * 0.72 + 18px) !important;
+  max-width: 198px !important;
+  max-height: 148px !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
   display: block !important;
   pointer-events: none !important;
   cursor: default !important;
@@ -2034,6 +2150,9 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud[role=
   mask-image: none !important;
   overflow: visible !important;
   opacity: 1 !important;
+  transform: translateZ(0) !important;
+  contain: layout paint style !important;
+  isolation: isolate !important;
 }
 
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud::before,
@@ -2049,10 +2168,17 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .code
   display: block !important;
   width: 100% !important;
   height: 100% !important;
+  max-width: calc(var(--cit-table-flip-cat-size, 118px) + 18px) !important;
+  max-height: calc(var(--cit-table-flip-cat-size, 118px) * 0.72 + 18px) !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
   border: 0 !important;
   background-position: center;
   background-repeat: no-repeat !important;
   background-size: contain !important;
+  object-fit: contain !important;
+  overflow: hidden !important;
+  contain: layout paint style !important;
   filter:
     saturate(1.08)
     contrast(1.04)
@@ -2099,7 +2225,7 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .code
   position: absolute !important;
   top: -28px !important;
   right: 2px !important;
-  z-index: 3 !important;
+  z-index: 4 !important;
   display: block !important;
   width: clamp(30px, calc(var(--cit-table-flip-cat-size, 118px) * 0.30), 42px) !important;
   height: clamp(30px, calc(var(--cit-table-flip-cat-size, 118px) * 0.30), 42px) !important;
@@ -2263,12 +2389,6 @@ html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-c
 
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel,
 html[data-codex-interface-theme="active"] header.app-header-tint,
-html[data-codex-interface-theme="active"] [role="dialog"],
-html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper],
-html[data-codex-interface-theme="active"] [class*="popover" i],
-html[data-codex-interface-theme="active"] [class*="modal" i],
-html[data-codex-interface-theme="active"] [class*="menu" i],
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([class*="bg-token-dropdown-background"]):not([class*="max-h-"]),
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame,
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel,
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
@@ -2350,68 +2470,161 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-f
   display: none !important;
 }
 
-/* Opaque transient surfaces: prevent modal text from stacking over the workspace. */
-html[data-codex-interface-theme="active"] [role="dialog"],
-html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper] > *,
-html[data-codex-interface-theme="active"] [class*="popover" i],
-html[data-codex-interface-theme="active"] [class*="modal" i],
-html[data-codex-interface-theme="active"] [class*="menu" i] {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.008) 24%, transparent),
-    linear-gradient(100deg, rgba(0, 216, 224, 0.045), transparent 52%, rgba(255, 58, 70, 0.035)),
-    rgba(6, 10, 13, 0.96) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 18px 44px rgba(0, 0, 0, 0.46) !important;
-}
-
 /* Opaque workspace pickers: command/listbox panels isolate text without a detached overlay plate. */
-html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker,
-html[data-codex-interface-theme="active"] [role="listbox"],
-html[data-codex-interface-theme="active"] [role="menu"],
-html[data-codex-interface-theme="active"] [cmdk-root],
-html[data-codex-interface-theme="active"] [data-cmdk-root],
-html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper] [role="listbox"],
-html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper] [role="menu"],
-html[data-codex-interface-theme="active"] main [class*="bg-token-dropdown-background"][class*="rounded-2xl"][class*="border"][class*="max-h-"],
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([role="listbox"]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([role="menu"]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([role="option"]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([cmdk-list]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([data-cmdk-list]) {
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker {
   color: var(--cit-text) !important;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.52) !important;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.060), rgba(255, 255, 255, 0.014) 18%, rgba(0, 0, 0, 0)),
-    linear-gradient(105deg, rgba(0, 216, 224, 0.125), rgba(3, 10, 13, 0.76) 42%, rgba(255, 48, 82, 0.115)),
-    rgba(3, 8, 11, 0.965) !important;
-  background-color: rgba(3, 8, 11, 0.965) !important;
-  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 68%) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.064), rgba(255, 255, 255, 0.014) 18%, rgba(0, 0, 0, 0)),
+    linear-gradient(105deg, rgba(0, 216, 224, 0.078), rgba(12, 22, 27, 0.58) 44%, rgba(255, 48, 82, 0.052)),
+    var(--cit-picker-shell-fill) !important;
+  background-color: var(--cit-picker-shell-fill) !important;
+  border-color: var(--cit-picker-shell-line) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.085),
     inset 0 0 0 1px rgba(255, 255, 255, 0.030),
     0 0 0 1px rgba(0, 216, 224, 0.11),
-    0 24px 56px rgba(0, 0, 0, 0.74) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.18) brightness(0.52) !important;
-  backdrop-filter: blur(18px) saturate(1.18) brightness(0.52) !important;
+    var(--cit-picker-shell-shadow) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
   opacity: 1 !important;
 }
 
-html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker {
+/* Opaque transient surfaces remain scoped to the verified workspace picker only. */
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is([role="listbox"], [cmdk-root]) {
+  background-color: var(--cit-picker-shell-fill) !important;
+  border-color: var(--cit-picker-shell-line) !important;
+  color: var(--cit-text) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker {
   position: relative !important;
-  z-index: 2147483000 !important;
+  z-index: 80 !important;
   isolation: isolate !important;
 }
 
-html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker * {
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker * {
   text-shadow: 0 1px 9px rgba(0, 0, 0, 0.64) !important;
 }
 
-html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker :is(div, section, article) {
-  background-color: transparent !important;
+/* Opaque transient surfaces: native picker fallback before its runtime marker arrives. */
+html[data-codex-interface-theme="active"] main [class*="bg-token-dropdown-background"][class*="rounded-2xl"][class*="border"][class*="max-h-"]:is([role="listbox"], [cmdk-root]) {
+  color: var(--cit-text) !important;
+  background-color: var(--cit-picker-shell-fill) !important;
+  border-color: var(--cit-picker-shell-line) !important;
+  box-shadow: var(--cit-picker-shell-shadow) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Keep generic rounded content from inheriting picker, project, or source-preview material. */
+html[data-codex-interface-theme="active"] main [class*="rounded-2xl"][class*="border"]:not(.codex-interface-theme-workspace-picker):not(.codex-interface-theme-project-panel):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])):not([class*="bg-token-dropdown-background"]):not([class*="max-h-"]) {
+  background-color: var(--cit-route-card-fill) !important;
+  border-color: var(--cit-route-card-line) !important;
+}
+
+/* Theme art stack: keep the right-bottom manual trigger above native washes
+   without promoting unrelated native surfaces. */
+html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud {
+  z-index: 2147483100 !important;
+}
+
+/* Project panel rows: row shells own material; native row controls stay readable. */
+html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content :is([role="list"] button, [role="listitem"] button, button.group\/summary-panel-item, .group\/summary-panel-item) {
+  --cit-project-row-fill: rgba(10, 20, 25, 0.58);
+  --cit-project-row-line: rgba(176, 227, 238, 0.13);
+  position: relative !important;
+  z-index: 2 !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.048), rgba(255, 255, 255, 0.010) 22%, rgba(0, 0, 0, 0)),
+    linear-gradient(90deg, rgba(0, 216, 224, 0.052), rgba(0, 0, 0, 0) 64%),
+    var(--cit-project-row-fill) !important;
+  background-color: var(--cit-project-row-fill) !important;
+  border-color: var(--cit-project-row-line) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.055),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.020) !important;
+}
+
+html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content :is([role="list"] button, [role="listitem"] button, button.group\/summary-panel-item, .group\/summary-panel-item):hover {
+  --cit-project-row-fill: rgba(12, 26, 32, 0.70);
+  --cit-project-row-line: rgba(176, 227, 238, 0.22);
+}
+
+html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content :is([role="list"] button, [role="listitem"] button, button.group\/summary-panel-item, .group\/summary-panel-item) :is(button, [role="button"], a, svg, [class*="icon" i], [data-testid*="more" i]) {
+  position: relative !important;
+  z-index: 3 !important;
+  color: var(--cit-text) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel [data-cit-button-module="projectPanelRows"] {
+  background-color: rgba(10, 20, 25, 0.74) !important;
+  border-color: rgba(176, 227, 238, 0.18) !important;
+}
+
+/* Closeout layer cleanup: keep queued surfaces to one low-alpha layer. */
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"], [role="link"]) {
+  box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"], [role="link"]):not(:hover):not([aria-current]):not([data-state="active"]):not([data-selected="true"]) {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"], [role="link"]):hover,
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"], [role="link"])[aria-current],
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"], [role="link"])[data-state="active"],
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"], [role="link"])[data-selected="true"] {
+  background: rgba(8, 24, 29, 0.32) !important;
+  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 84%) !important;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 74%) !important;
+}
+
+html[data-codex-interface-theme="active"] aside.app-shell-left-panel [data-cit-button-module="sidebarNavigation"] {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble {
+  background: rgba(8, 20, 24, 0.24) !important;
+  border: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 84%) !important;
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 76%) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble *,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble *::before,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble *::after {
+  --tw-bg-opacity: 0 !important;
   background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-pack-bay {
+  position: fixed !important;
+  left: 14px !important;
+  right: auto !important;
+  bottom: 12px !important;
+  max-width: min(220px, calc(100vw - 28px)) !important;
+  pointer-events: auto !important;
+  z-index: 2 !important;
+  background: rgba(8, 20, 24, 0.30) !important;
+  border: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 86%) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-codex-interface-theme="active"][data-cit-character-retreat="side-panel"] body > #codex-interface-theme-character,
+html[data-codex-interface-theme="active"][data-cit-character-retreat="text-overlap"] body > #codex-interface-theme-character,
+html[data-codex-interface-theme="active"][data-cit-character-retreat="narrow"] body > #codex-interface-theme-character {
+  opacity: 0 !important;
+  transform: translate3d(0, 0, 0) scale(1) !important;
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker-heading {
@@ -2423,50 +2636,39 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picke
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker-row,
-html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker :is(button, [role="button"], [role="option"], [role="menuitem"], [cmdk-item], [data-cmdk-item]),
-html[data-codex-interface-theme="active"] main [class*="bg-token-dropdown-background"][class*="rounded-2xl"][class*="border"][class*="max-h-"] :is(button, [role="button"], [role="option"], [role="menuitem"], [tabindex]),
-html[data-codex-interface-theme="active"] [role="listbox"] :is([role="option"], [role="menuitem"], button, [role="button"]),
-html[data-codex-interface-theme="active"] [role="menu"] :is([role="option"], [role="menuitem"], button, [role="button"]),
-html[data-codex-interface-theme="active"] [cmdk-root] :is([cmdk-item], [data-cmdk-item], [role="option"], button, [role="button"]),
-html[data-codex-interface-theme="active"] [data-cmdk-root] :is([cmdk-item], [data-cmdk-item], [role="option"], button, [role="button"]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([role="option"]) :is([role="option"], [role="menuitem"], button, [role="button"]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([cmdk-list]) :is([cmdk-item], [data-cmdk-item], button, [role="button"]),
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([data-cmdk-list]) :is([cmdk-item], [data-cmdk-item], button, [role="button"]) {
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is(button, [role="button"], [role="option"], [role="menuitem"], [cmdk-item], [data-cmdk-item]) {
   background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.080), rgba(0, 0, 0, 0) 60%),
-    rgba(3, 10, 13, 0.93) !important;
-  background-color: rgba(3, 10, 13, 0.93) !important;
+    linear-gradient(90deg, rgba(0, 216, 224, 0.060), rgba(0, 0, 0, 0) 62%),
+    rgba(9, 18, 22, 0.84) !important;
+  background-color: rgba(9, 18, 22, 0.84) !important;
   border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 82%) !important;
   color: var(--cit-text) !important;
 }
 
-html[data-codex-interface-theme="active"] [role="listbox"] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]),
-html[data-codex-interface-theme="active"] [role="menu"] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]),
-html[data-codex-interface-theme="active"] [cmdk-root] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]),
-html[data-codex-interface-theme="active"] [data-cmdk-root] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]) {
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is([aria-selected="true"], [data-selected="true"], [data-highlighted]) {
   background:
     linear-gradient(90deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 78%), transparent 58%),
-    rgba(7, 18, 22, 0.96) !important;
+    rgba(13, 32, 40, 0.88) !important;
 }
 
 /* Final shell-only fallback for Codex dropdowns whose selector stack does not expose roles. */
 html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.060), rgba(255, 255, 255, 0.014) 18%, transparent),
-    linear-gradient(105deg, rgba(0, 216, 224, 0.125), rgba(3, 10, 13, 0.76) 42%, rgba(255, 48, 82, 0.115)),
-    rgba(3, 8, 11, 0.965) !important;
-  background-color: rgba(3, 8, 11, 0.965) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 18%, transparent),
+    linear-gradient(105deg, rgba(0, 216, 224, 0.085), rgba(10, 20, 25, 0.55) 44%, rgba(255, 48, 82, 0.065)),
+    rgba(10, 20, 25, 0.82) !important;
+  background-color: rgba(10, 20, 25, 0.82) !important;
   background-image:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.060), rgba(255, 255, 255, 0.014) 18%, transparent),
-    linear-gradient(105deg, rgba(0, 216, 224, 0.125), rgba(3, 10, 13, 0.76) 42%, rgba(255, 48, 82, 0.115)) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(1.18) brightness(0.52) !important;
-  backdrop-filter: blur(18px) saturate(1.18) brightness(0.52) !important;
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.012) 18%, transparent),
+    linear-gradient(105deg, rgba(0, 216, 224, 0.085), rgba(10, 20, 25, 0.55) 44%, rgba(255, 48, 82, 0.065)) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is(button, [role="button"], [role="option"], [role="menuitem"], [tabindex]) {
   background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.080), rgba(0, 0, 0, 0) 60%),
-    rgba(3, 10, 13, 0.92) !important;
-  background-color: rgba(3, 10, 13, 0.92) !important;
+    linear-gradient(90deg, rgba(0, 216, 224, 0.060), rgba(0, 0, 0, 0) 62%),
+    rgba(9, 18, 22, 0.84) !important;
+  background-color: rgba(9, 18, 22, 0.84) !important;
   color: var(--cit-text) !important;
 }

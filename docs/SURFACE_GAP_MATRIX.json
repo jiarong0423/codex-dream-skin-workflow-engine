@@ -1,0 +1,324 @@
+{
+  "version": 2,
+  "updatedAt": "2026-08-02T23:09:10+08:00",
+  "inventory": {
+    "mode": "static-read-only",
+    "dedupeField": "gap.id",
+    "reviewWindowDays": 14,
+    "lastInventoryAt": "2026-08-02T23:09:10+08:00",
+    "legacyUpdatedOn": "2026-08-02"
+  },
+  "policy": {
+    "connectsToCdp": false,
+    "clicks": false,
+    "drags": false,
+    "appliesTheme": false,
+    "restores": false,
+    "mutatesLiveUi": false,
+    "defaultPlanKind": "atomic-gate",
+    "defaultLoadMode": "carrier-only"
+  },
+  "statusLegend": {
+    "O": "已驗證，可作為下一階段依賴",
+    "△": "草稿或部分完成，只能做同層補強",
+    "X": "未完成或阻塞，不能越級進入 package 或 release"
+  },
+  "gaps": [
+    {
+      "id": "staticSafety.offlineGate",
+      "dedupeKey": "staticSafety.offlineGate",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "Atomic Safety Gate",
+      "status": "O",
+      "verifiedBy": [
+        "macos/tests/run-tests.sh",
+        ".agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --runtime"
+      ],
+      "verifiedAt": "2026-08-02T23:09:10+08:00",
+      "blocks": [],
+      "nextAction": "keep mandatory pre-live gate"
+    },
+    {
+      "id": "runtimeRegistry.dynamicLocks",
+      "dedupeKey": "runtimeRegistry.dynamicLocks",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "Dynamic Lock Registry",
+      "status": "O",
+      "verifiedBy": [
+        "macos/scripts/module-boundary-gate.mjs",
+        "macos/assets/runtime-modules.json"
+      ],
+      "verifiedAt": "2026-08-02T23:09:10+08:00",
+      "blocks": [],
+      "nextAction": "preserve existing native dynamic locks before adding new owners"
+    },
+    {
+      "id": "gapInventory.timestampAndDedupe",
+      "dedupeKey": "gapInventory.timestampAndDedupe",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "Gap Inventory and Timestamp Gate",
+      "status": "O",
+      "verifiedBy": [
+        "macos/scripts/surface-gap-matrix.mjs --json",
+        "macos/tests/run-tests.sh"
+      ],
+      "verifiedAt": "2026-08-02T23:09:10+08:00",
+      "blocks": [],
+      "nextAction": "keep the gap ledger unique, timestamped, and static-read-only"
+    },
+    {
+      "id": "blackShellTransparency.global",
+      "dedupeKey": "blackShellTransparency.global",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "blackShellTransparency",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "subStatus": {
+        "blackShellStaticModule": "O",
+        "routeHeaderDetached": "O",
+        "liveReadOnlyProof": "X"
+      },
+      "verifiedBy": [
+        "macos/scripts/black-shell-screenshot-audit.mjs",
+        "macos/scripts/black-shell-layer-audit.mjs"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "keep black shell static; do not re-absorb route header or search band selectors"
+    },
+    {
+      "id": "pageHeaderShell.routeSearchBand",
+      "dedupeKey": "pageHeaderShell.routeSearchBand",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "pageHeaderShell + routeSearchBand",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "moduleFile": "macos/assets/theme-modules/page-header-route-search-band.css",
+      "runtimeModule": "pageHeaderRouteSearchBand",
+      "subStatus": {
+        "staticStyleModule": "O",
+        "runtimeRegistration": "O",
+        "liveReadOnlyProof": "X"
+      },
+      "verifiedBy": [
+        "macos/scripts/surface-gap-matrix.mjs",
+        "macos/tests/run-tests.sh",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "perform read-only live visual proof before changing route header/search band color again"
+    },
+    {
+      "id": "rightSourceOutputPanel.iconRail",
+      "dedupeKey": "rightSourceOutputPanel.iconRail",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "rightSourceOutputPanel + rightSourceIconRail",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "keep thumbnails and icon rail out of black shell transparency rules"
+    },
+    {
+      "id": "transientMenuShell.workspacePicker",
+      "dedupeKey": "transientMenuShell.workspacePicker",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "transientMenuShell + workspacePicker",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot",
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "separate plus menu, workspace picker, and shortcut palette shells"
+    },
+    {
+      "id": "settingsControlCards",
+      "dedupeKey": "settingsControlCards",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "settingsControlCards",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "use glass material on passive cards while keeping controls opaque"
+    },
+    {
+      "id": "projectListRows",
+      "dedupeKey": "projectListRows",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "projectListRows",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot",
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "separate list row plate, plus button, and archive action"
+    },
+    {
+      "id": "composerSurface.inputEditorShell",
+      "dedupeKey": "composerSurface.inputEditorShell",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "composerSurface + inputEditorShell",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot",
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "keep composer shell darker than background but keep buttons readable"
+    },
+    {
+      "id": "conversationSurface.messageRows",
+      "dedupeKey": "conversationSurface.messageRows",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "conversationSurface + messageRows",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot",
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "separate message shell from action chip background"
+    },
+    {
+      "id": "sourcePreviewBlocks.resizablePreviewPane",
+      "dedupeKey": "sourcePreviewBlocks.resizablePreviewPane",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "sourcePreviewBlocks + resizablePreviewPane",
+      "status": "△",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot",
+        "local-evidence:screen-recording"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "exclude resizable image and video previews from color replacement"
+    },
+    {
+      "id": "themeArtStackRightHud.floatingBadgeZOrder",
+      "dedupeKey": "themeArtStackRightHud.floatingBadgeZOrder",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "themeArtStackRightHud + floatingBadgeZOrder",
+      "status": "X",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [
+        "local-evidence:screenshot"
+      ],
+      "blocks": [
+        "release",
+        "visual-acceptance"
+      ],
+      "nextAction": "prove badge z-index above scenery without occluding text"
+    },
+    {
+      "id": "liveVisualProof",
+      "dedupeKey": "liveVisualProof",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "Live Visual Proof",
+      "status": "X",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [],
+      "blocks": [
+        "release",
+        "package"
+      ],
+      "nextAction": "run explicit user-approved live proof only after static matrix passes"
+    },
+    {
+      "id": "restoreResidueProof",
+      "dedupeKey": "restoreResidueProof",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "Restore / Residue Proof",
+      "status": "X",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [],
+      "blocks": [
+        "release",
+        "package"
+      ],
+      "nextAction": "prove unload leaves no injected residue"
+    },
+    {
+      "id": "rendererBudgetPromotion",
+      "dedupeKey": "rendererBudgetPromotion",
+      "lastReviewedAt": "2026-08-02T23:09:10+08:00",
+      "owner": "Renderer Budget Promotion",
+      "status": "X",
+      "blockedAt": "2026-08-02T23:09:10+08:00",
+      "verifiedBy": [],
+      "blocks": [
+        "release",
+        "package"
+      ],
+      "nextAction": "reduce renderer payload before promotion"
+    }
+  ],
+  "releaseBlockers": [
+    "themeArtStackRightHud.floatingBadgeZOrder",
+    "liveVisualProof",
+    "restoreResidueProof",
+    "rendererBudgetPromotion"
+  ],
+  "mustRemainStaticUntil": [
+    "liveReadOnlyApproval"
+  ]
+}

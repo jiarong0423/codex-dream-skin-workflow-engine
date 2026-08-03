@@ -30,12 +30,14 @@
   const layout = theme.layout && typeof theme.layout === "object" ? theme.layout : {};
   const icons = theme.icons && typeof theme.icons === "object" ? theme.icons : {};
   const buttonDataUrls = payload.iconButtonDataUrls && typeof payload.iconButtonDataUrls === "object" ? payload.iconButtonDataUrls : {};
+  const runtimeMode = String(payload.runtimeMode || theme.runtimeMode || "").toLowerCase(), isFrameworkOnlyRuntime = runtimeMode === "framework-only", isCarrierRuntime = runtimeMode === "carrier-only" || runtimeMode === "carrier";
   let tableFlipCatTimer = null;
   let tableFlipCatPlaybackInterval = null;
   let characterRetreatObserver = null;
   let characterRetreatCheckTimer = null;
   let characterRetreatLastCheckAt = 0;
   let characterRetreatHoldUntil = 0;
+  let characterRetreatClearSamples = 0;
   let characterRetreatResizeHandler = null;
   let characterRetreatScrollHandler = null;
   let projectPanelChromeCheckTimer = null;
@@ -378,7 +380,6 @@
     const hasTableFlipAsset = hasTableFlipSprite || hasTableFlipFallback || Boolean(loadTableFlipCatPlayback);
     const tableFlipCatTheme = icons.tableFlipCat && typeof icons.tableFlipCat === "object" ? icons.tableFlipCat : {};
     const tableFlipCatDurationMs = Math.round(clampNumber(tableFlipCatTheme.durationMs, 100, 10000, TABLE_FLIP_CAT_DEFAULT_DURATION_MS));
-    const tableFlipCatFrames = Math.round(clampNumber(tableFlipCatTheme.frameCount, 2, 60, TABLE_FLIP_CAT_DEFAULT_FRAMES));
     if (!hasTableFlipAsset) {
       hud.setAttribute("aria-hidden", "true");
       hud.removeAttribute("role");
@@ -402,6 +403,7 @@
       }
       return;
     }
+    doc.querySelectorAll(".codex-interface-theme-table-flip-cat-animated").forEach((n) => { if(!hud.contains(n)){n.remove();} });
     let animated = hud.querySelector(".codex-interface-theme-table-flip-cat-animated");
     if (animated) {
       animated.remove();
@@ -677,17 +679,23 @@
     if (!character || !hasLayoutBox(character)) {
       return false;
     }
-    const characterRect = character.getBoundingClientRect();
-    const characterArea = rectArea(characterRect);
-    if (characterArea < 1000) {
+    const charRect = character.getBoundingClientRect();
+    const charArea = rectArea(charRect);
+    if (charArea < 1000) {
       return false;
     }
-    const containers = Array.from(new Set(Array.from(doc.querySelectorAll(".thread-scroll-container, main, [role=\"main\"], article")).filter(isVisibleElement)));
-    if (containers.length === 0 && doc.body) {
-      containers.push(doc.body);
-    }
+    const scanLeft = Math.max(0, charRect.left - 80);
+    const scanRight = Math.min(window.innerWidth, charRect.right + 64);
+    const containers = Array.from(doc.querySelectorAll(".thread-scroll-container article,article,[data-message-author-role]")).filter(isVisibleElement);
     let inspected = 0;
     for (const container of containers) {
+      if (isTextNodeExcluded(container)) {
+        continue;
+      }
+      const cRect = container.getBoundingClientRect();
+      if (cRect.right < scanLeft || cRect.left > scanRight) {
+        continue;
+      }
       const walker = doc.createTreeWalker(container, 4);
       let textNode = walker.nextNode();
       while (textNode && inspected < 520) {
@@ -706,13 +714,16 @@
               rect.height < 9 ||
               rect.top < 46 ||
               rect.bottom > window.innerHeight - 74 ||
-              rect.right < 220
+              rect.right < 220 ||
+              rect.right < scanLeft ||
+              rect.left > scanRight ||
+              rect.width > 860
             ) {
               continue;
             }
-            const overlap = rectIntersectionArea(characterRect, rect);
+            const overlap = rectIntersectionArea(charRect, rect);
             const textArea = rectArea(rect);
-            if (overlap > Math.max(48, Math.min(textArea * 0.34, characterArea * 0.014))) {
+            if (overlap > Math.max(48, Math.min(textArea * 0.34, charArea * 0.014))) {
               return true;
             }
           }
@@ -737,15 +748,24 @@
     const now = Date.now();
     if (hasVisibleRightSidePanel(character)) {
       reason = "side-panel";
+      characterRetreatClearSamples = 0;
     } else if (window.innerWidth < 980) {
       reason = "narrow";
+      characterRetreatClearSamples = 0;
     } else if (characterOverlapsMainText(character)) {
       reason = "text-overlap";
       characterRetreatHoldUntil = now + 480;
+      characterRetreatClearSamples = 0;
       scheduleCharacterRetreatCheck(500);
     } else if (characterRetreatHoldUntil > now) {
       reason = "text-overlap";
       scheduleCharacterRetreatCheck(characterRetreatHoldUntil - now + 20);
+    } else if (root.dataset.citCharacterRetreat === "text-overlap" && characterRetreatClearSamples < 2) {
+      characterRetreatClearSamples += 1;
+      reason = "text-overlap";
+      scheduleCharacterRetreatCheck(260);
+    } else {
+      characterRetreatClearSamples = Math.min(characterRetreatClearSamples + 1, 2);
     }
     root.dataset.citCharacterRetreat = reason;
     character.setAttribute("data-cit-character-retreat", reason);
@@ -1237,7 +1257,6 @@
         ) {
           return;
         }
-        const className = String(node.className || "");
         node.classList.add("codex-interface-theme-chat-bubble");
         marked += 1;
       });
@@ -1290,22 +1309,17 @@
         return;
       }
       const text = normalizeText(node.innerText || node.textContent || "");
-      if (text.length < 10 || text.length > 5200) {
+      if (text.length < 10 || text.length > 1800 || /已處理|已執行|已讀取|驗證通過|黑殼|透明化|實底色|不做點擊|不做動態|runtime gate|revision|selector|workspace picker|regression gate/i.test(text)) {
         return;
       }
-      if (/已處理|正在思考|已執行|已讀取|驗證通過|runtime gate|revision|重疊|消失/.test(text)) {
-        return;
-      }
+      const hasWorkspacePickerCluster = /新增.*(檔案和資料夾|附加|目標|規劃模式|外掛程式)|附加.*(目標|規劃模式)|documents.*pdf|spreadsheets.*presentations/i.test(text);
       let score = 0;
-      "新增|附加|google chrome|chrome|目標|規劃模式|外掛程式|documents|pdf|spreadsheets|presentations".split("|").forEach(function countPickerTerm(term) {
+      "新增|附加|chrome|目標|規劃模式|外掛程式|documents|pdf|spreadsheets|presentations".split("|").forEach(function countPickerTerm(term) {
         if (text.includes(term)) {
           score += 1;
         }
       });
-      if ((text.includes("documents") && text.includes("pdf")) || (text.includes("spreadsheets") && text.includes("presentations")) || (text.includes("附加") && (text.includes("目標") || text.includes("規劃模式")))) {
-        score += 3;
-      }
-      if (score < 5) {
+      if (!hasWorkspacePickerCluster || score < 3) {
         return;
       }
       const rank = workspacePickerSurfaceRank(node);
@@ -2288,7 +2302,8 @@
   function runRuntimeModulePhase(phaseName) {
     const phase = String(phaseName || "");
     const executed = [];
-    RUNTIME_MODULES.forEach(function runRuntimeModule(moduleConfig) {
+    const modulesForPhase = isFrameworkOnlyRuntime ? RUNTIME_MODULES.slice(-1) : isCarrierRuntime ? RUNTIME_MODULES.filter(function carrierModule(m) { return !/^(backdrop|rightHud|badge|character|buttonGlyphs)$/.test(m.id); }) : RUNTIME_MODULES;
+    modulesForPhase.forEach(function runRuntimeModule(moduleConfig) {
       const action = moduleConfig[phase];
       if (typeof action !== "function") {
         return;
@@ -2296,9 +2311,7 @@
       action();
       executed.push(moduleConfig.id);
     });
-    root.dataset.citRuntimeModules = RUNTIME_MODULES.map(function mapRuntimeModule(moduleConfig) {
-      return moduleConfig.id;
-    }).join(",");
+    root.dataset.citRuntimeModules = modulesForPhase.map((m) => m.id).join(",");
     root.dataset.citRuntimePhase = phase;
     root.dataset.citRuntimePhaseModules = executed.join(",");
     return executed.length;
@@ -2467,7 +2480,7 @@
     if (currentHref !== lastHref) {
       lastHref = currentHref;
       updateRouteState();
-      runRuntimeModulePhase("route");
+      window.setTimeout(runRuntimeModulePhase,350,"route");
       return;
     }
     runRuntimeModulePhase("light");

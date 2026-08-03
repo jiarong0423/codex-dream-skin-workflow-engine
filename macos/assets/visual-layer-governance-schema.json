@@ -1,0 +1,145 @@
+{
+  "version": 1,
+  "id": "visual-layer-governance",
+  "title": "Visual Layer Governance",
+  "purpose": "read-only closeout contract for clean, controllable, and simple one-shot Codex visual injection",
+  "defaults": {
+    "mode": "closeout-contract",
+    "connectsToCdp": false,
+    "appliesTheme": false,
+    "restores": false,
+    "clicks": false,
+    "drags": false,
+    "launches": false,
+    "mutates": false
+  },
+  "stateContract": [
+    "candidate",
+    "locked",
+    "quarantined",
+    "released"
+  ],
+  "evidenceStates": [
+    "O",
+    "partial",
+    "X"
+  ],
+  "ledgerFormula": "known_black_range_total - retained_or_protected_range_total = modification_detection_candidates",
+  "identityPriority": [
+    "theme-owned marker",
+    "native DOM ancestry",
+    "role/state attributes",
+    "computed paint stack",
+    "semantic source signals",
+    "geometry evidence"
+  ],
+  "requiredRuntimeLocks": [
+    "sourcePreviewBlocks",
+    "rightTopChips",
+    "leftSidebarRows",
+    "projectPanelRows",
+    "accountPopover",
+    "composerSurface",
+    "blackShellTransparency"
+  ],
+  "closeoutGates": [
+    {
+      "id": "cleanWorktreeReview",
+      "description": "review repo dirt and separate owned changes from unrelated existing dirt"
+    },
+    {
+      "id": "ownedMarkerCleanup",
+      "description": "restore removes namespaced nodes, style tags, classes, data attributes, caches, and sentinels"
+    },
+    {
+      "id": "layerLedgerReview",
+      "description": "known black ranges are classified by layer and ledger subtraction before modification"
+    },
+    {
+      "id": "simpleInjectionReady",
+      "description": "final runtime path is one-shot CDP apply with explicit restore and verify commands"
+    }
+  ],
+  "governedSurfaces": [
+    {
+      "id": "knownBlackRangeLedger",
+      "owner": "native",
+      "allowedActions": [
+        "classify",
+        "inventory",
+        "subtract-retained",
+        "mark-candidate",
+        "restore-marker"
+      ],
+      "forbiddenActions": [
+        "coordinate-identity",
+        "dynamic-follow-tracking",
+        "mutation-observer-discovery",
+        "right-top-switch-black-shell-fill",
+        "source-preview-restyle"
+      ]
+    },
+    {
+      "id": "rightPanelTemplateDrift",
+      "owner": "native",
+      "allowedActions": [
+        "classify",
+        "inventory",
+        "independent-review",
+        "restore-marker"
+      ],
+      "forbiddenActions": [
+        "coordinate-identity",
+        "text-only-identity",
+        "duplicate-plate",
+        "hide-action-icons",
+        "black-shell-fill"
+      ]
+    },
+    {
+      "id": "characterCollisionBoundary",
+      "owner": "theme",
+      "allowedActions": [
+        "natural-rect-probe",
+        "collision-read",
+        "hysteresis",
+        "cooldown",
+        "restore-marker"
+      ],
+      "forbiddenActions": [
+        "current-retreated-rect-release",
+        "continuous-text-walk",
+        "full-main-width-only-boundary",
+        "native-layout-mutation"
+      ]
+    },
+    {
+      "id": "simpleOneShotInjection",
+      "owner": "theme",
+      "allowedActions": [
+        "one-shot-apply",
+        "verify",
+        "restore",
+        "residue-scan"
+      ],
+      "forbiddenActions": [
+        "daemon-by-default",
+        "official-app-bundle-mutation",
+        "global-repaint-overlay",
+        "untracked-live-hotfix",
+        "permission-mutation"
+      ]
+    }
+  ],
+  "invariants": [
+    "contract-only by default",
+    "no official app bundle mutation",
+    "no launch, restart, apply, restore, click, or drag in the contract phase",
+    "classification uses source signals and DOM ownership before geometry",
+    "fixed coordinates are never identity",
+    "right top switches are not black shell modification candidates",
+    "known black range candidates come from ledger subtraction, not dynamic following overlays",
+    "protected native controls, source previews, editors, composer, popovers, and account surfaces are excluded before visual modification",
+    "final user-facing injection path is a simple one-shot CDP apply plus verify plus restore"
+  ]
+}

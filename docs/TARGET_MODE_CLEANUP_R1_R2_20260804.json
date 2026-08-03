@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "kind": "target-mode-cleanup-manifest",
+  "id": "target-mode-r1-r2-cleanup-20260804-0529",
+  "approval": {
+    "mode": "exact-path-manifest",
+    "confirmedBy": "manual-user",
+    "approvedAt": "2026-08-04T05:29:00+08:00"
+  },
+  "items": [
+    {
+      "path": ".DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "macos/.DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "macos/assets/.DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "macos/launcher/.DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "submission/.DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "submission/exports/.DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "submission/public-package/.DS_Store",
+      "kind": "R1"
+    },
+    {
+      "path": "macos/previews/black-shell-layer-audit-20260802-live-inventory",
+      "kind": "R2"
+    },
+    {
+      "path": "macos/previews/black-shell-layer-audit-cdp-closed-20260802",
+      "kind": "R2"
+    },
+    {
+      "path": "macos/previews/safe-live-visual-gate-blocked-20260731",
+      "kind": "R2"
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "id": "knife-shield-dog",
+  "displayName": "Knife Shield Dog: Castle City Guard",
+  "status": "asset-ready-unmounted",
+  "palette": {
+    "accent": "#3ba7ff",
+    "secondary": "#dce6f0",
+    "warm": "#e5a945",
+    "alert": "#ff6b55",
+    "surface": "rgba(12, 18, 24, 0.66)",
+    "surfaceStrong": "rgba(8, 12, 17, 0.84)",
+    "text": "#f4f7fb"
+  },
+  "assets": {
+    "background": "runtime/backgrounds/castle-left-city-right.webp",
+    "heroCharacter": "runtime/characters/mecha-dog-hero-900.png",
+    "interactionMascot": "runtime/characters/chubby-dog-mascot-320.png",
+    "interactionPoster": "runtime/animations/forward-slash-poster.png",
+    "interactionSprite": "runtime/animations/forward-slash-sprite.webp",
+    "interactionTrigger": "runtime/icons/trigger.svg"
+  },
+  "interaction": {
+    "id": "forward-slash",
+    "activation": "manual-click-only",
+    "placement": "right-bottom",
+    "frameCount": 6,
+    "durationMs": 1120,
+    "preload": false,
+    "idlePlaybackDom": false,
+    "cleanup": "remove playback node and decoded sprite immediately after completion"
+  },
+  "mountContracts": {
+    "background": {
+      "anchor": "document body scene",
+      "mountType": "body-scene",
+      "paintOrder": "below native content and controls",
+      "activation": "active pack only",
+      "retreat": "none; artwork safe area is center",
+      "fallback": "native Codex background",
+      "budgetBytes": 300000
+    },
+    "heroCharacter": {
+      "anchor": "verified left app shell",
+      "mountType": "independent-decoration",
+      "paintOrder": "above background and below native text hitboxes",
+      "activation": "wide layout with active pack",
+      "retreat": "hide on narrow layout, side-panel collision, or text collision",
+      "fallback": "no character",
+      "budgetBytes": 750000
+    },
+    "interaction": {
+      "anchor": "body HUD root",
+      "mountType": "manual-interaction",
+      "paintOrder": "above background without intercepting unrelated controls",
+      "activation": "round shield trigger click",
+      "retreat": "hide during major right panel or composer collision",
+      "fallback": "trigger-only no-op",
+      "budgetBytes": 250000
+    }
+  },
+  "iconMap": {
+    "search": "runtime/icons/search.svg",
+    "newTask": "runtime/icons/newTask.svg",
+    "back": "runtime/icons/back.svg",
+    "forward": "runtime/icons/forward.svg",
+    "stop": "runtime/icons/stop.svg",
+    "settings": "runtime/icons/settings.svg",
+    "project": "runtime/icons/project.svg",
+    "send": "runtime/icons/send.svg",
+    "tagTask": "runtime/icons/tagTask.svg",
+    "files": "runtime/icons/files.svg",
+    "thread": "runtime/icons/thread.svg",
+    "clean": "runtime/icons/clean.svg",
+    "run": "runtime/icons/run.svg",
+    "spark": "runtime/icons/spark.svg",
+    "package": "runtime/icons/package.svg"
+  },
+  "payloadGroups": {
+    "visual": [
+      "background",
+      "heroCharacter"
+    ],
+    "animationShell": [
+      "interactionTrigger"
+    ],
+    "animationPlayback": [
+      "interactionPoster",
+      "interactionSprite"
+    ],
+    "buttons": [
+      "iconMap"
+    ]
+  }
+}

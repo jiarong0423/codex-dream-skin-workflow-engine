@@ -1,0 +1,133 @@
+{
+  "version": 1,
+  "id": "atomic-control-workbench",
+  "title": "Atomic Control Workbench",
+  "purpose": "offline clickable control surface for generating atomic UI automation plans without executing them",
+  "defaults": {
+    "port": 9341,
+    "waitMs": 8000,
+    "samples": 3,
+    "intervalMs": 700,
+    "outDir": "/tmp/codex-interface-theme-atomic-control-evidence",
+    "planKind": "atomic-gate",
+    "loadMode": "carrier-only",
+    "launchIfMissing": false,
+    "interact": false,
+    "allowStatefulControls": false,
+    "autoAllowlist": false,
+    "verifyLocalControlClicks": false,
+    "allowIndexes": "",
+    "drag": false
+  },
+  "command": {
+    "runner": "bash",
+    "script": "macos/scripts/atomic-ui-automation-gate.sh"
+  },
+  "planKinds": [
+    {
+      "id": "atomic-gate",
+      "label": "Atomic Gate",
+      "description": "full reversible atomic pipeline plan; still offline until manually executed"
+    },
+    {
+      "id": "dynamic-coverage",
+      "label": "Dynamic Coverage",
+      "description": "read-only native dynamic boundary coverage plan; no apply, restore, click, drag, or launch"
+    }
+  ],
+  "loadModes": [
+    {
+      "id": "carrier-only",
+      "label": "Carrier",
+      "description": "structural carrier template, zero visual assets, default safe audit mode"
+    },
+    {
+      "id": "framework-only",
+      "label": "Framework",
+      "description": "marker-only restore-safe mode for native boundary diagnosis"
+    },
+    {
+      "id": "control-only",
+      "label": "Control",
+      "description": "in-window atomic command workbench only; zero visual assets and one-shot apply only"
+    },
+    {
+      "id": "visual",
+      "label": "Visual",
+      "description": "full visual theme payload; use only after carrier and framework gates pass"
+    }
+  ],
+  "toggles": [
+    {
+      "id": "launchIfMissing",
+      "flag": "--launch-if-missing",
+      "default": false,
+      "label": "Launch if missing",
+      "risk": "may open Codex only when it is not already running; never restarts a running non-CDP app"
+    },
+    {
+      "id": "interact",
+      "flag": "--interact",
+      "default": false,
+      "label": "Interact",
+      "risk": "requires explicit allow indexes or derived allowlist"
+    },
+    {
+      "id": "allowStatefulControls",
+      "flag": "--allow-stateful-controls",
+      "default": false,
+      "label": "Stateful controls",
+      "risk": "allows project/sidebar/top-toolbar/popover candidates only after review"
+    },
+    {
+      "id": "autoAllowlist",
+      "flag": "--auto-allowlist",
+      "default": false,
+      "label": "Auto allowlist",
+      "risk": "derives indexes from dry-run report while hard-denying destructive and high-memory surfaces"
+    },
+    {
+      "id": "verifyLocalControlClicks",
+      "flag": "--verify-local-control-clicks",
+      "default": false,
+      "label": "Verify local control clicks",
+      "risk": "clicks only the theme-owned control workbench mode and toggle controls after control-only read-only verification"
+    },
+    {
+      "id": "drag",
+      "flag": "--drag",
+      "default": false,
+      "label": "Drag",
+      "risk": "never enables high-memory image resize; remains false by default"
+    }
+  ],
+  "invariants": [
+    "no delete",
+    "no restart by default",
+    "no launch by default",
+    "no click by default",
+    "no drag by default",
+    "no permission or auth mutation",
+    "no official app bundle mutation",
+    "dry-run clickable inventory before interactive pass",
+    "explicit allow indexes or derived allowlist before interaction"
+  ],
+  "hardDenyLabels": [
+    "delete",
+    "trash",
+    "remove",
+    "archive",
+    "logout",
+    "sign out",
+    "permission",
+    "authorize",
+    "install",
+    "payment",
+    "push",
+    "commit",
+    "merge",
+    "create pull request",
+    "source preview",
+    "high-memory image resize"
+  ]
+}

@@ -8,13 +8,382 @@
     "animationLoad": "static cache lookup after manual trigger; sprite first, GIF fallback only when sprite is unavailable",
     "gpuComposition": "single non-fixed three-layer body wallpaper; no idle backdrop blur on full-size or repeated surfaces; no per-icon filter stack"
   },
+  "boundaryPolicy": {
+    "identity": "dom-structure-or-payload-owner",
+    "geometryRole": "qualification-and-placement-only",
+    "ownerRule": "one owner per native boundary; theme-owned nodes and native-owned nodes cannot claim each other",
+    "lifecycleRule": "install, route, light, and cleanup are explicit module phases",
+    "forbidden": [
+      "fixed-coordinate identity",
+      "text-only identity",
+      "global repaint overlay",
+      "second full-page observer"
+    ]
+  },
+  "dynamicBoundaryLocks": {
+    "version": 1,
+    "strategy": "lock native source modules before visual paint and treat geometry as evidence only",
+    "lockStateContract": [
+      "candidate",
+      "locked",
+      "quarantined",
+      "released"
+    ],
+    "invariants": [
+      "native-owned dynamic modules are classified before theme-owned style modules can affect them",
+      "locked modules keep their official geometry, pointer behavior, drag behavior, and resize behavior",
+      "theme code may add only namespaced data markers and reset-only quarantine classes to native-owned locks",
+      "classification uses source signals and DOM ownership before geometry; fixed coordinates are never identity",
+      "high-memory media preview surfaces are inventory-only unless a future reviewed tool explicitly opts in",
+      "surface preflight cleans only namespaced theme markers before black shell paint",
+      "protected native primitives are excluded before black shell candidate selection"
+    ],
+    "surfaces": [
+      {
+        "id": "sourcePreviewBlocks",
+        "owner": "native",
+        "lockKey": "data-cit-source-preview-block",
+        "sourceSignals": [
+          "source thumbnail",
+          "screenshot thumbnail",
+          "attachment preview",
+          "resizable media preview",
+          "right-side source rail"
+        ],
+        "allowedActions": [
+          "classify",
+          "inventory",
+          "reset-only-quarantine",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "drag",
+          "resize",
+          "recolor",
+          "blur",
+          "scale",
+          "transform",
+          "overlay",
+          "fixed-coordinate-identity",
+          "opacity-detection-only"
+        ],
+        "riskTags": [
+          "high-memory-image-resize",
+          "dynamic-native-preview",
+          "thumbnail-recompression"
+        ]
+      },
+      {
+        "id": "rightTopChips",
+        "owner": "native",
+        "lockKey": "data-cit-right-top-chip",
+        "sourceSignals": [
+          "top toolbar chip",
+          "attachment chip",
+          "source chip",
+          "open mode chip",
+          "close chip"
+        ],
+        "allowedActions": [
+          "classify",
+          "inventory",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "recolor",
+          "black-shell-fill",
+          "duplicate-plate",
+          "fixed-coordinate-identity",
+          "text-only-identity"
+        ],
+        "riskTags": [
+          "dynamic-chip-stack",
+          "right-toolbar-overlap"
+        ]
+      },
+      {
+        "id": "leftSidebarRows",
+        "owner": "native",
+        "lockKey": "data-cit-left-sidebar-row",
+        "sourceSignals": [
+          "new chat row",
+          "project row",
+          "pull request row",
+          "website row",
+          "scheduled task row",
+          "connector row",
+          "selected recent project row"
+        ],
+        "allowedActions": [
+          "classify",
+          "inventory",
+          "selected-state-read",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "multi-select-paint",
+          "duplicate-active-border",
+          "global-row-background",
+          "fixed-coordinate-identity"
+        ],
+        "riskTags": [
+          "native-selection-state",
+          "collapsed-sidebar-preview"
+        ]
+      },
+      {
+        "id": "projectPanelRows",
+        "owner": "native",
+        "lockKey": "data-cit-project-panel-row",
+        "sourceSignals": [
+          "project list row",
+          "pin action",
+          "edit action",
+          "more menu",
+          "search project panel"
+        ],
+        "allowedActions": [
+          "classify",
+          "inventory",
+          "collision-read",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "hide-action-icons",
+          "duplicate-active-border",
+          "global-row-background",
+          "fixed-coordinate-identity"
+        ],
+        "riskTags": [
+          "native-list-actions",
+          "dynamic-panel-width"
+        ]
+      },
+      {
+        "id": "accountPopover",
+        "owner": "native",
+        "lockKey": "data-cit-account-popover",
+        "sourceSignals": [
+          "usage menu",
+          "pet menu",
+          "settings row",
+          "logout row",
+          "account identity row"
+        ],
+        "allowedActions": [
+          "classify",
+          "inventory",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "click",
+          "state-mutation",
+          "permission-mutation",
+          "logout",
+          "recolor",
+          "fixed-coordinate-identity"
+        ],
+        "riskTags": [
+          "account-state",
+          "permission-state"
+        ]
+      },
+      {
+        "id": "composerSurface",
+        "owner": "native",
+        "lockKey": "data-cit-composer-surface-lock",
+        "sourceSignals": [
+          "native composer",
+          "model picker",
+          "voice button",
+          "send button",
+          "approval chip"
+        ],
+        "allowedActions": [
+          "classify",
+          "inventory",
+          "native-size-reset",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "full-width-overlay",
+          "black-shell-fill",
+          "input-intercept",
+          "fixed-coordinate-identity"
+        ],
+        "riskTags": [
+          "text-input",
+          "bottom-dock"
+        ]
+      },
+      {
+        "id": "blackShellTransparency",
+        "owner": "native",
+        "lockKey": "data-cit-black-shell",
+        "sourceSignals": [
+          "large near-black native shell",
+          "preflight cleanup passed",
+          "protected native primitive exclusion passed",
+          "protected native container exclusion passed",
+          "marker-only CSS material boundary"
+        ],
+        "allowedActions": [
+          "classify",
+          "cleanup-own-black-shell-marker",
+          "exclude-protected-native-primitive",
+          "exclude-protected-native-container",
+          "alpha-reduce-shell-background",
+          "remove-shell-background-image",
+          "restore-marker"
+        ],
+        "forbiddenActions": [
+          "resize",
+          "reposition",
+          "transform",
+          "overflow-change",
+          "z-index-change",
+          "media-mutation",
+          "mcp-content-restyle",
+          "editor-content-restyle",
+          "fixed-coordinate-identity"
+        ],
+        "riskTags": [
+          "official-black-shell",
+          "dynamic-native-container",
+          "background-layer-occlusion"
+        ]
+      }
+    ]
+  },
+  "boundaryProfiles": {
+    "themeAsset": {
+      "identity": "payload-key",
+      "geometry": "placement-only",
+      "paint": "theme-owned-node",
+      "lifecycle": ["install", "cleanup"]
+    },
+    "themeDom": {
+      "identity": "scoped-dom-structure",
+      "geometry": "qualification-only",
+      "paint": "class-scoped",
+      "lifecycle": ["install", "route", "stabilize", "cleanup"]
+    },
+    "nativeBoundary": {
+      "identity": "dom-path-plus-weakmap-owner",
+      "geometry": "qualification-only",
+      "paint": "none",
+      "lifecycle": ["install", "route", "light", "cleanup"]
+    },
+    "nativeQuarantine": {
+      "identity": "runtime-marker-from-native-boundary",
+      "geometry": "none",
+      "paint": "reset-only-no-theme-coloration",
+      "lifecycle": ["install", "route", "cleanup"]
+    },
+    "cache": {
+      "identity": "connected-node-validation",
+      "geometry": "none",
+      "paint": "none",
+      "lifecycle": ["install", "invalidate", "cleanup"]
+    },
+    "scheduler": {
+      "identity": "shared-signal",
+      "geometry": "measurement-only",
+      "paint": "none",
+      "lifecycle": ["install", "trigger", "cleanup"]
+    },
+    "manualAnimation": {
+      "identity": "explicit-trigger",
+      "geometry": "placement-only",
+      "paint": "theme-owned-node",
+      "lifecycle": ["idle", "wake", "release", "cleanup"]
+    }
+  },
   "budgets": {
     "themeCssBytes": 125000,
-    "rendererBytes": 106000,
+    "rendererBytes": 107000,
     "runtimePayloadBytes": 9000000,
     "singleIconBytes": 4194304,
     "buttonIconBytes": 262144
   },
+  "styleEntry": "theme-kernel.css",
+  "frameworkStyleEntry": "theme-framework.css",
+  "carrierStyleEntry": "theme-carrier.css",
+  "controlStyleEntry": "theme-control.css",
+  "rendererEntry": "renderer-inject.js",
+  "controlRendererEntry": "renderer-control.js",
+  "loadModes": {
+    "visual": {
+      "runtimeMode": "visual",
+      "styleEntry": "theme-kernel.css",
+      "rendererEntry": "renderer-inject.js",
+      "assetGroups": ["visual", "animationShell", "animationPlayback", "buttons"],
+      "rendererPolicy": "all declared runtime modules"
+    },
+    "carrier-only": {
+      "runtimeMode": "carrier-only",
+      "styleEntry": "theme-carrier.css",
+      "rendererEntry": "renderer-inject.js",
+      "assetGroups": [],
+      "rendererPolicy": "native boundary, composer, conversation, workspace picker, collision, and marker modules only"
+    },
+    "framework-only": {
+      "runtimeMode": "framework-only",
+      "styleEntry": "theme-framework.css",
+      "rendererEntry": "renderer-inject.js",
+      "assetGroups": [],
+      "rendererPolicy": "marker-only restore-safe sentinel mode"
+    },
+    "control-only": {
+      "runtimeMode": "control-only",
+      "styleEntry": "theme-control.css",
+      "rendererEntry": "renderer-control.js",
+      "assetGroups": [],
+      "rendererPolicy": "offline atomic command planner control panel only; no visual assets, no surface registry, no style modules, no shell execution"
+    }
+  },
+  "styleModules": [
+    {
+      "id": "composerShell",
+      "path": "theme-modules/composer-shell.css",
+      "boundaryProfile": "themeDom",
+      "activation": "codex-interface-theme-composer-surface",
+      "loadPolicy": "base-css-bundle",
+      "eventPolicy": "native-size bottom composer shell and native fade reset only; no sidebar, right panel, chat row, source preview, full-page mask, or detached overlay ownership"
+    },
+    {
+      "id": "themePackFrame",
+      "path": "theme-modules/theme-pack-frame.css",
+      "boundaryProfile": "themeDom",
+      "activation": "native-primary-sidebar-navigation-after",
+      "loadPolicy": "base-css-bundle",
+      "eventPolicy": "static CSS-only mounted-theme status at the end of the native primary sidebar navigation; no DOM creation, click, drag, route, resize, observer, transform, z-index, backdrop filter, native row, or popover ownership"
+    },
+    {
+      "id": "sourcePreviewQuarantine",
+      "path": "theme-modules/source-preview-quarantine.css",
+      "boundaryProfile": "nativeQuarantine",
+      "activation": "data-cit-source-preview-block=true",
+      "loadPolicy": "base-css-bundle",
+      "eventPolicy": "reset-only CSS module for screenshot, source, attachment, and resizable preview surfaces; no recolor, blur, scale, transform, or overlay"
+    },
+    {
+      "id": "pageHeaderRouteSearchBand",
+      "path": "theme-modules/page-header-route-search-band.css",
+      "boundaryProfile": "nativeQuarantine",
+      "activation": "route page header shell and placeholder-scoped route search bands",
+      "loadPolicy": "base-css-bundle",
+      "eventPolicy": "static glass material for route page headers and search bands only; no black shell, sidebar, right panel, composer, source preview, geometry tracking, click, drag, transform, z-index, or overlay ownership"
+    },
+    {
+      "id": "blackShellTransparency",
+      "path": "theme-modules/black-shell-transparency.css",
+      "boundaryProfile": "nativeQuarantine",
+      "activation": "data-cit-black-shell=true",
+      "loadPolicy": "base-css-bundle",
+      "eventPolicy": "alpha-only CSS material for surfaceRegistry-marked shell containers only; excludes native menus, dialogs, popovers, inputs, editors, composer, previews, workspace picker, and sidebar controls; no global token, route, or control selector ownership; no new watcher, layout, size, transform, z-index, overflow, media, MCP, editor, click, or drag mutations"
+    }
+  ],
   "retainedSourceAssets": [
     "backgrounds/cyber-ruins-pale.png",
     "backgrounds/cyberpunk-contrast-city.png",
@@ -31,6 +400,7 @@
     {
       "id": "background",
       "kind": "asset",
+      "boundaryProfile": "themeAsset",
       "activation": "backgroundImagePath",
       "payloadKeys": ["backgroundDataUrl"],
       "loadPolicy": "active-theme-only",
@@ -39,6 +409,7 @@
     {
       "id": "iconBadge",
       "kind": "asset",
+      "boundaryProfile": "themeAsset",
       "activation": "icons.badge.enabled && icons.badge.placement !== off",
       "payloadKeys": ["iconBadgeDataUrl"],
       "loadPolicy": "enabled-only"
@@ -46,6 +417,7 @@
     {
       "id": "character",
       "kind": "asset",
+      "boundaryProfile": "themeAsset",
       "activation": "icons.character.enabled && icons.character.placement !== off",
       "payloadKeys": ["characterDataUrl"],
       "loadPolicy": "enabled-only"
@@ -53,6 +425,7 @@
     {
       "id": "characterRetreat",
       "kind": "dom-geometry",
+      "boundaryProfile": "themeDom",
       "activation": "icons.character.enabled && renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -61,14 +434,52 @@
     {
       "id": "staticAccess",
       "kind": "dom-cache",
+      "boundaryProfile": "cache",
       "activation": "renderer-module-registry",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
       "eventPolicy": "cache stable DOM entrypoints; invalidate on install, route, low-frequency mutation, resize, and right-trigger"
     },
     {
+      "id": "surfaceRegistry",
+      "kind": "dom-lock",
+      "boundaryProfile": "nativeBoundary",
+      "activation": "renderer-module-registry",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "shared 2500ms phase plus route/event short settle follow-up for native-boundary locks; black-shell scan is isolated to install, route stabilization, or explicit manual refresh only; WeakMap owner lock classifies sourcePreviewBlocks; no MutationObserver, no fixed geometry, no overlay"
+    },
+    {
+      "id": "sourcePreviewBlocks",
+      "kind": "dom-lock",
+      "boundaryProfile": "nativeBoundary",
+      "activation": "surfaceRegistry-classified screenshots, sources, attachments, and resizable preview blocks",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "classification-only native owner lock; tags high-memory image resize surfaces and does not drag, recolor, blur, transform, or overlay them"
+    },
+    {
+      "id": "sourcePreviewQuarantine",
+      "kind": "css-quarantine",
+      "boundaryProfile": "nativeQuarantine",
+      "activation": "data-cit-source-preview-block=true",
+      "payloadKeys": [],
+      "loadPolicy": "styleModules.sourcePreviewQuarantine",
+      "eventPolicy": "reset-only CSS module loaded through the theme CSS bundle; prevents broad popover/rounded rules from repainting dynamic preview surfaces"
+    },
+    {
+      "id": "blackShellTransparency",
+      "kind": "css-quarantine",
+      "boundaryProfile": "nativeQuarantine",
+      "activation": "surfaceRegistry-classified official near-black shell layers",
+      "payloadKeys": [],
+      "loadPolicy": "styleModules.blackShellTransparency",
+      "eventPolicy": "preflight cleanup then protected-surface exclusion before alpha-only shell background replacement; marker-only CSS material with no global token ownership; excludes native menus, dialogs, popovers, inputs, editors, composer, previews, workspace picker, and sidebar controls; no new watcher, layout, z-index, transform, overflow, media, MCP, editor, preview, click, drag, or size tracking"
+    },
+    {
       "id": "collisionScheduler",
       "kind": "scheduler",
+      "boundaryProfile": "scheduler",
       "activation": "renderer-module-registry",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -77,6 +488,7 @@
     {
       "id": "tableFlipCat",
       "kind": "manual-animation",
+      "boundaryProfile": "manualAnimation",
       "activation": "icons.tableFlipCat.enabled && icons.tableFlipCat.placement === right-bottom",
       "payloadKeys": [
         "tableFlipCatTriggerIconDataUrl",
@@ -88,21 +500,33 @@
     {
       "id": "workspacePickers",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "event-triggered workspace picker geometry and text detection",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
-      "eventPolicy": "short follow-up checks after pointer, click, keydown, or focusin; marks only the picker shell while visible; no detached overlay plate"
+      "eventPolicy": "short follow-up checks after pointer, click, keydown, or focusin; requires picker-specific text clusters; rejects transcript/debug text; marks only the picker shell while visible; no detached overlay plate"
     },
     {
       "id": "buttonGlyphs",
       "kind": "asset-map",
+      "boundaryProfile": "themeAsset",
       "activation": "icons.buttons.enabled && icons.buttons.applyMode === module",
       "payloadKeys": ["iconButtonDataUrls"],
       "loadPolicy": "enabled-module-only"
     },
     {
+      "id": "composerShell",
+      "kind": "css-reset",
+      "boundaryProfile": "themeDom",
+      "activation": "composerSurface marker plus native sticky bottom dock",
+      "payloadKeys": [],
+      "loadPolicy": "styleModules.composerShell",
+      "eventPolicy": "reset native bottom composer black floor and fade layers only; scoped to sticky.bottom-0 and composer-surface classes"
+    },
+    {
       "id": "projectPanels",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
@@ -110,6 +534,7 @@
     {
       "id": "composerSurface",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
@@ -117,9 +542,19 @@
     {
       "id": "conversationSurface",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
+    },
+    {
+      "id": "controlWorkbench",
+      "kind": "manual-control",
+      "boundaryProfile": "themeDom",
+      "activation": "runtimeMode === control-only",
+      "payloadKeys": [],
+      "loadPolicy": "control-only renderer entry",
+      "eventPolicy": "copy-only atomic command planner; no shell execution, no CDP connection, no visual assets, no surface registry, no style modules"
     }
   ],
   "matrix": [
@@ -146,6 +581,26 @@
     {
       "scenario": "asset-budget",
       "expected": "runtime referenced assets stay under payload budget; declared design sources stay outside the runtime payload; unclassified heavy assets are reported"
+    },
+    {
+      "scenario": "source-preview-quarantine",
+      "expected": "source preview reset module is marker-owned and does not repaint, hide, resize, or intercept screenshot/source thumbnails"
+    },
+    {
+      "scenario": "black-shell-transparency",
+      "expected": "official near-black shells are marker-owned and only receive alpha/background-image changes, with no layout or content mutations"
+    },
+    {
+      "scenario": "composer-shell",
+      "expected": "composer reset module is native-size, bottom-dock scoped, and does not target sidebar, right panel, chat rows, or source previews"
+    },
+    {
+      "scenario": "carrier-only",
+      "expected": "carrier template loads structural/native-boundary modules with zero visual, animation, or button asset payload"
+    },
+    {
+      "scenario": "control-only",
+      "expected": "control template loads only the atomic command planner renderer and CSS with zero visual assets, zero style modules, and no surface registry"
     }
   ]
 }

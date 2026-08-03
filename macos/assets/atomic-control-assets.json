@@ -1,0 +1,282 @@
+{
+  "version": 1,
+  "id": "atomic-control-assets",
+  "mode": "offline-asset-mount-manifest",
+  "purpose": "read-only asset inventory for the atomic control workbench; assets are previewed or reported but never applied to live UI by this manifest",
+  "sideEffects": {
+    "executes": false,
+    "mutates": false,
+    "connectsToCdp": false,
+    "launches": false,
+    "clicks": false,
+    "drags": false,
+    "appliesTheme": false
+  },
+  "budgets": {
+    "maxPreviewBytes": 750000,
+    "maxRuntimeBackgroundBytes": 750000,
+    "maxRuntimeCharacterBytes": 750000,
+    "maxButtonGlyphBytes": 5000
+  },
+  "fitTargets": {
+    "body-background-preview": {
+      "kind": "background",
+      "requiredRuntime": true,
+      "preferredMediaTypes": ["image/webp"],
+      "aspectRatio": 1.777,
+      "aspectTolerance": 0.08,
+      "minWidth": 1440,
+      "maxBytes": 750000,
+      "livePrerequisite": "visual mode plus screenshot geometry gate"
+    },
+    "sidebar-dock-preview": {
+      "kind": "badge",
+      "requiredRuntime": true,
+      "preferredMediaTypes": ["image/png", "image/webp"],
+      "aspectRatio": 1,
+      "aspectTolerance": 0.04,
+      "maxWidth": 256,
+      "maxBytes": 120000,
+      "livePrerequisite": "sidebar row collision check"
+    },
+    "sidebar-hero-preview": {
+      "kind": "foreground-character",
+      "requiredRuntime": true,
+      "preferredMediaTypes": ["image/png", "image/webp"],
+      "minHeight": 512,
+      "maxBytes": 750000,
+      "aspectMin": 0.45,
+      "aspectMax": 1,
+      "livePrerequisite": "character retreat and text collision proof"
+    },
+    "manual-trigger-preview": {
+      "kind": "manual-interaction",
+      "requiredRuntime": true,
+      "preferredMediaTypes": ["image/svg+xml", "image/webp"],
+      "maxBytes": 300000,
+      "livePrerequisite": "click-time playback residency proof"
+    },
+    "semantic-button-preview": {
+      "kind": "button-glyph",
+      "requiredRuntime": true,
+      "preferredMediaTypes": ["image/svg+xml"],
+      "maxBytes": 5000,
+      "livePrerequisite": "semantic exact-match allowlist proof"
+    }
+  },
+  "groups": [
+    {
+      "id": "runtimeBackground",
+      "label": "Runtime Background",
+      "labelZh": "執行背景",
+      "mount": "body-background-preview",
+      "policy": "preview-only in workbench; live use requires visual mode gates",
+      "items": [
+        {
+          "id": "cyberpunkContrastCityRuntime",
+          "label": "Cyberpunk contrast city runtime",
+          "labelZh": "賽博城市 runtime 背景",
+          "path": "backgrounds/cyberpunk-contrast-city-runtime.webp",
+          "mediaType": "image/webp",
+          "width": 1672,
+          "height": 941,
+          "bytes": 423528,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "cyberRuinsPale",
+          "label": "Pale cyber ruins source",
+          "labelZh": "淺色廢墟來源圖",
+          "path": "backgrounds/cyber-ruins-pale.png",
+          "mediaType": "image/png",
+          "width": 1672,
+          "height": 941,
+          "bytes": 2420733,
+          "runtime": false,
+          "preview": false
+        },
+        {
+          "id": "matrixCyberpunkOrangeCat",
+          "label": "Matrix cyberpunk orange cat source",
+          "labelZh": "矩陣橘貓來源圖",
+          "path": "backgrounds/matrix-cyberpunk-orange-cat.png",
+          "mediaType": "image/png",
+          "width": 1672,
+          "height": 941,
+          "bytes": 2145409,
+          "runtime": false,
+          "preview": false
+        }
+      ]
+    },
+    {
+      "id": "sidebarBadge",
+      "label": "Sidebar Badge",
+      "labelZh": "側欄徽章",
+      "mount": "sidebar-dock-preview",
+      "policy": "small contained badge only",
+      "items": [
+        {
+          "id": "orangeHackerCat64",
+          "label": "Orange hacker cat 64",
+          "labelZh": "橘貓徽章 64",
+          "path": "icons/orange-hacker-cat-64.png",
+          "mediaType": "image/png",
+          "width": 64,
+          "height": 64,
+          "bytes": 6041,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "orangeHackerCat128",
+          "label": "Orange hacker cat 128",
+          "labelZh": "橘貓徽章 128",
+          "path": "icons/orange-hacker-cat-128.png",
+          "mediaType": "image/png",
+          "width": 128,
+          "height": 128,
+          "bytes": 20613,
+          "runtime": true,
+          "preview": true
+        }
+      ]
+    },
+    {
+      "id": "heroCharacter",
+      "label": "Hero Character",
+      "labelZh": "主角色",
+      "mount": "sidebar-hero-preview",
+      "policy": "foreground character; live use requires collision retreat evidence",
+      "items": [
+        {
+          "id": "cyberMechaCatRuntime",
+          "label": "Cyber mecha cat runtime",
+          "labelZh": "機甲貓 runtime",
+          "path": "icons/cyber-mecha-cat-male-helmet-900.png",
+          "mediaType": "image/png",
+          "width": 600,
+          "height": 900,
+          "bytes": 430624,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "cyberRobotOrangeCat512",
+          "label": "Cyber robot orange cat alternate",
+          "labelZh": "橘色機器貓備選",
+          "path": "icons/cyber-robot-orange-cat-512.png",
+          "mediaType": "image/png",
+          "width": 512,
+          "height": 512,
+          "bytes": 321395,
+          "runtime": true,
+          "preview": true
+        }
+      ]
+    },
+    {
+      "id": "tableFlipCat",
+      "label": "Table Flip Cat",
+      "labelZh": "翻桌貓",
+      "mount": "manual-trigger-preview",
+      "policy": "manual trigger only; playback asset must not be resident before click",
+      "items": [
+        {
+          "id": "tableFlipTrigger",
+          "label": "Trigger icon",
+          "labelZh": "觸發圖示",
+          "path": "icons/table-flip-trigger-angry.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 2386,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "tableFlipSpriteWebp",
+          "label": "Sprite WebP",
+          "labelZh": "WebP sprite",
+          "path": "icons/table-flip-cat-left-sprite.webp",
+          "mediaType": "image/webp",
+          "width": 2880,
+          "height": 250,
+          "bytes": 151278,
+          "runtime": true,
+          "preview": false
+        },
+        {
+          "id": "tableFlipGifFallback",
+          "label": "GIF fallback",
+          "labelZh": "GIF 後備",
+          "path": "icons/table-flip-cat-left.gif",
+          "mediaType": "image/gif",
+          "width": 360,
+          "height": 250,
+          "bytes": 264469,
+          "runtime": false,
+          "preview": false
+        }
+      ]
+    },
+    {
+      "id": "buttonGlyphs",
+      "label": "Button Glyphs",
+      "labelZh": "按鈕圖示",
+      "mount": "semantic-button-preview",
+      "policy": "opt-in semantic symbols; never broad icon replacement",
+      "items": [
+        {
+          "id": "newTask",
+          "label": "New task",
+          "labelZh": "新聊天",
+          "path": "icons/buttons/cat-paw-new-task.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 650,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "project",
+          "label": "Project",
+          "labelZh": "專案",
+          "path": "icons/buttons/neko-chip-project.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 659,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "labelZh": "搜尋",
+          "path": "icons/buttons/cat-eye-search.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 903,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "settings",
+          "label": "Settings",
+          "labelZh": "設定",
+          "path": "icons/buttons/mecha-ear-settings.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 599,
+          "runtime": true,
+          "preview": true
+        },
+        {
+          "id": "send",
+          "label": "Send",
+          "labelZh": "送出",
+          "path": "icons/buttons/whisker-send.svg",
+          "mediaType": "image/svg+xml",
+          "bytes": 528,
+          "runtime": true,
+          "preview": true
+        }
+      ]
+    }
+  ]
+}
