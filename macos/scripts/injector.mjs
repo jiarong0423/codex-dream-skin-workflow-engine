@@ -179,17 +179,14 @@ function isInjectableTarget(target) {
   if (url.startsWith("devtools://") || url.startsWith("chrome://") || url.startsWith("chrome-extension://")) {
     return false;
   }
-  if (url === "about:blank") {
-    return true;
+  return url.startsWith("app://-/index.html");
+}
+
+function isPrunableThemeResidueTarget(target) {
+  if (!target || target.type !== "page" || !target.webSocketDebuggerUrl) {
+    return false;
   }
-  if (url.startsWith("app://")) {
-    return true;
-  }
-  if (url.startsWith("https://chatgpt.com") || url.startsWith("https://chat.openai.com")) {
-    return true;
-  }
-  const title = String(target.title || "");
-  return /codex|chatgpt/i.test(title);
+  return !isInjectableTarget(target);
 }
 
 class CdpSession {
@@ -847,6 +844,51 @@ async function removeFromTarget(target) {
   }
 }
 
+async function readTargetResidueState(session) {
+  const result = await session.send("Runtime.evaluate", {
+    expression: `(() => ({
+      active: document.documentElement.getAttribute("data-codex-interface-theme") === "active",
+      hasMarker: Boolean(document.getElementById("codex-interface-theme-marker")),
+      hasStyle: Boolean(document.getElementById("codex-interface-theme-style")),
+      hasRemove: typeof window.__CODEX_INTERFACE_THEME_REMOVE__ === "function"
+    }))();`,
+    awaitPromise: false,
+    returnByValue: true
+  }).catch(() => null);
+  return result && result.result && result.result.value && typeof result.result.value === "object" ? result.result.value : {};
+}
+
+async function pruneNonAppThemeResidue(targets) {
+  const results = [];
+  const candidates = targets.filter(isPrunableThemeResidueTarget);
+  for (const target of candidates) {
+    let session = null;
+    try {
+      session = new CdpSession(target.webSocketDebuggerUrl);
+      await session.open();
+      await session.send("Runtime.enable").catch(() => {});
+      const state = await readTargetResidueState(session);
+      if (!state.active && !state.hasMarker && !state.hasStyle && !state.hasRemove) {
+        continue;
+      }
+    } catch (error) {
+      results.push({ id: target.id, title: target.title, url: target.url, ok: false, error: error.message });
+      continue;
+    } finally {
+      if (session) {
+        session.close();
+      }
+    }
+    try {
+      const result = await removeFromTarget(target);
+      results.push({ id: target.id, title: target.title, url: target.url, ok: true, result });
+    } catch (error) {
+      results.push({ id: target.id, title: target.title, url: target.url, ok: false, error: error.message });
+    }
+  }
+  return results;
+}
+
 async function verifyTableFlipTarget(session) {
   const evaluate = async (expression, timeoutMs = 5000) => {
     const result = await session.send("Runtime.evaluate", {
@@ -1425,7 +1467,8 @@ async function applyOnce(port, paths, waitMs = 0) {
   if (okCount === 0) {
     throw new Error(`failed to inject all ${results.length} target(s): ${JSON.stringify(results)}`);
   }
-  return { revision: contextualPayload.revision, targets: results };
+  const prunedTargets = await pruneNonAppThemeResidue(allTargets);
+  return { revision: contextualPayload.revision, targets: results, prunedTargets };
 }
 
 async function runDaemon(port, paths, waitMs) {
