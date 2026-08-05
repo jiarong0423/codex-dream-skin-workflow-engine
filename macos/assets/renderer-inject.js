@@ -2142,7 +2142,7 @@
   }
 
   function hasRightMajorPanelOpen() {
-    return Boolean(findRightMajorPanelRect() || projectPanelChromeCollidesWithLargeRightColumn());
+    return Boolean(payload.externalWebviewOpen || findRightMajorPanelRect() || projectPanelChromeCollidesWithLargeRightColumn());
   }
 
   function markProjectPanelChromePreflightPending() {

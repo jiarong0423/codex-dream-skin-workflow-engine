@@ -2270,8 +2270,8 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surfac
   --tw-bg-opacity: 1 !important;
 }
 
-html[data-codex-interface-theme="active"][data-cit-right-major-panel="true"] .codex-interface-theme-project-panel-frame,
-html[data-codex-interface-theme="active"][data-cit-right-major-panel="true"] .codex-interface-theme-project-panel {
+html[data-codex-interface-theme="active"]:not([data-cit-right-major-panel="false"]) .codex-interface-theme-project-panel-frame,
+html[data-codex-interface-theme="active"]:not([data-cit-right-major-panel="false"]) .codex-interface-theme-project-panel {
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;

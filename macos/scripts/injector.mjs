@@ -589,6 +589,31 @@ function buildPayload(paths) {
   };
 }
 
+function hasExternalWebviewTarget(targets) {
+  return targets.some((target) => (
+    target &&
+    target.type === "webview" &&
+    target.webSocketDebuggerUrl &&
+    !String(target.url || "").startsWith("devtools://")
+  ));
+}
+
+function withTargetContext(payload, targets) {
+  const externalWebviewOpen = hasExternalWebviewTarget(targets);
+  const revision = externalWebviewOpen
+    ? sha256Text(`${payload.revision}:webview`).slice(0, 16)
+    : payload.revision;
+  return {
+    ...payload,
+    revision,
+    core: {
+      ...payload.core,
+      revision,
+      externalWebviewOpen
+    }
+  };
+}
+
 function buildAssetGroupExpression(assetGroups, assetGroupHashes) {
   const incoming = Object.fromEntries(Object.entries(assetGroups).map(([groupId, groupPayload]) => [groupId, {
     hash: assetGroupHashes[groupId],
@@ -1378,16 +1403,19 @@ async function applyOnce(port, paths, waitMs = 0) {
       }))
     }));
   }
-  const targets = waitMs > 0
-    ? await waitForInjectableTargets(port, waitMs)
-    : (await listTargets(port)).filter(isInjectableTarget);
+  if (waitMs > 0) {
+    await waitForInjectableTargets(port, waitMs);
+  }
+  const allTargets = await listTargets(port);
+  const targets = allTargets.filter(isInjectableTarget);
   if (targets.length === 0) {
     throw new Error("no injectable Codex renderer targets found");
   }
+  const contextualPayload = withTargetContext(payload, allTargets);
   const results = [];
   for (const target of targets) {
     try {
-      const result = await applyToTarget(target, payload);
+      const result = await applyToTarget(target, contextualPayload);
       results.push({ id: target.id, title: target.title, url: target.url, ok: true, result });
     } catch (error) {
       results.push({ id: target.id, title: target.title, url: target.url, ok: false, error: error.message });
@@ -1397,7 +1425,7 @@ async function applyOnce(port, paths, waitMs = 0) {
   if (okCount === 0) {
     throw new Error(`failed to inject all ${results.length} target(s): ${JSON.stringify(results)}`);
   }
-  return { revision: payload.revision, targets: results };
+  return { revision: contextualPayload.revision, targets: results };
 }
 
 async function runDaemon(port, paths, waitMs) {
