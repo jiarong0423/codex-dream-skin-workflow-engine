@@ -2,28 +2,29 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { applyRuntimeDefaults } from "./theme-runtime-defaults.mjs";
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SCRIPT_DIR = path.dirname(SCRIPT_PATH);
 const ENGINE_ROOT = path.resolve(SCRIPT_DIR, "..");
 const ASSETS_DIR = path.join(ENGINE_ROOT, "assets");
+const PROJECT_ROOT = path.resolve(ENGINE_ROOT, "..");
+const THEME_PACKS_DIR = path.join(PROJECT_ROOT, "theme-packs");
+const THEME_PACK_ID_RE = /^[a-z0-9][a-z0-9-]{1,80}$/;
+const THEME_PACK_HOT_SWAP_LIMIT = 3;
 const DEFAULT_WAIT_MS = 20000;
 const APPLY_INTERVAL_MS = 1500;
 const TARGET_ASSET_CACHE = "__CODEX_INTERFACE_THEME_ASSET_GROUPS__";
 const LEGACY_TARGET_ASSET_STORAGE = "codex-interface-theme:asset-groups:v1";
 const TARGET_ASSET_INDEX = "codex-interface-theme:asset-groups:v2:index";
 const TARGET_ASSET_GROUP_PREFIX = "codex-interface-theme:asset-groups:v2:";
-const RESTORE_SENTINEL_KEY = "codex-interface-theme:restore-sentinel:v1";
+const THEME_PACK_PAYLOAD_SCHEMA = "renderer-safe-theme-packs-data-20260723";
 
 function usage() {
   return `Usage:
   injector.mjs --port <port> --state-dir <dir> --once [--wait-ms <ms>]
   injector.mjs --port <port> --state-dir <dir> --daemon [--wait-ms <ms>]
-  injector.mjs --port <port> --state-dir <dir> --once --framework-only [--wait-ms <ms>]
-  injector.mjs --port <port> --state-dir <dir> --once --carrier-only [--wait-ms <ms>]
-  injector.mjs --port <port> --state-dir <dir> --once --control-only [--wait-ms <ms>]
   injector.mjs --state-dir <dir> --remove [--port <port>]
   injector.mjs --state-dir <dir> --verify [--port <port>] [--screenshot <path>] [--simulate-table-flip] [--hide-composer]`;
 }
@@ -36,7 +37,7 @@ function parseArgs(argv) {
       throw new Error(`unexpected argument: ${key}`);
     }
     const name = key.slice(2);
-    if (["once", "daemon", "remove", "verify", "simulate-table-flip", "hide-composer", "framework-only", "carrier-only", "control-only", "help"].includes(name)) {
+    if (["once", "daemon", "remove", "verify", "simulate-table-flip", "hide-composer", "help"].includes(name)) {
       options[name] = true;
       continue;
     }
@@ -105,7 +106,7 @@ function appendLog(paths, message) {
   const date = stamp.slice(0, 10);
   const line = `[${stamp}] ${message}\n`;
   fs.appendFileSync(path.join(paths.logsDir, `injector-${date}.log`), line, "utf8");
-  console.log(`[codex-interface-theme] ${message}`);
+  console.log(`[dream-skin-forge] ${message}`);
 }
 
 async function sleep(ms) {
@@ -348,6 +349,97 @@ function readPackagedAssetDataUrl(assetPath, fieldName, maxBytes) {
   return `data:${mime};base64,${buffer.toString("base64")}`;
 }
 
+function resolveThemePackAsset(packDir, relativePath, fieldName, maxBytes) {
+  const value = String(relativePath || "").trim();
+  if (!value || path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]+/).includes("..")) {
+    throw new Error(`${fieldName} path is unsafe: ${value}`);
+  }
+  const absolutePackDir = path.resolve(packDir);
+  const absolutePath = path.resolve(absolutePackDir, value);
+  if (absolutePath !== absolutePackDir && !absolutePath.startsWith(`${absolutePackDir}${path.sep}`)) {
+    throw new Error(`${fieldName} escapes theme pack: ${value}`);
+  }
+  const stat = fs.statSync(absolutePath);
+  if (!stat.isFile()) {
+    throw new Error(`${fieldName} is not a file: ${absolutePath}`);
+  }
+  if (stat.size <= 0 || stat.size > maxBytes) {
+    throw new Error(`${fieldName} size is invalid: ${stat.size}`);
+  }
+  return pathToFileURL(absolutePath).href;
+}
+
+function readThemePackAssetUrl(packDir, relativePath, fieldName, maxBytes) {
+  return resolveThemePackAsset(packDir, relativePath, fieldName, maxBytes);
+}
+
+function readThemePackAssetDataUrl(packDir, relativePath, fieldName, maxBytes) {
+  const assetUrl = resolveThemePackAsset(packDir, relativePath, fieldName, maxBytes);
+  const absolutePath = fileURLToPath(assetUrl);
+  const mime = inferMimeFromPath(absolutePath);
+  const buffer = fs.readFileSync(absolutePath);
+  return `data:${mime};base64,${buffer.toString("base64")}`;
+}
+
+function readThemePackDataUrls(activeTheme, activeAssets = {}) {
+  if (!fs.existsSync(THEME_PACKS_DIR)) {
+    return [];
+  }
+  const activePackId = String(activeTheme && activeTheme.themePack && activeTheme.themePack.id || "");
+  const entries = fs.readdirSync(THEME_PACKS_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && THEME_PACK_ID_RE.test(entry.name))
+    .sort((left, right) => left.name.localeCompare(right.name))
+    .slice(0, THEME_PACK_HOT_SWAP_LIMIT);
+  const packs = [];
+  for (const entry of entries) {
+    const packDir = path.join(THEME_PACKS_DIR, entry.name);
+    const manifestPath = path.join(packDir, "pack.json");
+    if (!fs.existsSync(manifestPath)) {
+      continue;
+    }
+    const manifest = readJson(manifestPath);
+    if (manifest.schemaVersion !== 1 || manifest.id !== entry.name || manifest.status !== "asset-ready-unmounted") {
+      continue;
+    }
+    const assets = manifest.assets && typeof manifest.assets === "object" ? manifest.assets : {};
+    const palette = manifest.palette && typeof manifest.palette === "object" ? manifest.palette : {};
+    const interaction = manifest.interaction && typeof manifest.interaction === "object" ? manifest.interaction : {};
+    if (interaction.activation !== "manual-click-only" || interaction.preload !== false || interaction.idlePlaybackDom !== false) {
+      continue;
+    }
+    const isActivePack = manifest.id === activePackId;
+    packs.push({
+      payloadSchema: THEME_PACK_PAYLOAD_SCHEMA,
+      id: manifest.id,
+      displayName: String(manifest.displayName || manifest.id),
+      sourceLabel: `theme-packs/${manifest.id}`,
+      active: manifest.id === activePackId,
+      palette: {
+        accent: String(palette.accent || "#70d7e8"),
+        secondary: String(palette.secondary || "#eef2dc"),
+        highlight: String(palette.alert || palette.warm || "#d87888"),
+        warm: String(palette.warm || "#e6b55a"),
+        surface: String(palette.surface || "rgba(13, 17, 18, 0.64)"),
+        surfaceStrong: String(palette.surfaceStrong || "rgba(8, 11, 12, 0.84)"),
+        text: String(palette.text || "#f2f4ea")
+      },
+      interaction: {
+        frameCount: Number(interaction.frameCount || 8),
+        durationMs: Number(interaction.durationMs || 1430)
+      },
+      backgroundDataUrl: readThemePackAssetDataUrl(packDir, assets.background, `${manifest.id} background`, 16 * 1024 * 1024),
+      characterDataUrl: readThemePackAssetDataUrl(packDir, assets.heroCharacter, `${manifest.id} hero character`, 4 * 1024 * 1024),
+      iconBadgeDataUrl: readThemePackAssetDataUrl(packDir, assets.interactionMascot, `${manifest.id} interaction mascot`, 4 * 1024 * 1024),
+      tableFlipCatTriggerIconDataUrl: readThemePackAssetDataUrl(packDir, assets.interactionTrigger, `${manifest.id} interaction trigger`, 512 * 1024),
+      tableFlipCatSpriteDataUrl: readThemePackAssetDataUrl(packDir, assets.interactionSprite, `${manifest.id} interaction sprite`, 4 * 1024 * 1024),
+      tableFlipCatDataUrl: isActivePack
+        ? String(activeAssets.tableFlipCatDataUrl || "")
+        : readThemePackAssetDataUrl(packDir, assets.interactionPoster, `${manifest.id} interaction poster`, 2 * 1024 * 1024)
+    });
+  }
+  return packs;
+}
+
 function readIconBadgeDataUrl(theme) {
   const badge = theme.icons && typeof theme.icons === "object" && theme.icons.badge && typeof theme.icons.badge === "object"
     ? theme.icons.badge
@@ -443,108 +535,38 @@ function normalizeTheme(theme) {
   return applyRuntimeDefaults(theme);
 }
 
-function cloneJson(value) {
-  return JSON.parse(JSON.stringify(value));
-}
-
-function buildFrameworkOnlyTheme(theme) {
-  const result = cloneJson(theme);
-  result.mode = "chrome-only";
-  result.backgroundImagePath = "";
-  result.art = { ...(result.art && typeof result.art === "object" ? result.art : {}), taskMode: "off" };
-  result.icons = result.icons && typeof result.icons === "object" ? result.icons : {};
-  result.icons.badge = { ...(result.icons.badge && typeof result.icons.badge === "object" ? result.icons.badge : {}), enabled: false, placement: "off" };
-  result.icons.character = { ...(result.icons.character && typeof result.icons.character === "object" ? result.icons.character : {}), enabled: false, placement: "off" };
-  result.icons.tableFlipCat = { ...(result.icons.tableFlipCat && typeof result.icons.tableFlipCat === "object" ? result.icons.tableFlipCat : {}), enabled: false, placement: "off" };
-  result.icons.buttons = { ...(result.icons.buttons && typeof result.icons.buttons === "object" ? result.icons.buttons : {}), enabled: false, applyMode: "off" };
-  result.runtimeMode = "framework-only";
-  return normalizeTheme(result);
-}
-
-function buildCarrierOnlyTheme(theme) {
-  const result = buildFrameworkOnlyTheme(theme);
-  result.runtimeMode = "carrier-only";
-  return normalizeTheme(result);
-}
-
-function buildControlOnlyTheme(theme) {
-  const result = buildFrameworkOnlyTheme(theme);
-  result.runtimeMode = "control-only";
-  return normalizeTheme(result);
-}
-
-function validRelativeAssetPath(value) {
-  const relativePath = String(value || "").trim();
-  return Boolean(relativePath) && !path.isAbsolute(relativePath) && !relativePath.split(/[\\/]+/).includes("..");
-}
-
-function resolveStyleAssetPath(value, fallback, label) {
-  const relativePath = String(value || fallback || "").trim();
-  if (!validRelativeAssetPath(relativePath)) {
-    throw new Error(`invalid ${label}: ${relativePath || "<empty>"}`);
-  }
-  return {
-    relativePath,
-    absolutePath: path.join(ASSETS_DIR, relativePath)
-  };
-}
-
-function readThemeCssBundle(options = {}) {
-  const manifest = readJson(path.join(ASSETS_DIR, "runtime-modules.json"));
-  const carrierOnly = options.carrierOnly === true;
-  const frameworkOnly = options.frameworkOnly === true;
-  const controlOnly = options.controlOnly === true;
-  const styleEntry = resolveStyleAssetPath(controlOnly ? manifest.controlStyleEntry : frameworkOnly ? manifest.frameworkStyleEntry : carrierOnly ? manifest.carrierStyleEntry : manifest.styleEntry, controlOnly ? "theme-control.css" : frameworkOnly ? "theme-framework.css" : carrierOnly ? "theme-carrier.css" : "theme.css", "style entry path");
-  const cssParts = [`/* style-entry:${styleEntry.relativePath} */`, fs.readFileSync(styleEntry.absolutePath, "utf8")];
-  if (controlOnly) {
-    return cssParts.join("\n\n");
-  }
-  const styleModules = Array.isArray(manifest.styleModules) ? manifest.styleModules : [];
-  for (const moduleConfig of styleModules) {
-    const moduleAsset = resolveStyleAssetPath(moduleConfig && moduleConfig.path, "", "style module path");
-    cssParts.push(`/* style-module:${moduleConfig.id || moduleAsset.relativePath} */`);
-    cssParts.push(fs.readFileSync(moduleAsset.absolutePath, "utf8"));
-  }
-  return cssParts.join("\n\n");
-}
-
-function buildPayload(paths, options = {}) {
-  const frameworkOnly = options.frameworkOnly === true;
-  const carrierOnly = options.carrierOnly === true;
-  const controlOnly = options.controlOnly === true;
-  const assetless = frameworkOnly || carrierOnly || controlOnly;
-  const manifest = readJson(path.join(ASSETS_DIR, "runtime-modules.json"));
-  const css = readThemeCssBundle({ frameworkOnly, carrierOnly, controlOnly });
-  const rendererEntry = resolveStyleAssetPath(
-    controlOnly ? manifest.controlRendererEntry : manifest.rendererEntry,
-    controlOnly ? "renderer-control.js" : "renderer-inject.js",
-    "renderer entry path"
-  );
-  const renderer = fs.readFileSync(rendererEntry.absolutePath, "utf8");
-  const surfaceRegistry = controlOnly
-    ? "(function installControlOnlySurfaceRegistry(){ return { ok: true, skipped: true, runtimeMode: 'control-only' }; })"
-    : fs.readFileSync(path.join(ASSETS_DIR, "surface-registry.js"), "utf8");
+function buildPayload(paths) {
+  const css = fs.readFileSync(path.join(ASSETS_DIR, "theme.css"), "utf8");
+  const renderer = fs.readFileSync(path.join(ASSETS_DIR, "renderer-inject.js"), "utf8");
   const fallbackTheme = readJson(path.join(ASSETS_DIR, "theme.json"));
   const activeTheme = fs.existsSync(paths.activeTheme) ? readJson(paths.activeTheme) : fallbackTheme;
-  const theme = controlOnly ? buildControlOnlyTheme(activeTheme) : frameworkOnly ? buildFrameworkOnlyTheme(activeTheme) : carrierOnly ? buildCarrierOnlyTheme(activeTheme) : normalizeTheme(activeTheme);
-  const backgroundDataUrl = assetless ? "" : readBackgroundDataUrl(theme);
-  const iconBadgeDataUrl = assetless ? "" : readIconBadgeDataUrl(theme);
-  const characterDataUrl = assetless ? "" : readCharacterDataUrl(theme);
-  const tableFlipCatTriggerIconDataUrl = assetless ? "" : readTableFlipCatTriggerIconDataUrl(theme);
-  const tableFlipCatSpriteDataUrl = assetless ? "" : readTableFlipCatSpriteDataUrl(theme);
-  const tableFlipCatDataUrl = assetless || tableFlipCatSpriteDataUrl ? "" : readTableFlipCatDataUrl(theme);
-  const iconButtonDataUrls = assetless ? {} : readIconButtonDataUrls(theme);
-  const assetGroups = assetless ? {} : {
+  const theme = normalizeTheme(activeTheme);
+  const backgroundDataUrl = readBackgroundDataUrl(theme);
+  const iconBadgeDataUrl = readIconBadgeDataUrl(theme);
+  const characterDataUrl = readCharacterDataUrl(theme);
+  const tableFlipCatTriggerIconDataUrl = readTableFlipCatTriggerIconDataUrl(theme);
+  const tableFlipCatSpriteDataUrl = readTableFlipCatSpriteDataUrl(theme);
+  const tableFlipCatDataUrl = tableFlipCatSpriteDataUrl ? "" : readTableFlipCatDataUrl(theme);
+  const iconButtonDataUrls = readIconButtonDataUrls(theme);
+  const themePackDataUrls = readThemePackDataUrls(theme, {
+    backgroundDataUrl,
+    iconBadgeDataUrl,
+    characterDataUrl,
+    tableFlipCatTriggerIconDataUrl,
+    tableFlipCatSpriteDataUrl,
+    tableFlipCatDataUrl
+  });
+  const assetGroups = {
     visual: { backgroundDataUrl, iconBadgeDataUrl, characterDataUrl },
     animationShell: { tableFlipCatTriggerIconDataUrl },
     animationPlayback: { tableFlipCatDataUrl, tableFlipCatSpriteDataUrl },
-    buttons: { iconButtonDataUrls }
+    buttons: { iconButtonDataUrls },
+    themePacks: { themePackDataUrls }
   };
   const assetGroupHashes = Object.fromEntries(Object.entries(assetGroups).map(([groupId, groupPayload]) => [groupId, sha256Text(JSON.stringify(groupPayload))]));
   const revision = sha256Text(JSON.stringify({
     css,
     renderer,
-    surfaceRegistry,
     theme,
     assetGroupHashes
   })).slice(0, 16);
@@ -552,14 +574,7 @@ function buildPayload(paths, options = {}) {
   return {
     css,
     renderer,
-    surfaceRegistry,
-    core: {
-      css,
-      theme,
-      revision,
-      runtimeMode: controlOnly ? "control-only" : frameworkOnly ? "framework-only" : carrierOnly ? "carrier-only" : "visual",
-      assetGroupHashes
-    },
+    core: { css, theme, revision },
     assetGroups,
     assetGroupHashes,
     theme,
@@ -570,9 +585,6 @@ function buildPayload(paths, options = {}) {
     tableFlipCatTriggerIconDataUrl,
     tableFlipCatSpriteDataUrl,
     iconButtonDataUrls,
-    frameworkOnly,
-    carrierOnly,
-    controlOnly,
     revision
   };
 }
@@ -602,7 +614,7 @@ function buildAssetGroupExpression(assetGroups, assetGroupHashes) {
         stored = true;
       } catch (_) {}
       index[groupId] = incoming[groupId].hash;
-      cache[groupId] = groupId === "animationPlayback" && stored ? { hash: incoming[groupId].hash } : incoming[groupId];
+      cache[groupId] = (groupId === "animationPlayback" || groupId === "themePacks") && stored ? { hash: incoming[groupId].hash } : incoming[groupId];
     });
     window.${TARGET_ASSET_CACHE} = cache;
     try {
@@ -615,102 +627,23 @@ function buildAssetGroupExpression(assetGroups, assetGroupHashes) {
 
 function buildCoreExpression(payload) {
   return `(() => {
-    let restoreDisabled = false;
-    try { restoreDisabled = localStorage.getItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}) === "1"; } catch (_) {}
-    if (!restoreDisabled) {
-      try { restoreDisabled = sessionStorage.getItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}) === "1"; } catch (_) {}
-    }
-    if (restoreDisabled) {
-      window.__CODEX_INTERFACE_THEME_DISABLED__ = "restore-sentinel";
-      return { ok: true, disabled: true, reason: "restore-sentinel" };
-    }
     const cache = window.${TARGET_ASSET_CACHE} && typeof window.${TARGET_ASSET_CACHE} === "object" ? window.${TARGET_ASSET_CACHE} : {};
     let index = {};
     try { index = JSON.parse(localStorage.getItem(${JSON.stringify(TARGET_ASSET_INDEX)}) || "{}"); } catch (_) {}
-    const expectedAssetGroupHashes = ${JSON.stringify(payload.assetGroupHashes)};
     const loadGroup = (groupId, retain = true) => {
-      const expectedHash = expectedAssetGroupHashes[groupId] || "";
-      if (cache[groupId] && cache[groupId].payload && (!expectedHash || cache[groupId].hash === expectedHash)) { return cache[groupId].payload; }
+      if (cache[groupId] && cache[groupId].payload) { return cache[groupId].payload; }
       try {
         const entry = JSON.parse(localStorage.getItem(${JSON.stringify(TARGET_ASSET_GROUP_PREFIX)} + groupId) || "null");
-        if (entry && entry.payload && (!expectedHash || entry.hash === expectedHash)) { if (retain) { cache[groupId] = entry; } return entry.payload; }
+        if (entry && entry.payload) { if (retain) { cache[groupId] = entry; } return entry.payload; }
       } catch (_) {}
       return {};
     };
     if (index.animationPlayback) { cache.animationPlayback = { hash: index.animationPlayback }; }
     window.${TARGET_ASSET_CACHE} = cache;
-    const assets = Object.assign({}, loadGroup("visual"), loadGroup("animationShell"), loadGroup("buttons"));
+    const assets = Object.assign({}, loadGroup("visual"), loadGroup("animationShell"), loadGroup("buttons"), loadGroup("themePacks", false));
     const core = Object.assign(${JSON.stringify(payload.core)}, assets);
     if (index.animationPlayback || cache.animationPlayback) { core.loadTableFlipCatPlayback = () => loadGroup("animationPlayback", false); }
-    if ((core.runtimeMode === "framework-only" || core.runtimeMode === "control-only") && typeof window.__CODEX_INTERFACE_THEME_REMOVE__ === "function") {
-      try { window.__CODEX_INTERFACE_THEME_REMOVE__(); } catch (_) {}
-    }
-    const themeResult = ${payload.renderer}(core);
-    const installSurfaceRegistry = ${payload.surfaceRegistry};
-    if (typeof installSurfaceRegistry === "function") { installSurfaceRegistry({ revision: core.revision }); }
-    return themeResult;
-  })();`;
-}
-
-function buildRestoreGuardExpression() {
-  return `(() => {
-    let restoreDisabled = false;
-    try { restoreDisabled = localStorage.getItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}) === "1"; } catch (_) {}
-    if (!restoreDisabled) {
-      try { restoreDisabled = sessionStorage.getItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}) === "1"; } catch (_) {}
-    }
-    if (!restoreDisabled) {
-      return { ok: true, disabled: false };
-    }
-    let hookResult = {};
-    if (typeof window.__CODEX_INTERFACE_THEME_REMOVE__ === "function") {
-      try { hookResult = window.__CODEX_INTERFACE_THEME_REMOVE__() || {}; } catch (error) { hookResult = { ok: false, error: String(error && error.message || error) }; }
-    }
-    const ids = [
-      "codex-interface-theme-style",
-      "codex-interface-theme-background-style",
-      "codex-interface-theme-backdrop",
-      "codex-interface-theme-right-hud",
-      "codex-interface-theme-character",
-      "codex-interface-theme-badge",
-      "codex-interface-theme-control-workbench",
-      "codex-interface-theme-marker"
-    ];
-    ids.forEach((id) => {
-      const node = document.getElementById(id);
-      if (node) { node.remove(); }
-    });
-    const cleanupSurfaceMarkers = () => {
-      document.querySelectorAll('[data-cit-surface-lock="locked"],[data-cit-source-preview-block],[data-cit-drag-risk]').forEach((node) => {
-        node.removeAttribute("data-cit-surface-lock");
-        node.removeAttribute("data-cit-surface-module");
-        node.removeAttribute("data-cit-surface-kind");
-        node.removeAttribute("data-cit-surface-lock-revision");
-        node.removeAttribute("data-cit-source-preview-block");
-        node.removeAttribute("data-cit-source-preview-kind");
-        node.removeAttribute("data-cit-drag-risk");
-      });
-    };
-    if (window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__ && typeof window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__.cleanup === "function") {
-      try { window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__.cleanup(); } catch (_) {}
-    }
-    cleanupSurfaceMarkers();
-    document.querySelectorAll('[data-cit-surface-lock="locked"]').forEach((node) => {
-      node.removeAttribute("data-cit-surface-lock");
-      node.removeAttribute("data-cit-surface-module");
-      node.removeAttribute("data-cit-surface-kind");
-      node.removeAttribute("data-cit-surface-lock-revision");
-      node.removeAttribute("data-cit-source-preview-block");
-      node.removeAttribute("data-cit-source-preview-kind");
-      node.removeAttribute("data-cit-drag-risk");
-    });
-    document.documentElement.removeAttribute("data-codex-interface-theme");
-    delete window.__CODEX_INTERFACE_THEME_APPLY__;
-    delete window.__CODEX_INTERFACE_THEME_REMOVE__;
-    window.__CODEX_INTERFACE_THEME_DISABLED__ = "restore-sentinel";
-    try { localStorage.setItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}, "1"); } catch (_) {}
-    try { sessionStorage.setItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}, "1"); } catch (_) {}
-    return { ok: true, removed: true, fallback: true, hookResult };
+    return ${payload.renderer}(core);
   })();`;
 }
 
@@ -720,12 +653,65 @@ async function readTargetAssetGroupHashes(session) {
       const cache = window.${TARGET_ASSET_CACHE} && typeof window.${TARGET_ASSET_CACHE} === "object" ? window.${TARGET_ASSET_CACHE} : {};
       let index = null;
       try { index = JSON.parse(localStorage.getItem(${JSON.stringify(TARGET_ASSET_INDEX)}) || "null"); } catch (_) {}
-      return Object.assign({ __persistent: index ? "v2" : "" }, Object.fromEntries(Object.entries(cache).map(([groupId, entry]) => [groupId, entry && entry.hash || ""])), index || {});
+      const hashes = Object.assign({ __persistent: index ? "v2" : "" }, Object.fromEntries(Object.entries(cache).map(([groupId, entry]) => [groupId, entry && entry.hash || ""])), index || {});
+      try {
+        const storedThemePacks = JSON.parse(localStorage.getItem(${JSON.stringify(TARGET_ASSET_GROUP_PREFIX)} + "themePacks") || "null");
+        const packs = storedThemePacks && storedThemePacks.payload && Array.isArray(storedThemePacks.payload.themePackDataUrls)
+          ? storedThemePacks.payload.themePackDataUrls
+          : [];
+        const unsafePack = packs.length > 0 && packs.some((pack) => (
+          !pack ||
+          pack.payloadSchema !== ${JSON.stringify(THEME_PACK_PAYLOAD_SCHEMA)} ||
+          !String(pack.backgroundDataUrl || "").startsWith("data:image/") ||
+          !String(pack.characterDataUrl || "").startsWith("data:image/")
+        ));
+        if (packs.length === 0 || unsafePack) { hashes.themePacks = ""; }
+      } catch (_) {
+        hashes.themePacks = "";
+      }
+      return hashes;
     })();`,
     awaitPromise: false,
     returnByValue: true
   }).catch(() => null);
   return result && result.result && result.result.value && typeof result.result.value === "object" ? result.result.value : {};
+}
+
+async function readTargetThemeState(session) {
+  const result = await session.send("Runtime.evaluate", {
+    expression: `(() => {
+      const root = document.documentElement;
+      const marker = document.getElementById("codex-interface-theme-marker");
+      const rightHud = document.getElementById("codex-interface-theme-right-hud");
+      const hotSwapBay = document.querySelector("body > .codex-interface-theme-pack-bay") || (rightHud ? rightHud.querySelector(".codex-interface-theme-pack-bay") : null);
+      const hotSwapSelect = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-select") : null;
+      return {
+        active: root.getAttribute("data-codex-interface-theme") === "active",
+        revision: marker ? marker.getAttribute("data-revision") || "" : "",
+        hasMarker: Boolean(marker),
+        hotSwapPacks: Number(root.getAttribute("data-cit-hot-swap-packs") || "0"),
+        hasHotSwapBay: Boolean(hotSwapBay),
+        hasHotSwapSelect: Boolean(hotSwapSelect)
+      };
+    })();`,
+    awaitPromise: false,
+    returnByValue: true
+  }).catch(() => null);
+  return result && result.result && result.result.value && typeof result.result.value === "object" ? result.result.value : {};
+}
+
+function expectedHotSwapPackCount(payload) {
+  const group = payload.assetGroups && payload.assetGroups.themePacks && typeof payload.assetGroups.themePacks === "object"
+    ? payload.assetGroups.themePacks
+    : {};
+  const packs = Array.isArray(group.themePackDataUrls) ? group.themePackDataUrls : [];
+  return packs.filter((pack) => (
+    pack &&
+    typeof pack === "object" &&
+    String(pack.id || "") &&
+    String(pack.backgroundDataUrl || "").startsWith("data:image/") &&
+    String(pack.characterDataUrl || "").startsWith("data:image/")
+  )).length;
 }
 
 async function applyToTarget(target, payload) {
@@ -735,17 +721,19 @@ async function applyToTarget(target, payload) {
     await session.send("Runtime.enable").catch(() => {});
     await session.send("Page.enable").catch(() => {});
     const cachedHashes = await readTargetAssetGroupHashes(session);
+    const themeState = await readTargetThemeState(session);
     const changedGroupIds = Object.keys(payload.assetGroups).filter((groupId) => cachedHashes[groupId] !== payload.assetGroupHashes[groupId]);
     const staleGroupIds = Object.keys(cachedHashes).filter((groupId) => groupId !== "__persistent" && !Object.hasOwn(payload.assetGroups, groupId));
     const needsPersistence = cachedHashes.__persistent !== "v2";
     const groupsToSend = needsPersistence ? Object.keys(payload.assetGroups) : changedGroupIds;
     const changedGroups = Object.fromEntries(groupsToSend.map((groupId) => [groupId, payload.assetGroups[groupId]]));
+    const expectedHotSwapPacks = expectedHotSwapPackCount(payload);
+    const hotSwapStateReady = expectedHotSwapPacks < 2 || (
+      themeState.hotSwapPacks === expectedHotSwapPacks &&
+      themeState.hasHotSwapBay === true &&
+      themeState.hasHotSwapSelect === true
+    );
     let assetExpressionBytes = 0;
-    await session.send("Runtime.evaluate", {
-      expression: `try { localStorage.removeItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}); sessionStorage.removeItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}); delete window.__CODEX_INTERFACE_THEME_DISABLED__; } catch (_) {}`,
-      awaitPromise: false,
-      returnByValue: false
-    }).catch(() => {});
     if (groupsToSend.length > 0 || staleGroupIds.length > 0) {
       const assetExpression = buildAssetGroupExpression(changedGroups, payload.assetGroupHashes);
       assetExpressionBytes = Buffer.byteLength(assetExpression);
@@ -756,6 +744,29 @@ async function applyToTarget(target, payload) {
         returnByValue: true,
         userGesture: false
       });
+    }
+    const canSkipCore = themeState.active === true
+      && themeState.hasMarker === true
+      && themeState.revision === payload.revision
+      && hotSwapStateReady
+      && groupsToSend.length === 0
+      && staleGroupIds.length === 0
+      && !needsPersistence;
+    if (canSkipCore) {
+      return {
+        ok: true,
+        revision: payload.revision,
+        href: target.url || "",
+        marker: true,
+        skippedCore: true,
+        assetGroupsChanged: changedGroupIds,
+        assetGroupsTransferred: [],
+        assetGroupsReused: Object.keys(payload.assetGroups),
+        assetGroupsPruned: staleGroupIds,
+        assetCachePersistent: true,
+        assetExpressionBytes,
+        coreExpressionBytes: 0
+      };
     }
     const coreExpression = buildCoreExpression(payload);
     await session.send("Page.addScriptToEvaluateOnNewDocument", { source: coreExpression }).catch(() => {});
@@ -786,67 +797,25 @@ async function removeFromTarget(target) {
   await session.open();
   try {
     await session.send("Runtime.enable").catch(() => {});
-    await session.send("Page.enable").catch(() => {});
-    await session.send("Page.addScriptToEvaluateOnNewDocument", { source: buildRestoreGuardExpression() }).catch(() => {});
     const result = await session.send("Runtime.evaluate", {
       expression: `(() => {
-        const setRestoreSentinel = () => {
-          try { localStorage.setItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}, "1"); } catch (_) {}
-          try { sessionStorage.setItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}, "1"); } catch (_) {}
-          window.__CODEX_INTERFACE_THEME_DISABLED__ = "restore-sentinel";
-        };
-        setRestoreSentinel();
-        let hookResult = {};
         if (typeof window.__CODEX_INTERFACE_THEME_REMOVE__ === "function") {
-          try { hookResult = window.__CODEX_INTERFACE_THEME_REMOVE__() || {}; } catch (error) { hookResult = { ok: false, error: String(error && error.message || error) }; }
+          return window.__CODEX_INTERFACE_THEME_REMOVE__();
         }
-        const ids = [
-          "codex-interface-theme-style",
-          "codex-interface-theme-background-style",
-          "codex-interface-theme-backdrop",
-          "codex-interface-theme-right-hud",
-          "codex-interface-theme-character",
-          "codex-interface-theme-badge",
-          "codex-interface-theme-control-workbench",
-          "codex-interface-theme-marker"
-        ];
-        ids.forEach((id) => {
-          const node = document.getElementById(id);
-          if (node) { node.remove(); }
-        });
-        let surfaceRegistryResult = {};
-        if (window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__ && typeof window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__.cleanup === "function") {
-          try {
-            surfaceRegistryResult = window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__.cleanup() || {};
-          } catch (error) {
-            surfaceRegistryResult = { ok: false, error: String(error && error.message || error) };
-          }
+        const style = document.getElementById("codex-interface-theme-style");
+        if (style) {
+          style.remove();
         }
-        document.querySelectorAll('[data-cit-surface-lock="locked"],[data-cit-source-preview-block],[data-cit-drag-risk]').forEach((node) => {
-          node.removeAttribute("data-cit-surface-lock");
-          node.removeAttribute("data-cit-surface-module");
-          node.removeAttribute("data-cit-surface-kind");
-          node.removeAttribute("data-cit-surface-lock-revision");
-          node.removeAttribute("data-cit-source-preview-block");
-          node.removeAttribute("data-cit-source-preview-kind");
-          node.removeAttribute("data-cit-drag-risk");
-        });
+        const marker = document.getElementById("codex-interface-theme-marker");
+        if (marker) {
+          marker.remove();
+        }
         document.documentElement.removeAttribute("data-codex-interface-theme");
-        delete window.__CODEX_INTERFACE_THEME_APPLY__;
-        delete window.__CODEX_INTERFACE_THEME_REMOVE__;
-        setRestoreSentinel();
-        let sentinel = {};
-        try { sentinel.local = localStorage.getItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}) || ""; } catch (_) { sentinel.local = "unreadable"; }
-        try { sentinel.session = sessionStorage.getItem(${JSON.stringify(RESTORE_SENTINEL_KEY)}) || ""; } catch (_) { sentinel.session = "unreadable"; }
-        return { ok: true, removed: true, fallback: true, hookResult, surfaceRegistryResult, sentinel };
+        return { ok: true, removed: true, fallback: true };
       })();`,
       awaitPromise: false,
       returnByValue: true
     });
-    if (result.exceptionDetails) {
-      const exception = result.exceptionDetails.exception || {};
-      return { ok: false, removed: false, error: exception.description || exception.value || result.exceptionDetails.text || "restore evaluation failed" };
-    }
     return result.result && result.result.value ? result.result.value : { ok: true, removed: true };
   } finally {
     session.close();
@@ -980,6 +949,10 @@ async function verifyTarget(target, screenshotPath, simulateTableFlip = false, h
         const tableFlipAnimatedStyle = tableFlipAnimated ? getComputedStyle(tableFlipAnimated) : null;
         const tableFlipTrigger = rightHud ? rightHud.querySelector(".codex-interface-theme-table-flip-trigger-icon") : null;
         const tableFlipTriggerStyle = tableFlipTrigger ? getComputedStyle(tableFlipTrigger) : null;
+        const hotSwapBay = document.querySelector("body > .codex-interface-theme-pack-bay") || (rightHud ? rightHud.querySelector(".codex-interface-theme-pack-bay") : null);
+        const hotSwapSwitcher = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-switcher") : null;
+        const hotSwapSelect = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-select") : null;
+        const hotSwapButtons = hotSwapSwitcher ? Array.from(hotSwapSwitcher.querySelectorAll(".codex-interface-theme-pack-button")) : [];
         const character = document.getElementById("codex-interface-theme-character");
         const characterStyle = character ? getComputedStyle(character) : null;
         const playbackOnly = ${simulateTableFlip ? "true" : "false"};
@@ -1189,6 +1162,15 @@ async function verifyTarget(target, screenshotPath, simulateTableFlip = false, h
           buttonProjectPanelRows: root.getAttribute("data-cit-button-project-panel-rows") || "",
           projectPanels: root.getAttribute("data-cit-project-panels") || "",
           rightMajorPanel: root.getAttribute("data-cit-right-major-panel") || "",
+          hotSwapPacks: root.getAttribute("data-cit-hot-swap-packs") || "",
+          activeThemePack: root.getAttribute("data-cit-active-theme-pack") || "",
+          hasHotSwapBay: Boolean(hotSwapBay),
+          hasHotSwapSwitcher: Boolean(hotSwapSwitcher),
+          hasHotSwapSelect: Boolean(hotSwapSelect),
+          hotSwapSelectValue: hotSwapSelect ? hotSwapSelect.value : "",
+          hotSwapSelectOptions: hotSwapSelect ? Array.from(hotSwapSelect.options).map((option) => ({ value: option.value, text: option.textContent || "" })) : [],
+          hotSwapButtonCount: String(hotSwapButtons.length),
+          hotSwapButtonIds: hotSwapButtons.map((button) => button.getAttribute("data-cit-pack-id") || ""),
           tableFlipCatMode: root.getAttribute("data-cit-table-flip-cat-mode") || "",
           rightHudMode: rightHud ? rightHud.getAttribute("data-cit-table-flip-mode") || "" : "",
           rightHudUsesSprite: rightHud ? rightHud.getAttribute("data-cit-uses-sprite") || "" : "",
@@ -1379,12 +1361,23 @@ async function verifyTarget(target, screenshotPath, simulateTableFlip = false, h
   }
 }
 
-async function applyOnce(port, paths, waitMs = 0, options = {}) {
-  const payload = buildPayload(paths, {
-    frameworkOnly: options.frameworkOnly === true,
-    carrierOnly: options.carrierOnly === true,
-    controlOnly: options.controlOnly === true
-  });
+async function applyOnce(port, paths, waitMs = 0) {
+  const payload = buildPayload(paths);
+  if (process.env.CIT_DEBUG_PAYLOAD === "1") {
+    const packs = payload.assetGroups.themePacks && Array.isArray(payload.assetGroups.themePacks.themePackDataUrls)
+      ? payload.assetGroups.themePacks.themePackDataUrls
+      : [];
+    console.error(JSON.stringify({
+      debug: "payload",
+      themePackHash: payload.assetGroupHashes.themePacks || "",
+      themePackCount: packs.length,
+      themePackStarts: packs.map((pack) => ({
+        id: pack.id || "",
+        background: String(pack.backgroundDataUrl || "").slice(0, 16),
+        character: String(pack.characterDataUrl || "").slice(0, 16)
+      }))
+    }));
+  }
   const targets = waitMs > 0
     ? await waitForInjectableTargets(port, waitMs)
     : (await listTargets(port)).filter(isInjectableTarget);
@@ -1404,10 +1397,10 @@ async function applyOnce(port, paths, waitMs = 0, options = {}) {
   if (okCount === 0) {
     throw new Error(`failed to inject all ${results.length} target(s): ${JSON.stringify(results)}`);
   }
-  return { revision: payload.revision, frameworkOnly: payload.frameworkOnly, carrierOnly: payload.carrierOnly, controlOnly: payload.controlOnly, targets: results };
+  return { revision: payload.revision, targets: results };
 }
 
-async function runDaemon(port, paths, waitMs, options = {}) {
+async function runDaemon(port, paths, waitMs) {
   await waitForCdp(port, waitMs);
   await stopExistingDaemonForPort(paths, port);
   mkdirp(paths.runDir);
@@ -1415,8 +1408,6 @@ async function runDaemon(port, paths, waitMs, options = {}) {
     port,
     pid: process.pid,
     mode: "daemon",
-    frameworkOnly: options.frameworkOnly === true,
-    carrierOnly: options.carrierOnly === true,
     startedAt: new Date().toISOString(),
     engineRoot: ENGINE_ROOT
   };
@@ -1448,7 +1439,7 @@ async function runDaemon(port, paths, waitMs, options = {}) {
         }
         return;
       }
-      const result = await applyOnce(port, paths, 0, { frameworkOnly: options.frameworkOnly === true, carrierOnly: options.carrierOnly === true });
+      const result = await applyOnce(port, paths);
       const summary = `${result.revision}:${result.targets.map((target) => `${target.id}:${target.ok ? "ok" : "fail"}`).join(",")}`;
       if (summary !== lastSummary) {
         appendLog(paths, `applied revision ${result.revision} to ${result.targets.length} target(s)`);
@@ -1669,13 +1660,6 @@ async function main() {
   mkdirp(paths.runDir);
 
   if (options.once || options.daemon) {
-    const loadModeCount = ["framework-only", "carrier-only", "control-only"].filter((name) => options[name] === true).length;
-    if (loadModeCount > 1) {
-      throw new Error("choose only one load mode: --framework-only, --carrier-only, or --control-only");
-    }
-    if (options.daemon && options["control-only"] === true) {
-      throw new Error("--control-only is one-shot only; use --once");
-    }
     const port = inferPort(options, paths);
     const waitMs = options["wait-ms"] ? Number(options["wait-ms"]) : DEFAULT_WAIT_MS;
     if (!Number.isFinite(waitMs) || waitMs < 0) {
@@ -1683,18 +1667,11 @@ async function main() {
     }
     if (options.once) {
       await waitForCdp(port, waitMs);
-      const result = await applyOnce(port, paths, waitMs, {
-        frameworkOnly: options["framework-only"] === true,
-        carrierOnly: options["carrier-only"] === true,
-        controlOnly: options["control-only"] === true
-      });
+      const result = await applyOnce(port, paths, waitMs);
       writeJsonAtomic(paths.session, {
         port,
         pid: process.pid,
         mode: "once",
-        frameworkOnly: result.frameworkOnly === true,
-        carrierOnly: result.carrierOnly === true,
-        controlOnly: result.controlOnly === true,
         appliedAt: new Date().toISOString(),
         revision: result.revision,
         engineRoot: ENGINE_ROOT
@@ -1702,7 +1679,7 @@ async function main() {
       console.log(JSON.stringify({ ok: true, ...result }, null, 2));
       return;
     }
-    await runDaemon(port, paths, waitMs, { frameworkOnly: options["framework-only"] === true, carrierOnly: options["carrier-only"] === true });
+    await runDaemon(port, paths, waitMs);
     return;
   }
 
@@ -1722,6 +1699,6 @@ async function main() {
 try {
   await main();
 } catch (error) {
-  console.error(`[codex-interface-theme][injector] ${error.message}`);
+  console.error(`[dream-skin-forge][injector] ${error.message}`);
   process.exitCode = 1;
 }

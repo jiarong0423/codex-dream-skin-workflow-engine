@@ -8,8 +8,8 @@ show_help() {
   cat <<'EOF'
 Usage: install.sh [--no-engine-copy]
 
-Installs the managed Codex Interface Theme engine to:
-  ~/.codex/codex-interface-theme
+Installs the managed Dream Skin Forge engine to:
+  ~/.codex/dream-skin-forge
 
 This installer does not modify the official Codex app, app.asar, auth.json,
 API keys, or model provider settings.
@@ -46,8 +46,21 @@ if [ "$NO_ENGINE_COPY" = "0" ]; then
     rsync -a --delete \
       --exclude '.git' \
       --exclude '.DS_Store' \
+      --exclude '.target-mode-quarantine' \
       "$CIT_ROOT_DIR/" \
       "$CIT_ENGINE_DIR/"
+  fi
+  SOURCE_THEME_PACKS_DIR="$(cd "$CIT_ROOT_DIR/.." >/dev/null 2>&1 && pwd)/theme-packs"
+  TARGET_THEME_PACKS_DIR="$(cd "$CIT_ENGINE_DIR/.." >/dev/null 2>&1 && pwd)/theme-packs"
+  if [ -d "$SOURCE_THEME_PACKS_DIR" ]; then
+    mkdir -p "$TARGET_THEME_PACKS_DIR"
+    rsync -a --delete \
+      --exclude '.git' \
+      --exclude '.DS_Store' \
+      "$SOURCE_THEME_PACKS_DIR/" \
+      "$TARGET_THEME_PACKS_DIR/"
+    find "$TARGET_THEME_PACKS_DIR" -path '*/scripts/*.mjs' -type f -exec chmod +x {} \;
+    find "$TARGET_THEME_PACKS_DIR" -name '*.sh' -type f -exec chmod +x {} \;
   fi
   chmod +x "$CIT_ENGINE_DIR/scripts/"*.sh
   chmod +x "$CIT_ENGINE_DIR/scripts/"*.mjs

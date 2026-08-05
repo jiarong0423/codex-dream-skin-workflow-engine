@@ -32,8 +32,23 @@ tmp/
 # Internal screenshots and temporary defect evidence.
 /tmp/
 /screenshots/
+/macos/previews/*.png
+/macos/previews/**/*.png
+/macos/previews/**/*.json
+/macos/previews/**/*.txt
+/.target-mode-quarantine/
 /macos/assets/backgrounds/*cyberpunk-orange-cat.png
 /docs/PROJECT_LOG.local-private.md
 
+# Local public-package scratch gates. Runtime gates live under macos/scripts.
+/scripts/forge-gate.sh
+
 # Local Codex Dream Skin state is installed outside the repository.
 /CodexInterfaceTheme/
+
+# Private theme drafts are local-only customization experiments. Promote a
+# draft into theme-packs/<pack-id>/ only after assets, budgets, and provenance
+# are ready for the public/runtime gate.
+/theme-packs/private-drafts/
+/theme-packs/private-packs/
+/theme-packs/previews/*-private.html

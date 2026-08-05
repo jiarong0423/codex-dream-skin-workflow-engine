@@ -67,7 +67,7 @@ bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --submiss
 For live verification, use the existing project scripts. Apply once before considering daemon mode:
 
 ```bash
-bash macos/scripts/start.sh --no-launch --once --port 9341 --wait-ms 8000
+bash macos/scripts/start.sh --no-launch --once --visual --port 9341 --wait-ms 8000
 bash macos/scripts/verify.sh --port 9341
 ```
 

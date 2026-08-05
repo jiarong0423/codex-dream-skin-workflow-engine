@@ -255,135 +255,13 @@
       }
     ]
   },
-  "boundaryProfiles": {
-    "themeAsset": {
-      "identity": "payload-key",
-      "geometry": "placement-only",
-      "paint": "theme-owned-node",
-      "lifecycle": ["install", "cleanup"]
-    },
-    "themeDom": {
-      "identity": "scoped-dom-structure",
-      "geometry": "qualification-only",
-      "paint": "class-scoped",
-      "lifecycle": ["install", "route", "stabilize", "cleanup"]
-    },
-    "nativeBoundary": {
-      "identity": "dom-path-plus-weakmap-owner",
-      "geometry": "qualification-only",
-      "paint": "none",
-      "lifecycle": ["install", "route", "light", "cleanup"]
-    },
-    "nativeQuarantine": {
-      "identity": "runtime-marker-from-native-boundary",
-      "geometry": "none",
-      "paint": "reset-only-no-theme-coloration",
-      "lifecycle": ["install", "route", "cleanup"]
-    },
-    "cache": {
-      "identity": "connected-node-validation",
-      "geometry": "none",
-      "paint": "none",
-      "lifecycle": ["install", "invalidate", "cleanup"]
-    },
-    "scheduler": {
-      "identity": "shared-signal",
-      "geometry": "measurement-only",
-      "paint": "none",
-      "lifecycle": ["install", "trigger", "cleanup"]
-    },
-    "manualAnimation": {
-      "identity": "explicit-trigger",
-      "geometry": "placement-only",
-      "paint": "theme-owned-node",
-      "lifecycle": ["idle", "wake", "release", "cleanup"]
-    }
-  },
   "budgets": {
-    "themeCssBytes": 125000,
-    "rendererBytes": 107000,
+    "themeCssBytes": 130000,
+    "rendererBytes": 120000,
     "runtimePayloadBytes": 9000000,
     "singleIconBytes": 4194304,
     "buttonIconBytes": 262144
   },
-  "styleEntry": "theme-kernel.css",
-  "frameworkStyleEntry": "theme-framework.css",
-  "carrierStyleEntry": "theme-carrier.css",
-  "controlStyleEntry": "theme-control.css",
-  "rendererEntry": "renderer-inject.js",
-  "controlRendererEntry": "renderer-control.js",
-  "loadModes": {
-    "visual": {
-      "runtimeMode": "visual",
-      "styleEntry": "theme-kernel.css",
-      "rendererEntry": "renderer-inject.js",
-      "assetGroups": ["visual", "animationShell", "animationPlayback", "buttons"],
-      "rendererPolicy": "all declared runtime modules"
-    },
-    "carrier-only": {
-      "runtimeMode": "carrier-only",
-      "styleEntry": "theme-carrier.css",
-      "rendererEntry": "renderer-inject.js",
-      "assetGroups": [],
-      "rendererPolicy": "native boundary, composer, conversation, workspace picker, collision, and marker modules only"
-    },
-    "framework-only": {
-      "runtimeMode": "framework-only",
-      "styleEntry": "theme-framework.css",
-      "rendererEntry": "renderer-inject.js",
-      "assetGroups": [],
-      "rendererPolicy": "marker-only restore-safe sentinel mode"
-    },
-    "control-only": {
-      "runtimeMode": "control-only",
-      "styleEntry": "theme-control.css",
-      "rendererEntry": "renderer-control.js",
-      "assetGroups": [],
-      "rendererPolicy": "offline atomic command planner control panel only; no visual assets, no surface registry, no style modules, no shell execution"
-    }
-  },
-  "styleModules": [
-    {
-      "id": "composerShell",
-      "path": "theme-modules/composer-shell.css",
-      "boundaryProfile": "themeDom",
-      "activation": "codex-interface-theme-composer-surface",
-      "loadPolicy": "base-css-bundle",
-      "eventPolicy": "native-size bottom composer shell and native fade reset only; no sidebar, right panel, chat row, source preview, full-page mask, or detached overlay ownership"
-    },
-    {
-      "id": "themePackFrame",
-      "path": "theme-modules/theme-pack-frame.css",
-      "boundaryProfile": "themeDom",
-      "activation": "native-primary-sidebar-navigation-after",
-      "loadPolicy": "base-css-bundle",
-      "eventPolicy": "static CSS-only mounted-theme status at the end of the native primary sidebar navigation; no DOM creation, click, drag, route, resize, observer, transform, z-index, backdrop filter, native row, or popover ownership"
-    },
-    {
-      "id": "sourcePreviewQuarantine",
-      "path": "theme-modules/source-preview-quarantine.css",
-      "boundaryProfile": "nativeQuarantine",
-      "activation": "data-cit-source-preview-block=true",
-      "loadPolicy": "base-css-bundle",
-      "eventPolicy": "reset-only CSS module for screenshot, source, attachment, and resizable preview surfaces; no recolor, blur, scale, transform, or overlay"
-    },
-    {
-      "id": "pageHeaderRouteSearchBand",
-      "path": "theme-modules/page-header-route-search-band.css",
-      "boundaryProfile": "nativeQuarantine",
-      "activation": "route page header shell and placeholder-scoped route search bands",
-      "loadPolicy": "base-css-bundle",
-      "eventPolicy": "static glass material for route page headers and search bands only; no black shell, sidebar, right panel, composer, source preview, geometry tracking, click, drag, transform, z-index, or overlay ownership"
-    },
-    {
-      "id": "blackShellTransparency",
-      "path": "theme-modules/black-shell-transparency.css",
-      "boundaryProfile": "nativeQuarantine",
-      "activation": "data-cit-black-shell=true",
-      "loadPolicy": "base-css-bundle",
-      "eventPolicy": "alpha-only CSS material for surfaceRegistry-marked shell containers only; excludes native menus, dialogs, popovers, inputs, editors, composer, previews, workspace picker, and sidebar controls; no global token, route, or control selector ownership; no new watcher, layout, size, transform, z-index, overflow, media, MCP, editor, click, or drag mutations"
-    }
-  ],
   "retainedSourceAssets": [
     "backgrounds/cyber-ruins-pale.png",
     "backgrounds/cyberpunk-contrast-city.png",
@@ -400,7 +278,6 @@
     {
       "id": "background",
       "kind": "asset",
-      "boundaryProfile": "themeAsset",
       "activation": "backgroundImagePath",
       "payloadKeys": ["backgroundDataUrl"],
       "loadPolicy": "active-theme-only",
@@ -409,7 +286,6 @@
     {
       "id": "iconBadge",
       "kind": "asset",
-      "boundaryProfile": "themeAsset",
       "activation": "icons.badge.enabled && icons.badge.placement !== off",
       "payloadKeys": ["iconBadgeDataUrl"],
       "loadPolicy": "enabled-only"
@@ -417,7 +293,6 @@
     {
       "id": "character",
       "kind": "asset",
-      "boundaryProfile": "themeAsset",
       "activation": "icons.character.enabled && icons.character.placement !== off",
       "payloadKeys": ["characterDataUrl"],
       "loadPolicy": "enabled-only"
@@ -425,7 +300,6 @@
     {
       "id": "characterRetreat",
       "kind": "dom-geometry",
-      "boundaryProfile": "themeDom",
       "activation": "icons.character.enabled && renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -434,61 +308,30 @@
     {
       "id": "staticAccess",
       "kind": "dom-cache",
-      "boundaryProfile": "cache",
       "activation": "renderer-module-registry",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
       "eventPolicy": "cache stable DOM entrypoints; invalidate on install, route, low-frequency mutation, resize, and right-trigger"
     },
     {
-      "id": "surfaceRegistry",
-      "kind": "dom-lock",
-      "boundaryProfile": "nativeBoundary",
-      "activation": "renderer-module-registry",
-      "payloadKeys": [],
-      "loadPolicy": "no-extra-asset",
-      "eventPolicy": "shared 2500ms phase plus route/event short settle follow-up for native-boundary locks; black-shell scan is isolated to install, route stabilization, or explicit manual refresh only; WeakMap owner lock classifies sourcePreviewBlocks; no MutationObserver, no fixed geometry, no overlay"
-    },
-    {
-      "id": "sourcePreviewBlocks",
-      "kind": "dom-lock",
-      "boundaryProfile": "nativeBoundary",
-      "activation": "surfaceRegistry-classified screenshots, sources, attachments, and resizable preview blocks",
-      "payloadKeys": [],
-      "loadPolicy": "no-extra-asset",
-      "eventPolicy": "classification-only native owner lock; tags high-memory image resize surfaces and does not drag, recolor, blur, transform, or overlay them"
-    },
-    {
-      "id": "sourcePreviewQuarantine",
-      "kind": "css-quarantine",
-      "boundaryProfile": "nativeQuarantine",
-      "activation": "data-cit-source-preview-block=true",
-      "payloadKeys": [],
-      "loadPolicy": "styleModules.sourcePreviewQuarantine",
-      "eventPolicy": "reset-only CSS module loaded through the theme CSS bundle; prevents broad popover/rounded rules from repainting dynamic preview surfaces"
-    },
-    {
-      "id": "blackShellTransparency",
-      "kind": "css-quarantine",
-      "boundaryProfile": "nativeQuarantine",
-      "activation": "surfaceRegistry-classified official near-black shell layers",
-      "payloadKeys": [],
-      "loadPolicy": "styleModules.blackShellTransparency",
-      "eventPolicy": "preflight cleanup then protected-surface exclusion before alpha-only shell background replacement; marker-only CSS material with no global token ownership; excludes native menus, dialogs, popovers, inputs, editors, composer, previews, workspace picker, and sidebar controls; no new watcher, layout, z-index, transform, overflow, media, MCP, editor, preview, click, drag, or size tracking"
-    },
-    {
       "id": "collisionScheduler",
       "kind": "scheduler",
-      "boundaryProfile": "scheduler",
       "activation": "renderer-module-registry",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
       "eventPolicy": "shared layout observer plus top-right preflight trigger; no second full-page observer"
     },
     {
+      "id": "sourcePreviewQuarantine",
+      "kind": "dom-class",
+      "activation": "renderer-detected source preview blocks",
+      "payloadKeys": [],
+      "loadPolicy": "no-extra-asset",
+      "eventPolicy": "reset-only marker quarantine for source previews; does not drag or restyle native media"
+    },
+    {
       "id": "tableFlipCat",
       "kind": "manual-animation",
-      "boundaryProfile": "manualAnimation",
       "activation": "icons.tableFlipCat.enabled && icons.tableFlipCat.placement === right-bottom",
       "payloadKeys": [
         "tableFlipCatTriggerIconDataUrl",
@@ -498,35 +341,31 @@
       "eventPolicy": "idle trigger only, create animation node after click, play once, release node and image reference"
     },
     {
+      "id": "themePacks",
+      "kind": "developer-extension",
+      "activation": "theme-packs/*/pack.json with at least two asset-ready-unmounted packs",
+      "payloadKeys": ["themePackDataUrls"],
+      "loadPolicy": "manifest-plus-file-url-candidates",
+      "eventPolicy": "right HUD transparent bay plus dropdown selector switches CSS variables and file-url asset references; no base64 candidate payload, no polling, no daemon, and no idle playback DOM"
+    },
+    {
       "id": "workspacePickers",
       "kind": "dom-class",
-      "boundaryProfile": "themeDom",
       "activation": "event-triggered workspace picker geometry and text detection",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
-      "eventPolicy": "short follow-up checks after pointer, click, keydown, or focusin; requires picker-specific text clusters; rejects transcript/debug text; marks only the picker shell while visible; no detached overlay plate"
+      "eventPolicy": "short follow-up checks after pointer, click, keydown, or focusin; marks only the picker shell while visible; no detached overlay plate"
     },
     {
       "id": "buttonGlyphs",
       "kind": "asset-map",
-      "boundaryProfile": "themeAsset",
       "activation": "icons.buttons.enabled && icons.buttons.applyMode === module",
       "payloadKeys": ["iconButtonDataUrls"],
       "loadPolicy": "enabled-module-only"
     },
     {
-      "id": "composerShell",
-      "kind": "css-reset",
-      "boundaryProfile": "themeDom",
-      "activation": "composerSurface marker plus native sticky bottom dock",
-      "payloadKeys": [],
-      "loadPolicy": "styleModules.composerShell",
-      "eventPolicy": "reset native bottom composer black floor and fade layers only; scoped to sticky.bottom-0 and composer-surface classes"
-    },
-    {
       "id": "projectPanels",
       "kind": "dom-class",
-      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
@@ -534,7 +373,6 @@
     {
       "id": "composerSurface",
       "kind": "dom-class",
-      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
@@ -542,19 +380,9 @@
     {
       "id": "conversationSurface",
       "kind": "dom-class",
-      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
-    },
-    {
-      "id": "controlWorkbench",
-      "kind": "manual-control",
-      "boundaryProfile": "themeDom",
-      "activation": "runtimeMode === control-only",
-      "payloadKeys": [],
-      "loadPolicy": "control-only renderer entry",
-      "eventPolicy": "copy-only atomic command planner; no shell execution, no CDP connection, no visual assets, no surface registry, no style modules"
     }
   ],
   "matrix": [
@@ -583,24 +411,8 @@
       "expected": "runtime referenced assets stay under payload budget; declared design sources stay outside the runtime payload; unclassified heavy assets are reported"
     },
     {
-      "scenario": "source-preview-quarantine",
-      "expected": "source preview reset module is marker-owned and does not repaint, hide, resize, or intercept screenshot/source thumbnails"
-    },
-    {
-      "scenario": "black-shell-transparency",
-      "expected": "official near-black shells are marker-owned and only receive alpha/background-image changes, with no layout or content mutations"
-    },
-    {
-      "scenario": "composer-shell",
-      "expected": "composer reset module is native-size, bottom-dock scoped, and does not target sidebar, right panel, chat rows, or source previews"
-    },
-    {
-      "scenario": "carrier-only",
-      "expected": "carrier template loads structural/native-boundary modules with zero visual, animation, or button asset payload"
-    },
-    {
-      "scenario": "control-only",
-      "expected": "control template loads only the atomic command planner renderer and CSS with zero visual assets, zero style modules, and no surface registry"
+      "scenario": "theme-packs-extension",
+      "expected": "developer theme packs expose at least two hot-swap candidates through a transparent bay/dropdown without changing the native frame or preloading playback DOM"
     }
   ]
 }

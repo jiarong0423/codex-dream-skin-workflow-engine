@@ -5,15 +5,15 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>Codex Dream Skin</string>
+  <string>Dream Skin Forge</string>
   <key>CFBundleExecutable</key>
-  <string>codex-dream-skin-launcher</string>
+  <string>dream-skin-forge-launcher</string>
   <key>CFBundleIdentifier</key>
-  <string>local.codex-interface-theme.launcher</string>
+  <string>local.dream-skin-forge.launcher</string>
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>Codex Dream Skin</string>
+  <string>Dream Skin Forge</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

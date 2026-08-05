@@ -290,6 +290,6 @@ async function main() {
 }
 
 main().catch((error) => {
-  process.stderr.write(`[codex-interface-theme][performance-probe] ${error.message}\n`);
+  process.stderr.write(`[dream-skin-forge][performance-probe] ${error.message}\n`);
   process.exitCode = 1;
 });

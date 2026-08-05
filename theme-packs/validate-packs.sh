@@ -3,15 +3,6 @@ set -uo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FAILURES=0
-RG_BIN=""
-
-if command -v rg >/dev/null 2>&1; then
-  RG_BIN="$(command -v rg)"
-elif [ -x /opt/homebrew/bin/rg ]; then
-  RG_BIN="/opt/homebrew/bin/rg"
-elif [ -x /usr/local/bin/rg ]; then
-  RG_BIN="/usr/local/bin/rg"
-fi
 
 pass() {
   printf 'PASS %s\n' "$1"
@@ -23,74 +14,10 @@ fail() {
 }
 
 require_command() {
-  if [ "$1" = "rg" ] && [ -n "$RG_BIN" ]; then
-    pass "command available: rg ($RG_BIN)"
-  elif command -v "$1" >/dev/null 2>&1; then
+  if command -v "$1" >/dev/null 2>&1; then
     pass "command available: $1"
   else
     fail "missing command: $1"
-  fi
-}
-
-rg() {
-  if [ -n "$RG_BIN" ]; then
-    "$RG_BIN" "$@"
-    return
-  fi
-
-  local quiet="false"
-  local ignore_case="false"
-  local line_number="false"
-  local pattern=""
-  local files=()
-  while [ "$#" -gt 0 ]; do
-    case "$1" in
-      -q)
-        quiet="true"
-        shift
-        ;;
-      -i)
-        ignore_case="true"
-        shift
-        ;;
-      -n)
-        line_number="true"
-        shift
-        ;;
-      -qi|-iq)
-        quiet="true"
-        ignore_case="true"
-        shift
-        ;;
-      --glob)
-        [ "$#" -ge 2 ] || return 2
-        shift 2
-        ;;
-      --)
-        shift
-        break
-        ;;
-      -*)
-        return 2
-        ;;
-      *)
-        pattern="$1"
-        shift
-        files=("$@")
-        break
-        ;;
-    esac
-  done
-
-  [ -n "$pattern" ] || return 2
-  local flags=(-E)
-  [ "$quiet" = "true" ] && flags+=(-q)
-  [ "$ignore_case" = "true" ] && flags+=(-i)
-  [ "$line_number" = "true" ] && flags+=(-n)
-  if [ "${#files[@]}" -eq 0 ]; then
-    grep "${flags[@]}" "$pattern"
-  else
-    grep -R "${flags[@]}" "$pattern" "${files[@]}"
   fi
 }
 

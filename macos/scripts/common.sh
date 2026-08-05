@@ -4,8 +4,8 @@ set -euo pipefail
 CIT_BUNDLE_ID="com.openai.codex"
 CIT_DEFAULT_APP_PATH="/Applications/ChatGPT.app"
 CIT_DEFAULT_PORT="${CIT_DEFAULT_PORT:-9341}"
-CIT_ENGINE_DIR="${CIT_ENGINE_DIR:-$HOME/.codex/codex-interface-theme}"
-CIT_STATE_DIR="${CIT_STATE_DIR:-$HOME/Library/Application Support/CodexInterfaceTheme}"
+CIT_ENGINE_DIR="${CIT_ENGINE_DIR:-$HOME/.codex/dream-skin-forge}"
+CIT_STATE_DIR="${CIT_STATE_DIR:-$HOME/Library/Application Support/DreamSkinForge}"
 CIT_LOG_DIR="$CIT_STATE_DIR/logs"
 CIT_RUN_DIR="$CIT_STATE_DIR/run"
 CIT_THEME_DIR="$CIT_STATE_DIR/themes"
@@ -24,15 +24,15 @@ CIT_SCRIPT_DIR="$(cd -P "$(dirname "$_cit_common_source")" >/dev/null 2>&1 && pw
 CIT_ROOT_DIR="$(cd "$CIT_SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)"
 
 cit_log() {
-  printf '[codex-interface-theme] %s\n' "$*"
+  printf '[dream-skin-forge] %s\n' "$*"
 }
 
 cit_warn() {
-  printf '[codex-interface-theme][warn] %s\n' "$*" >&2
+  printf '[dream-skin-forge][warn] %s\n' "$*" >&2
 }
 
 cit_die() {
-  printf '[codex-interface-theme][error] %s\n' "$*" >&2
+  printf '[dream-skin-forge][error] %s\n' "$*" >&2
   exit 1
 }
 
@@ -127,8 +127,6 @@ cit_ensure_state_dirs() {
 
 cit_assert_source_layout() {
   [ -f "$CIT_ROOT_DIR/assets/theme.css" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme.css"
-  [ -f "$CIT_ROOT_DIR/assets/theme-kernel.css" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme-kernel.css"
-  [ -f "$CIT_ROOT_DIR/assets/theme-framework.css" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme-framework.css"
   [ -f "$CIT_ROOT_DIR/assets/theme.json" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/theme.json"
   [ -f "$CIT_ROOT_DIR/assets/runtime-modules.json" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/runtime-modules.json"
   [ -f "$CIT_ROOT_DIR/assets/renderer-inject.js" ] || cit_die "missing asset: $CIT_ROOT_DIR/assets/renderer-inject.js"

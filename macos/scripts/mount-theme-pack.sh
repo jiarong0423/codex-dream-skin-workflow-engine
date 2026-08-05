@@ -131,6 +131,7 @@ cit_log "applying active theme once to existing CDP port 127.0.0.1:$PORT"
 CIT_STATE_DIR="$STATE_DIR" bash "$CIT_ROOT_DIR/scripts/start.sh" \
   --no-launch \
   --once \
+  --visual \
   --port "$PORT" \
   --wait-ms "$WAIT_MS"
 

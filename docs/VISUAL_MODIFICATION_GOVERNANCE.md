@@ -27,6 +27,107 @@ Global ownership is not allowed for visual repaint:
 Every visible change must be owned by a named module or a marker-scoped
 surface.
 
+## Full-Demand Scoped State Machine
+
+All user-observed visual defects in the approved scope are real requirements.
+Do not collapse the queue to only one item after identifying a smaller defect.
+The correct compromise is not "do less"; it is "do every required module in a
+bounded order, with one owner and one verification gate at a time."
+
+```mermaid
+flowchart TD
+  A["LOCK_SCOPE: all approved visual needs stay in queue"] --> B["INVENTORY: read source, installed runtime, live geometry, and ledger"]
+  B --> C["CLASSIFY: assign exactly one owner module or protected bucket"]
+  C --> D{"Is the surface protected or independent-review?"}
+  D -->|yes| E["PROTECT: scan, document, and exclude from repaint"]
+  D -->|no| F["QUEUE: place in Q1-Q6 by user-open frequency and blast radius"]
+  F --> G["PATCH_ONE_OWNER: change only the current module"]
+  G --> H["STATIC_GATE: syntax, tests, matrix, contract, diff check"]
+  H --> I{"Live proof approved and available?"}
+  I -->|no| J["STATIC_VERIFIED: stop before live apply"]
+  I -->|yes| K["ONE_SHOT_APPLY: no daemon, no global repaint, no click/drag unless scoped"]
+  K --> L["VERIFY: computed style, screenshot, geometry, protected-surface scan"]
+  L --> M["RESTORE: remove injected style, nodes, markers, and classes"]
+  M --> N["RESIDUE_SCAN: verify no dirty visual residue"]
+  N --> O["DONE_CONFIRMED: record evidence and next queue item"]
+  E --> O
+  J --> O
+```
+
+State meanings:
+
+| State | Meaning | Exit rule |
+| --- | --- | --- |
+| `LOCK_SCOPE` | The full requested set remains in scope. | Every requirement is mapped to a queue item or protected-review item. |
+| `INVENTORY` | Read-only source, installed runtime, DOM, screenshot, and ledger evidence. | Current owner and current drift are known. |
+| `CLASSIFY` | The target has one owner module or one protected bucket. | No fixed-coordinate identity and no broad color-only identity remain. |
+| `PATCH_ONE_OWNER` | Only the current module may change. | No unrelated CSS, launcher, injector, or global runtime edits. |
+| `STATIC_VERIFIED` | Local gates passed, but live proof is absent or not approved. | Must not be called visually complete. |
+| `DONE_CONFIRMED` | Static proof, live proof when required, restore, and residue scan are recorded. | `docs/PROJECT_LOG.md` contains evidence and next resume point. |
+| `BLOCKED` | A required external state is missing, such as CDP or a manually opened panel. | Record the exact blocker and the next user/action trigger. |
+
+## Step Completion Import Rule
+
+Every queue step must be imported into the project record immediately after it
+finishes. Do not wait until the whole batch is complete. A step is not complete
+until its status, evidence, and screenshot verification sentence are written.
+
+Required per-step closeout fields:
+
+```text
+queue_id
+owner_module
+changed_files
+status
+static_gate
+live_gate
+screenshot_verification_sentence
+restore_or_residue_state
+next_resume_point
+```
+
+Screenshot verification sentence is mandatory:
+
+- If a screenshot exists, write one sentence that states the screenshot path
+  and the visual condition it proves.
+- If live screenshot verification was not run, write one sentence that says
+  `screenshot_verification_sentence: not run` and names the blocker or reason.
+- Do not mark `DONE_CONFIRMED` without either a screenshot sentence or an
+  explicit not-run sentence.
+- Do not reuse old screenshots as proof for a new visual step unless the log
+  states why the old screenshot still matches the current revision and surface.
+
+Allowed completion states:
+
+| Status | Meaning |
+| --- | --- |
+| `QUEUED` | Requirement is accepted but not started. |
+| `IN_PROGRESS` | The owner module is being inspected or patched. |
+| `STATIC_VERIFIED` | Static gates passed; screenshot/live proof is not yet complete. |
+| `LIVE_VERIFIED` | Screenshot/DOM proof exists for the visible state. |
+| `RESTORED_VERIFIED` | Restore or residue scan passed after live proof. |
+| `DONE_CONFIRMED` | Static proof, live proof when required, restore/residue, screenshot sentence, and log import are complete. |
+| `BLOCKED` | The next proof needs external state, such as CDP, a manually opened panel, or user approval. |
+
+When a step changes files, update `docs/PROJECT_LOG.md` in the same step unless
+the user explicitly requests no documentation write. Documentation import is
+part of the step, not aftercare.
+
+Queue ownership is mandatory:
+
+| Queue | Requirement | Owner boundary | Must not touch |
+| --- | --- | --- | --- |
+| `Q1` | Clean daily layers: sidebar, account menu, attachment/add menus, chat bubbles, composer shell | owner-scoped CSS or marker-scoped cleanup | right browser/source preview, global black shell |
+| `Q2` | Theme hot swap control: low interference and source/live parity | hot-swap module only | character scheduler, account menu, right preview repaint |
+| `Q3` | Character collision and retreat stability | character collision scheduler and retreat CSS only | hot-swap placement, global shell, right panel styling |
+| `Q4` | Right-side panel, right-top switch, tracking rows, source preview protection | layer-first scanner, registry, protected buckets | coordinate-following repaint, browser/source preview mutation |
+| `Q5` | Simple injection closeout | one-shot CDP apply, verify, restore, residue scan | daemon, global injection loop, cloud push |
+| `Q6` | Worktree cleanliness and evidence retention | target-mode audit, exact-path cleanup queue, project log | source deletion without exact approval, competition submission |
+
+If one queue item exposes another defect, record that defect in its own queue
+slot and return to `CLASSIFY`. Do not repair two owner modules in the same
+patch unless the framework explicitly marks one as a dependency of the other.
+
 ## Architecture
 
 ```mermaid
@@ -60,6 +161,25 @@ flowchart TD
   E --> E5["Character Collision Scheduler"]
   E --> E6["Theme Hot Swap Control"]
 ```
+
+## Customization Boundary
+
+Dream Skin Forge is a customization engine first. Public packs should prove
+that users can swap their own visual language through the same governed
+pipeline, not that one fixed theme is the product.
+
+Theme families are separated by intent:
+
+| Family | Purpose | Runtime status |
+| --- | --- | --- |
+| `animal` | Public-safe demonstration packs with original animal/mecha assets. | May be formal `asset-ready-unmounted` packs after validation. |
+| `private-draft` | Local personal experiments for user-owned or private inspiration. | Must stay outside activation lists until promoted. |
+| `future-template` | Empty scaffold for other users' custom packs. | May describe schema, but must not ship private assets. |
+
+Promotion rule: private drafts may borrow the same four-layer structure
+(`background`, `foreground`, `mascot`, `theme-toggle-icon`), but they do not
+become official theme packs until provenance, budgets, alpha validation,
+restore, and one-shot visual gates pass.
 
 ## Frequency Priority
 
@@ -340,10 +460,15 @@ contract and then use the existing one-shot CDP apply path.
 
 Modification queue order:
 
-1. `Q1`: sidebar duplicate layer cleanup
-2. `Q2`: conversation bubble scoped cleanup
-3. `Q3`: hot-swap low-interference placement and source-live parity
-4. `Q4`: character natural-rect retreat fix
+1. `Q1`: clean daily layers: sidebar, account menu, attachment/add menus,
+   chat bubbles, and composer shell.
+2. `Q2`: hot-swap low-interference placement and source/live parity.
+3. `Q3`: character natural-rect collision and retreat stability.
+4. `Q4`: right-panel, right-top switch, tracking rows, and source-preview
+   protected visual review.
+5. `Q5`: simple one-shot injection, verify, restore, and residue scan.
+6. `Q6`: worktree cleanliness, evidence retention, and exact-path cleanup
+   governance.
 
 Only ledger `MODIFICATION_CANDIDATE`, `DIRTY_LAYER_SUSPECT`, or `CONTROLLED`
 surfaces can enter this queue. `PROTECTED`, `RETAIN_NATIVE`, and

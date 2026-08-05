@@ -191,7 +191,7 @@ case "$LOAD_MODE" in
   carrier-only) MODE_ARGS=(--carrier-only) ;;
   framework-only) MODE_ARGS=(--framework-only) ;;
   control-only) MODE_ARGS=(--control-only) ;;
-  visual) MODE_ARGS=() ;;
+  visual) MODE_ARGS=(--visual) ;;
 esac
 
 APPLIED=0

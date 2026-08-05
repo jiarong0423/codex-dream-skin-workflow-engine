@@ -9,7 +9,7 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PACK_ROOT_DEFAULT = path.resolve(SCRIPT_DIR, "..");
 const PROJECT_ROOT_DEFAULT = path.resolve(PACK_ROOT_DEFAULT, "..");
 const ASSETS_DIR_DEFAULT = path.join(PROJECT_ROOT_DEFAULT, "macos", "assets");
-const STATE_DIR_DEFAULT = process.env.CIT_STATE_DIR || path.join(os.homedir(), "Library", "Application Support", "CodexInterfaceTheme");
+const STATE_DIR_DEFAULT = process.env.CIT_STATE_DIR || path.join(os.homedir(), "Library", "Application Support", "DreamSkinForge");
 const PACK_ID_RE = /^[a-z0-9][a-z0-9-]{1,80}$/;
 
 function usage() {

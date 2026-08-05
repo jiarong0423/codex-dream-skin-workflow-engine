@@ -11,7 +11,7 @@ Usage: safe-live-visual-gate.sh [--port <port>] [--out-dir <absolute-path>] [--w
 Runs the no-click live visual gate against an already debug-enabled Codex renderer:
   1. verify CDP is already open;
   2. scan native state;
-  3. apply once with --no-launch --once;
+  3. apply once with --no-launch --once --visual;
   4. capture a screenshot and verify computed state without simulated clicks;
   5. restore;
   6. scan post-restore state.
@@ -95,6 +95,7 @@ cit_log "safe live visual gate output: $OUT_DIR"
 bash "$SCRIPT_DIR/start.sh" \
   --no-launch \
   --once \
+  --visual \
   --port "$PORT" \
   --wait-ms "$WAIT_MS"
 APPLIED=1

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENGINE_DIR="${CIT_ENGINE_DIR:-$HOME/.codex/codex-interface-theme}"
+ENGINE_DIR="${CIT_ENGINE_DIR:-$HOME/.codex/dream-skin-forge}"
 PORT="${CIT_DEFAULT_PORT:-9341}"
-LOG_DIR="$HOME/Library/Application Support/CodexInterfaceTheme/logs"
+LOG_DIR="$HOME/Library/Application Support/DreamSkinForge/logs"
 LOG_FILE="$LOG_DIR/launcher.log"
 
 mkdir -p "$LOG_DIR"
@@ -18,11 +18,11 @@ log() {
 }
 
 notify() {
-  /usr/bin/osascript -e "display notification \"$1\" with title \"Codex Dream Skin\"" >/dev/null 2>&1 || true
+  /usr/bin/osascript -e "display notification \"$1\" with title \"Dream Skin Forge\"" >/dev/null 2>&1 || true
 }
 
 alert() {
-  /usr/bin/osascript -e "display dialog \"$1\" buttons {\"OK\"} default button \"OK\" with title \"Codex Dream Skin\"" >/dev/null 2>&1 || true
+  /usr/bin/osascript -e "display dialog \"$1\" buttons {\"OK\"} default button \"OK\" with title \"Dream Skin Forge\"" >/dev/null 2>&1 || true
 }
 
 stop_stale_injectors() {
@@ -32,7 +32,7 @@ stop_stale_injectors() {
 
   local pids
   pids="$(ps -ww -o pid= -o command= -ax 2>/dev/null | awk -v port="$PORT" '
-    /codex-interface-theme\/scripts\/injector\.mjs/ && /--daemon/ {
+    /dream-skin-forge\/scripts\/injector\.mjs/ && /--daemon/ {
       for (field_index = 1; field_index <= NF; field_index += 1) {
         if ($field_index == "--port" && $(field_index + 1) == port) {
           print $1
@@ -71,10 +71,10 @@ fi
 
 if cit_is_app_running "$APP_PATH"; then
   log "Codex already running without CDP port $PORT; leaving it untouched"
-  alert "Codex 目前已開啟，但沒有主題注入入口。啟動器不會強制關閉它。之後先退出 Codex，再從「Codex Dream Skin」啟動，就會自動套主題。"
+  alert "Codex 目前已開啟，但沒有主題注入入口。啟動器不會強制關閉它。之後先退出 Codex，再從「Dream Skin Forge」啟動，就會自動套主題。"
   exit 0
 fi
 
 log "launching Codex with one-shot theme apply"
-notify "正在啟動 Codex 並套用 Dream Skin。"
+notify "正在啟動 Codex 並套用 Dream Skin Forge。"
 exec "$ENGINE_DIR/scripts/start.sh" --once --port "$PORT" --wait-ms 60000

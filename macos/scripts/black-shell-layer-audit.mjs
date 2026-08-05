@@ -160,6 +160,7 @@ class CdpSession {
 function auditExpression() {
   return `JSON.stringify((() => {
     const PROTECTED_SELECTOR = "button,input,textarea,select,pre,code,kbd,samp,img,video,canvas,iframe,picture,source,svg,a,[role='button'],[role='menuitem'],[role='option'],[role='textbox'],[role='switch'],[role='checkbox'],[role='tab'],[role='slider'],[role='combobox'],[contenteditable='true'],[data-slate-editor='true'],[data-testid='composer'],[data-testid='message-composer'],[data-cit-source-preview-block='true'],[data-cit-drag-risk='high-memory-image-resize']";
+    const CSS_OWNED_SELECTOR = ".sticky.bottom-0 [class*='ComposerLayoutRoot'],.codex-interface-theme-project-panel-frame,.codex-interface-theme-project-panel-frame *,.codex-interface-theme-project-panel,.codex-interface-theme-project-panel *";
     const number = (value, fallback = 0) => {
       const parsed = Number.parseFloat(String(value || ""));
       return Number.isFinite(parsed) ? parsed : fallback;
@@ -248,7 +249,7 @@ function auditExpression() {
       if (/rgba?\\(0,\\s*0,\\s*0|rgba?\\(3,\\s*8,\\s*11|rgba?\\(4,\\s*6,\\s*8/i.test(state.boxShadow)) signals.push("box-shadow");
       return signals;
     };
-    const protectedSurface = (node) => Boolean(node && node.nodeType === 1 && (node.matches(PROTECTED_SELECTOR) || node.closest("[data-cit-source-preview-block='true'],[data-cit-drag-risk='high-memory-image-resize']")));
+    const protectedSurface = (node) => Boolean(node && node.nodeType === 1 && (node.matches(PROTECTED_SELECTOR) || node.matches(CSS_OWNED_SELECTOR) || node.closest("[data-cit-source-preview-block='true'],[data-cit-drag-risk='high-memory-image-resize']," + CSS_OWNED_SELECTOR)));
     const describeNode = (node, withAncestors = false) => {
       const state = styleState(node);
       const rect = rectOf(node);

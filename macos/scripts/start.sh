@@ -13,11 +13,7 @@ Options:
   --restart           Ask Codex to quit before relaunching with CDP.
   --force-quit        If graceful quit times out, send TERM to the Codex main process.
   --no-launch         Do not launch Codex; inject into an already debug-enabled port.
-  --launch-only       Launch Codex with CDP and exit without injecting a theme.
   --once              Apply once and exit instead of keeping the daemon alive.
-  --framework-only    Apply owner-lock/quarantine framework only; no visual assets.
-  --carrier-only      Apply structural carrier modules only; no visual assets.
-  --control-only      Apply atomic control workbench only; no visual assets.
   --image <path>      Import an image before launch and make it the active theme.
   --name <name>       Theme name used with --image.
   --wait-ms <ms>      Time to wait for CDP. Default: 20000.
@@ -88,11 +84,7 @@ PORT_EXPLICIT=0
 RESTART=0
 FORCE_QUIT=0
 NO_LAUNCH=0
-LAUNCH_ONLY=0
 ONCE=0
-FRAMEWORK_ONLY=0
-CARRIER_ONLY=0
-CONTROL_ONLY=0
 WAIT_MS=20000
 IMAGE_PATH=""
 THEME_NAME=""
@@ -117,24 +109,8 @@ while [ "$#" -gt 0 ]; do
       NO_LAUNCH=1
       shift
       ;;
-    --launch-only)
-      LAUNCH_ONLY=1
-      shift
-      ;;
     --once)
       ONCE=1
-      shift
-      ;;
-    --framework-only)
-      FRAMEWORK_ONLY=1
-      shift
-      ;;
-    --carrier-only)
-      CARRIER_ONLY=1
-      shift
-      ;;
-    --control-only)
-      CONTROL_ONLY=1
       shift
       ;;
     --image)
@@ -175,20 +151,6 @@ APP_PATH="$(cit_detect_app_or_die)"
 NODE_PATH="$(cit_node_for_app "$APP_PATH")"
 cit_ensure_state_dirs
 
-LOAD_MODE_COUNT=$((FRAMEWORK_ONLY + CARRIER_ONLY + CONTROL_ONLY))
-if [ "$LOAD_MODE_COUNT" -gt 1 ]; then
-  cit_die "choose only one load mode: --framework-only, --carrier-only, or --control-only"
-fi
-if [ "$LAUNCH_ONLY" = "1" ] && [ "$NO_LAUNCH" = "1" ]; then
-  cit_die "choose only one launch policy: --launch-only or --no-launch"
-fi
-if [ "$LAUNCH_ONLY" = "1" ] && { [ "$ONCE" = "1" ] || [ "$FRAMEWORK_ONLY" = "1" ] || [ "$CARRIER_ONLY" = "1" ] || [ "$CONTROL_ONLY" = "1" ]; }; then
-  cit_die "--launch-only cannot be combined with --once or theme load modes"
-fi
-if [ "$CONTROL_ONLY" = "1" ] && [ "$ONCE" != "1" ]; then
-  cit_die "--control-only is one-shot only; use --once"
-fi
-
 "$NODE_PATH" "$CIT_ROOT_DIR/scripts/theme-store.mjs" init \
   --state-dir "$CIT_STATE_DIR" \
   --assets-dir "$CIT_ROOT_DIR/assets" >/dev/null
@@ -216,39 +178,16 @@ else
   cit_log "skipping launch; using existing CDP port 127.0.0.1:$PORT"
 fi
 
-if [ "$LAUNCH_ONLY" = "1" ]; then
-  cit_log "launch-only complete on 127.0.0.1:$PORT"
-  printf '{"ok":true,"launchOnly":true,"port":%s}\n' "$PORT"
-  exit 0
-fi
-
 if [ "$ONCE" = "1" ]; then
-  INJECTOR_MODE_ARGS=(--once)
-  if [ "$FRAMEWORK_ONLY" = "1" ]; then
-    INJECTOR_MODE_ARGS+=(--framework-only)
-  fi
-  if [ "$CARRIER_ONLY" = "1" ]; then
-    INJECTOR_MODE_ARGS+=(--carrier-only)
-  fi
-  if [ "$CONTROL_ONLY" = "1" ]; then
-    INJECTOR_MODE_ARGS+=(--control-only)
-  fi
   "$NODE_PATH" "$CIT_ROOT_DIR/scripts/injector.mjs" \
     --port "$PORT" \
     --state-dir "$CIT_STATE_DIR" \
     --wait-ms "$WAIT_MS" \
-    "${INJECTOR_MODE_ARGS[@]}"
+    --once
 else
-  INJECTOR_MODE_ARGS=(--daemon)
-  if [ "$FRAMEWORK_ONLY" = "1" ]; then
-    INJECTOR_MODE_ARGS+=(--framework-only)
-  fi
-  if [ "$CARRIER_ONLY" = "1" ]; then
-    INJECTOR_MODE_ARGS+=(--carrier-only)
-  fi
   exec "$NODE_PATH" "$CIT_ROOT_DIR/scripts/injector.mjs" \
     --port "$PORT" \
     --state-dir "$CIT_STATE_DIR" \
     --wait-ms "$WAIT_MS" \
-    "${INJECTOR_MODE_ARGS[@]}"
+    --daemon
 fi

@@ -976,6 +976,6 @@ function main() {
 try {
   main();
 } catch (error) {
-  console.error(`[codex-interface-theme][theme-store] ${error.message}`);
+  console.error(`[dream-skin-forge][theme-store] ${error.message}`);
   process.exitCode = 1;
 }

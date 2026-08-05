@@ -10,7 +10,8 @@ import {
 function usage() {
   return `Usage:
   live-clickable-surface-audit.mjs --port <port> --out-dir <dir> [--limit <n>] [--drag true|false] [--runtime-manifest <path>] [--format text|json]
-  [--allow-route true|false] [--allow-stateful-controls true|false] [--dry-run true|false] [--interact true|false] [--allow-indexes <csv>]
+  [--allow-route true|false] [--allow-stateful-controls true|false] [--dry-run true|false] [--interact true|false]
+  [--allow-indexes <csv>] [--allow-labels <csv>] [--allow-kinds <csv>]
 
 Audits visible clickable Codex surfaces through CDP. The script opens only
   reversible UI surfaces, skips risky actions, captures screenshots, presses
@@ -35,6 +36,8 @@ function parseArgs(argv) {
     dryRun: "true",
     interact: "false",
     allowIndexes: "",
+    allowLabels: "",
+    allowKinds: "",
     format: "text"
   };
   for (let index = 2; index < argv.length; index += 1) {
@@ -50,14 +53,15 @@ function parseArgs(argv) {
     if (value === undefined || value.startsWith("--")) {
       throw new Error(`missing value for ${key}`);
     }
-    options[key.slice(2)] = value;
+    options[key.slice(2).replace(/-([a-z])/g, (_match, letter) => letter.toUpperCase())] = value;
     index += 1;
   }
   return options;
 }
 
 function requireOption(options, name) {
-  const value = options[name];
+  const optionName = name.replace(/-([a-z])/g, (_match, letter) => letter.toUpperCase());
+  const value = options[name] || options[optionName];
   if (!value) {
     throw new Error(`missing required option --${name}`);
   }
@@ -82,6 +86,52 @@ function parseAllowedIndexes(value) {
     indexes.add(Number(trimmed));
   }
   return indexes;
+}
+
+function parseAllowedMatchers(value, name) {
+  const text = String(value || "").trim();
+  if (!text) {
+    return [];
+  }
+  return text.split(",").map((part) => normalizeMatcher(part)).filter(Boolean);
+}
+
+function normalizeMatcher(value) {
+  return String(value || "").toLowerCase().replace(/\s+/g, "").trim();
+}
+
+function fuzzyLabelMatches(label, allowed) {
+  if (!label || !allowed || label.length > 120) {
+    return false;
+  }
+  if (label === allowed || label.startsWith(allowed) || allowed.startsWith(label)) {
+    return true;
+  }
+  return allowed.length >= 3 && label.includes(allowed);
+}
+
+function resolveAllowedIndexes(candidates, explicitAllowedIndexes, allowLabels, allowKinds) {
+  const allowedIndexes = new Set(explicitAllowedIndexes);
+  const matchedAllowlist = [];
+  for (const candidate of candidates) {
+    if (!candidate || candidate.safe !== true) {
+      continue;
+    }
+    const label = normalizeMatcher(candidate.label);
+    const kind = normalizeMatcher(candidate.kind);
+    const labelMatch = allowLabels.some((allowed) => fuzzyLabelMatches(label, allowed));
+    const kindMatch = allowKinds.some((allowed) => kind === allowed);
+    if (labelMatch || kindMatch) {
+      allowedIndexes.add(Number(candidate.index));
+      matchedAllowlist.push({
+        index: Number(candidate.index),
+        kind: candidate.kind || "",
+        label: candidate.label || "",
+        reason: labelMatch ? "label" : "kind"
+      });
+    }
+  }
+  return { allowedIndexes, matchedAllowlist };
 }
 
 function safeSlug(value) {
@@ -319,7 +369,7 @@ function collectExpression(options = {}) {
       if (/專案|project|工作區|workspace|側邊欄|sidebar|整理側邊欄|切換|switch|關閉|close/.test(text)) {
         return allowStatefulControls ? "" : "workspace-or-sidebar-state";
       }
-      if (/送交|推送|push|commit|merge|建立 pull request|create pull request|建立|create|復原|還原|undo|restore|revert|套用|apply|核准|approve|authorize|確認|confirm|執行|run/.test(text)) {
+      if (/送交|推送|push|commit|merge|建立 pull request|create pull request|建立|create|新增|new project|add project|復原|還原|undo|restore|revert|套用|apply|核准|approve|authorize|確認|confirm|執行|run/.test(text)) {
         return "write-action";
       }
       if (/刪除|delete|trash|移除|remove|archive|封存|登出|logout|sign out/.test(text)) {
@@ -603,13 +653,15 @@ async function main() {
   const allowStatefulControls = String(options.allowStatefulControls || "false").toLowerCase() === "true";
   const interact = String(options.interact || "false").toLowerCase() === "true";
   const requestedDryRun = String(options.dryRun || "true").toLowerCase() !== "false";
-  const allowedIndexes = parseAllowedIndexes(options.allowIndexes);
-  const lockConfig = readDynamicBoundaryLocks(options["runtime-manifest"]);
+  const explicitAllowedIndexes = parseAllowedIndexes(options.allowIndexes);
+  const allowLabels = parseAllowedMatchers(options.allowLabels, "allow-labels");
+  const allowKinds = parseAllowedMatchers(options.allowKinds, "allow-kinds");
+  const lockConfig = readDynamicBoundaryLocks(options.runtimeManifest);
   if (!requestedDryRun && !interact) {
     throw new Error("interactive clickable audit requires --interact true --dry-run false");
   }
-  if (interact && !requestedDryRun && allowedIndexes.size === 0) {
-    throw new Error("interactive clickable audit requires explicit --allow-indexes from a reviewed dry-run report");
+  if (interact && !requestedDryRun && explicitAllowedIndexes.size === 0 && allowLabels.length === 0 && allowKinds.length === 0) {
+    throw new Error("interactive clickable audit requires explicit --allow-indexes from a reviewed dry-run report or --allow-labels/--allow-kinds");
   }
   const dryRun = requestedDryRun;
   const mayDispatchInput = interact && !dryRun;
@@ -633,6 +685,11 @@ async function main() {
     const initial = await evaluate(session, collectExpression({ allowRoute, allowStatefulControls, markNodes: mayDispatchInput }));
     const candidates = initial.candidates || [];
     const dynamicBoundaryLocks = buildDynamicBoundaryCoverage(candidates, lockConfig);
+    const allowlist = resolveAllowedIndexes(candidates, explicitAllowedIndexes, allowLabels, allowKinds);
+    const allowedIndexes = allowlist.allowedIndexes;
+    if (mayDispatchInput && allowedIndexes.size === 0) {
+      throw new Error("interactive clickable audit allowlist did not match any safe candidate");
+    }
     const safeCandidates = candidates
       .filter((item) => item.safe && (!mayDispatchInput || allowedIndexes.has(item.index)))
       .sort((left, right) => Number(left.risk === "new-task-route") - Number(right.risk === "new-task-route"))
@@ -674,7 +731,11 @@ async function main() {
           url: target.url || ""
         },
         outDir,
+        allowRoute,
         allowStatefulControls,
+        allowLabels,
+        allowKinds,
+        matchedAllowlist: allowlist.matchedAllowlist,
         scanned: candidates.length,
         clicked: 0,
         skipped,
@@ -763,7 +824,11 @@ async function main() {
         url: target.url || ""
       },
       outDir,
+      allowRoute,
       allowStatefulControls,
+      allowLabels,
+      allowKinds,
+      matchedAllowlist: allowlist.matchedAllowlist,
       scanned: candidates.length,
       clicked: safeCandidates.length,
       skipped,

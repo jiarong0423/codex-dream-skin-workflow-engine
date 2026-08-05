@@ -30,14 +30,18 @@
   const layout = theme.layout && typeof theme.layout === "object" ? theme.layout : {};
   const icons = theme.icons && typeof theme.icons === "object" ? theme.icons : {};
   const buttonDataUrls = payload.iconButtonDataUrls && typeof payload.iconButtonDataUrls === "object" ? payload.iconButtonDataUrls : {};
-  const runtimeMode = String(payload.runtimeMode || theme.runtimeMode || "").toLowerCase(), isFrameworkOnlyRuntime = runtimeMode === "framework-only", isCarrierRuntime = runtimeMode === "carrier-only" || runtimeMode === "carrier";
+  const hotSwapPacks = Array.isArray(payload.themePackDataUrls)
+    ? payload.themePackDataUrls.filter(function keepUsableHotSwapPack(pack) {
+      return pack && typeof pack === "object" && String(pack.id || "") && isRendererSafeImageAssetUrl(pack.backgroundDataUrl) && isRendererSafeImageAssetUrl(pack.characterDataUrl);
+    })
+    : [];
+  let activeHotSwapPack = null;
   let tableFlipCatTimer = null;
   let tableFlipCatPlaybackInterval = null;
   let characterRetreatObserver = null;
   let characterRetreatCheckTimer = null;
   let characterRetreatLastCheckAt = 0;
   let characterRetreatHoldUntil = 0;
-  let characterRetreatClearSamples = 0;
   let characterRetreatResizeHandler = null;
   let characterRetreatScrollHandler = null;
   let projectPanelChromeCheckTimer = null;
@@ -67,9 +71,17 @@
     }
   }
 
+  function isImageAssetUrl(value) {
+    return /^data:image\/|^file:\/\//.test(String(value || ""));
+  }
+
+  function isRendererSafeImageAssetUrl(value) {
+    return /^data:image\//.test(String(value || ""));
+  }
+
   function cssUrlFromDataUrl(dataUrl) {
     const value = String(dataUrl || "");
-    if (!value.startsWith("data:image/")) {
+    if (!isImageAssetUrl(value)) {
       return "none";
     }
     return "url(\"" + value.replace(/[\\\n\r\t "]/g, function replaceUnsafe(match) {
@@ -82,6 +94,116 @@
       return "";
     }) + "\")";
   }
+
+  function findHotSwapPack(packId) {
+    const id = String(packId || "");
+    return hotSwapPacks.find(function matchHotSwapPack(pack) { return String(pack.id || "") === id; }) || null;
+  }
+
+  function nextHotSwapPack() {
+    if (hotSwapPacks.length < 2) {
+      return null;
+    }
+    const currentPack = activeHotSwapPack || selectInitialHotSwapPack() || hotSwapPacks[0] || {};
+    const currentPackId = String(currentPack.id || "");
+    const currentIndex = hotSwapPacks.findIndex(function matchCurrentHotSwapPack(pack) {
+      return String(pack.id || "") === currentPackId;
+    });
+    const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % hotSwapPacks.length : 0;
+    return hotSwapPacks[nextIndex] || null;
+  }
+
+  function selectInitialHotSwapPack() {
+    const themePackId = String(theme.themePack && theme.themePack.id || "");
+    return findHotSwapPack(themePackId);
+  }
+
+  function currentHotSwapValue(fieldName, fallbackValue) {
+    const value = activeHotSwapPack && activeHotSwapPack[fieldName];
+    return isRendererSafeImageAssetUrl(value) ? value : String(fallbackValue || "");
+  }
+
+  function currentBackgroundDataUrl() { return currentHotSwapValue("backgroundDataUrl", payload.backgroundDataUrl); }
+  function currentIconBadgeDataUrl() { return currentHotSwapValue("iconBadgeDataUrl", payload.iconBadgeDataUrl); }
+  function currentCharacterDataUrl() { return currentHotSwapValue("characterDataUrl", payload.characterDataUrl); }
+  function currentTableFlipTriggerIconDataUrl() { return currentHotSwapValue("tableFlipCatTriggerIconDataUrl", payload.tableFlipCatTriggerIconDataUrl); }
+  function currentTableFlipSpriteDataUrl() { return currentHotSwapValue("tableFlipCatSpriteDataUrl", payload.tableFlipCatSpriteDataUrl); }
+  function currentTableFlipDataUrl() { return currentHotSwapValue("tableFlipCatDataUrl", payload.tableFlipCatDataUrl); }
+
+  function currentTableFlipCatTheme() {
+    const base = icons.tableFlipCat && typeof icons.tableFlipCat === "object" ? icons.tableFlipCat : {};
+    const interaction = activeHotSwapPack && activeHotSwapPack.interaction && typeof activeHotSwapPack.interaction === "object" ? activeHotSwapPack.interaction : {};
+    return Object.assign({}, base, {
+      frameCount: interaction.frameCount || base.frameCount,
+      durationMs: interaction.durationMs || base.durationMs
+    });
+  }
+
+  function currentPalette() {
+    const packPalette = activeHotSwapPack && activeHotSwapPack.palette && typeof activeHotSwapPack.palette === "object" ? activeHotSwapPack.palette : {};
+    return Object.assign({}, palette, packPalette);
+  }
+
+  function currentTableFlipPlayback() {
+    if (activeHotSwapPack) {
+      return {
+        tableFlipCatSpriteDataUrl: currentTableFlipSpriteDataUrl(),
+        tableFlipCatDataUrl: currentTableFlipDataUrl()
+      };
+    }
+    if (typeof payload.loadTableFlipCatPlayback === "function") {
+      return payload.loadTableFlipCatPlayback();
+    }
+    return payload;
+  }
+
+  function hasCurrentTableFlipAsset() {
+    return isImageAssetUrl(currentTableFlipSpriteDataUrl()) ||
+      isImageAssetUrl(currentTableFlipDataUrl()) ||
+      typeof payload.loadTableFlipCatPlayback === "function";
+  }
+
+  function releaseTableFlipPlaybackNode() {
+    const hud = doc.getElementById(RIGHT_HUD_ID);
+    if (tableFlipCatTimer) {
+      window.clearTimeout(tableFlipCatTimer);
+      tableFlipCatTimer = null;
+    }
+    if (tableFlipCatPlaybackInterval) {
+      window.clearInterval(tableFlipCatPlaybackInterval);
+      tableFlipCatPlaybackInterval = null;
+    }
+    if (!hud) {
+      return;
+    }
+    hud.classList.remove("codex-interface-theme-table-flip-playing");
+    hud.setAttribute("data-cit-table-flip-state", "idle");
+    hud.setAttribute("data-cit-table-flip-frame", "idle");
+    hud.removeAttribute("data-cit-table-flip-deadline");
+    hud.querySelectorAll(".codex-interface-theme-table-flip-cat-animated").forEach(function removePlaybackNode(node) {
+      node.style.setProperty("background-image", "none", "important");
+      node.remove();
+    });
+  }
+
+  function activateHotSwapPack(packId) {
+    const nextPack = findHotSwapPack(packId);
+    if (!nextPack || activeHotSwapPack === nextPack) {
+      return false;
+    }
+    releaseTableFlipPlaybackNode();
+    activeHotSwapPack = nextPack;
+    applyVariables();
+    clearBodyInlineBackground(true);
+    installBodyBackgroundInline();
+    installBadge();
+    installCharacter();
+    installRightHud();
+    updateCharacterRetreat();
+    return true;
+  }
+
+  activeHotSwapPack = selectInitialHotSwapPack();
 
   function inferAppearance() {
     const explicit = String(theme.appearance || "auto").toLowerCase();
@@ -107,8 +229,10 @@
     const path = String(window.location && window.location.pathname ? window.location.pathname : "");
     const routeValue = href || path || "unknown";
     root.dataset.citRoute = routeValue.slice(0, 240);
-    if (/thread|conversation|task|pull|pr|diff|commit/i.test(routeValue)) {
+    if (/thread|conversation|task|diff|commit/i.test(routeValue)) {
       root.dataset.citPageKind = "task";
+    } else if (/projects?|websites?|scheduled|schedule|extensions?|plugins?|pull-requests?|pull_requests?/i.test(routeValue)) {
+      root.dataset.citPageKind = "codex-menu";
     } else {
       root.dataset.citPageKind = "home";
     }
@@ -202,36 +326,26 @@
     });
   }
 
-  function cleanupProjectPanels() {
-    doc.querySelectorAll(".codex-interface-theme-project-panel-frame").forEach(function cleanupPanelFrame(panelFrame) {
-      panelFrame.classList.remove("codex-interface-theme-project-panel-frame");
+  function removeThemeClass(token) {
+    const className = "codex-interface-theme-" + token;
+    doc.querySelectorAll("." + className).forEach(function removeThemeClassNode(node) {
+      node.classList.remove(className);
     });
-    doc.querySelectorAll(".codex-interface-theme-project-panel").forEach(function cleanupPanel(panel) {
-      panel.classList.remove("codex-interface-theme-project-panel");
-      panel.removeAttribute("data-cit-panel-kind");
-    });
-    doc.querySelectorAll(".codex-interface-theme-project-panel-content").forEach(function cleanupPanelContent(panelContent) {
-      panelContent.classList.remove("codex-interface-theme-project-panel-content");
-    });
-    doc.querySelectorAll(".codex-interface-theme-project-panel-section").forEach(function cleanupSection(section) {
-      section.classList.remove("codex-interface-theme-project-panel-section");
-    });
+  }
+
+  function clearComposerFrames() {
     doc.querySelectorAll(".codex-interface-theme-composer-frame").forEach(function cleanupComposerFrame(composerFrame) {
       composerFrame.classList.remove("codex-interface-theme-composer-frame");
       composerFrame.style.removeProperty("--cit-composer-frame-top");
       composerFrame.style.removeProperty("--cit-composer-frame-bottom");
     });
-    doc.querySelectorAll(".codex-interface-theme-composer-surface").forEach(function cleanupComposerSurface(composerSurface) {
-      composerSurface.classList.remove("codex-interface-theme-composer-surface");
-    });
-    doc.querySelectorAll(".codex-interface-theme-composer-native-fade").forEach(function cleanupComposerNativeFade(nativeFade) {
-      nativeFade.classList.remove("codex-interface-theme-composer-native-fade");
-    });
-    doc.querySelectorAll(".codex-interface-theme-chat-bubble").forEach(function cleanupChatBubble(chatBubble) {
-      chatBubble.classList.remove("codex-interface-theme-chat-bubble");
-    });
-    doc.querySelectorAll(".codex-interface-theme-chat-card").forEach(function cleanupChatCard(chatCard) {
-      chatCard.classList.remove("codex-interface-theme-chat-card");
+  }
+
+  function cleanupProjectPanels() {
+    ["project-panel-frame", "project-panel-content", "project-panel-section", "project-panel-row"].forEach(removeThemeClass);
+    doc.querySelectorAll(".codex-interface-theme-project-panel").forEach(function cleanupPanel(panel) {
+      panel.classList.remove("codex-interface-theme-project-panel");
+      panel.removeAttribute("data-cit-panel-kind");
     });
   }
 
@@ -240,11 +354,12 @@
     while (current && current !== doc.body) {
       const rect = current.getBoundingClientRect();
       const className = String(current.className || "");
+      const maxPanelWidth = Math.min(680, Math.max(340, window.innerWidth - 24));
       if (
-        rect.left >= window.innerWidth - 540 &&
-        rect.right <= window.innerWidth - 4 &&
+        rect.right >= window.innerWidth - 32 &&
+        rect.right <= window.innerWidth + 8 &&
         rect.width >= 280 &&
-        rect.width <= 340 &&
+        rect.width <= maxPanelWidth &&
         rect.top >= 40 &&
         rect.top <= 100 &&
         className.includes("rounded-3xl") &&
@@ -277,7 +392,7 @@
         rect.height >= panelRect.height &&
         rect.height <= panelRect.height + 80
       );
-      if (containsPanel && sizedLikeFrame && rect.left >= window.innerWidth - 560) {
+      if (containsPanel && sizedLikeFrame && rect.right >= window.innerWidth - 32) {
         frame = current;
       }
       current = current.parentElement;
@@ -324,7 +439,7 @@
       return;
     }
     clearBodyInlineBackground(false);
-    const backgroundImage = cssUrlFromDataUrl(payload.backgroundDataUrl);
+    const backgroundImage = cssUrlFromDataUrl(currentBackgroundDataUrl());
     if (backgroundImage === "none") {
       return;
     }
@@ -341,6 +456,17 @@
     body.style.setProperty("background-repeat", "no-repeat, no-repeat, no-repeat", "important");
     body.style.setProperty("background-attachment", "scroll, scroll, scroll", "important");
     body.dataset.citInlineBackground = revision;
+  }
+
+  function maintainBodyBackgroundInline() {
+    const body = doc.body;
+    if (!body || !currentBackgroundDataUrl()) {
+      return;
+    }
+    const backgroundImage = String(body.style.getPropertyValue("background-image") || "");
+    if (body.dataset.citInlineBackground !== revision || !backgroundImage.includes("data:image/")) {
+      installBodyBackgroundInline();
+    }
   }
 
   function installMarker() {
@@ -367,19 +493,147 @@
     backdrop.style.removeProperty("background-image");
   }
 
-  function installRightHud() {
+  function positionHotSwapBayInLeftSidebar(bay) {
+    const targetBay = bay || doc.querySelector(".codex-interface-theme-pack-bay");
+    if (!targetBay || hotSwapPacks.length < 2) {
+      return "off";
+    }
+    const bayRect = targetBay.getBoundingClientRect();
+    const bayWidth = bayRect.width > 2 ? bayRect.width : 20;
+    const bayHeight = bayRect.height > 2 ? bayRect.height : 20;
+    const sidebar = staticLeftSidebar();
+    const sidebarRect = sidebar && hasLayoutBox(sidebar) ? sidebar.getBoundingClientRect() : null;
+    const badge = doc.getElementById(BADGE_ID);
+    let left = sidebarRect ? sidebarRect.right - bayWidth - 18 : 78;
+    let top = sidebarRect ? sidebarRect.bottom - 190 : Math.max(58, window.innerHeight - 428);
+    let placement = sidebarRect ? "sidebar" : "fallback";
+    if (badge && hasLayoutBox(badge)) {
+      const badgeRect = badge.getBoundingClientRect();
+      left = badgeRect.left + badgeRect.width * 0.5 - bayWidth * 0.5;
+      top = badgeRect.top - bayHeight - 6;
+      placement = sidebarRect ? "sidebar-badge" : "fallback-badge";
+    }
+    const minLeft = sidebarRect ? sidebarRect.left + 12 : 10;
+    const maxLeft = sidebarRect ? sidebarRect.right - bayWidth - 12 : Math.max(10, window.innerWidth - bayWidth - 10);
+    const minTop = sidebarRect ? sidebarRect.top + 54 : 54;
+    const maxTop = sidebarRect ? sidebarRect.bottom - bayHeight - 92 : Math.max(54, window.innerHeight - bayHeight - 92);
+    const safeLeft = clampNumber(left, minLeft, Math.max(minLeft, maxLeft), sidebarRect ? sidebarRect.right - bayWidth - 18 : 78);
+    const safeTop = clampNumber(top, minTop, Math.max(minTop, maxTop), sidebarRect ? sidebarRect.bottom - 190 : 58);
+    targetBay.style.setProperty("--cit-pack-bay-left", safeLeft.toFixed(0) + "px");
+    targetBay.style.setProperty("--cit-pack-bay-top", safeTop.toFixed(0) + "px");
+    targetBay.setAttribute("data-cit-hot-swap-placement", placement);
+    root.dataset.citHotSwapPlacement = placement;
+    return placement;
+  }
+
+  function cleanupHotSwapSwitcher() {
+    doc.querySelectorAll(".codex-interface-theme-pack-bay, .codex-interface-theme-pack-switcher").forEach(function removeHotSwapControl(node) {
+      node.remove();
+    });
+    delete root.dataset.citHotSwapBay;
+    delete root.dataset.citHotSwapBayMode;
+    delete root.dataset.citHotSwapPlacement;
+    delete root.dataset.citHotSwapRetreat;
+  }
+
+  function installHotSwapSwitcher() {
+    let bay = doc.querySelector("body > .codex-interface-theme-pack-bay");
+    const legacyBay = doc.querySelector("#" + RIGHT_HUD_ID + " .codex-interface-theme-pack-bay");
+    bay = bay || legacyBay;
+    if (hotSwapPacks.length < 2) {
+      cleanupHotSwapSwitcher();
+      root.dataset.citHotSwapPacks = String(hotSwapPacks.length);
+      return;
+    }
+    if (!bay) {
+      bay = doc.createElement("section");
+      bay.className = "codex-interface-theme-pack-bay";
+      bay.setAttribute("role", "region");
+      bay.setAttribute("aria-label", "Theme pack cycle control");
+    }
+    if (doc.body && bay.parentElement !== doc.body) {
+      doc.body.appendChild(bay);
+    }
+    doc.querySelectorAll("#" + RIGHT_HUD_ID + " .codex-interface-theme-pack-bay").forEach(function removeLegacyHotSwapBay(node) {
+      if (node !== bay) {
+        node.remove();
+      }
+    });
+    doc.querySelectorAll(".codex-interface-theme-pack-" + "select, .codex-interface-theme-pack-button").forEach(function removeLegacyHotSwapControl(node) {
+      node.remove();
+    });
+    const switcher = doc.createElement("div");
+    switcher.className = "codex-interface-theme-pack-switcher";
+    const button = doc.createElement("button");
+    button.type = "button";
+    button.className = "codex-interface-theme-pack-cycle-button";
+    const orbitIcon = doc.createElement("span");
+    orbitIcon.className = "codex-interface-theme-cycle-orb";
+    button.appendChild(orbitIcon);
+    switcher.appendChild(button);
+    bay.replaceChildren(switcher);
+    const nextPack = nextHotSwapPack();
+    bay.dataset.citHotSwapMode = "cycle-icon";
+    button.dataset.citNextPack = nextPack && nextPack.id ? String(nextPack.id) : "";
+    button.setAttribute("aria-label", "切換佈景主題");
+    button.setAttribute("title", "切換佈景主題");
+    button.onclick = function onHotSwapCycleButtonClick(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      const cycleTarget = nextHotSwapPack();
+      if (cycleTarget && activateHotSwapPack(String(cycleTarget.id || ""))) {
+        installHotSwapSwitcher();
+      }
+    };
+    root.dataset.citHotSwapPacks = String(hotSwapPacks.length);
+    root.dataset.citActiveThemePack = activeHotSwapPack && activeHotSwapPack.id ? String(activeHotSwapPack.id) : String(theme.themePack && theme.themePack.id || "");
+    root.dataset.citHotSwapBayMode = "cycle-icon";
+    root.dataset.citHotSwapBay = "true";
+    positionHotSwapBayInLeftSidebar(bay);
+    updateHotSwapBayRetreat();
+  }
+
+  function updateHotSwapBayRetreat() {
+    const bay = doc.querySelector(".codex-interface-theme-pack-bay");
+    if (!bay || hotSwapPacks.length < 2) {
+      delete root.dataset.citHotSwapRetreat;
+      return "off";
+    }
+    const placement = positionHotSwapBayInLeftSidebar(bay);
+    let reason = "none";
+    if (window.innerWidth < 720) {
+      reason = "narrow";
+    } else if (placement === "fallback") {
+      reason = "fallback";
+    }
+    root.dataset.citHotSwapRetreat = reason;
+    bay.setAttribute("data-cit-hot-swap-retreat", reason);
+    return reason;
+  }
+
+  function ensureRightHud() {
     let hud = doc.getElementById(RIGHT_HUD_ID);
     if (!hud) {
       hud = doc.createElement("div");
       hud.id = RIGHT_HUD_ID;
       doc.body.appendChild(hud);
     }
-    let hasTableFlipFallback = String(payload.tableFlipCatDataUrl || "").startsWith("data:image/");
-    let hasTableFlipSprite = String(payload.tableFlipCatSpriteDataUrl || "").startsWith("data:image/");
-    const loadTableFlipCatPlayback = typeof payload.loadTableFlipCatPlayback === "function" ? payload.loadTableFlipCatPlayback : null;
-    const hasTableFlipAsset = hasTableFlipSprite || hasTableFlipFallback || Boolean(loadTableFlipCatPlayback);
-    const tableFlipCatTheme = icons.tableFlipCat && typeof icons.tableFlipCat === "object" ? icons.tableFlipCat : {};
+    return hud;
+  }
+
+  function installThemePackModule() {
+    installHotSwapSwitcher();
+    return hotSwapPacks.length < 2 ? 0 : hotSwapPacks.length;
+  }
+
+  function installRightHud() {
+    const hud = ensureRightHud();
+    let hasTableFlipFallback = isImageAssetUrl(currentTableFlipDataUrl());
+    let hasTableFlipSprite = isImageAssetUrl(currentTableFlipSpriteDataUrl());
+    const hasTableFlipAsset = hasTableFlipSprite || hasTableFlipFallback || hasCurrentTableFlipAsset();
+    const tableFlipCatTheme = currentTableFlipCatTheme();
     const tableFlipCatDurationMs = Math.round(clampNumber(tableFlipCatTheme.durationMs, 100, 10000, TABLE_FLIP_CAT_DEFAULT_DURATION_MS));
+    const tableFlipCatFrames = Math.round(clampNumber(tableFlipCatTheme.frameCount, 2, 60, TABLE_FLIP_CAT_DEFAULT_FRAMES));
     if (!hasTableFlipAsset) {
       hud.setAttribute("aria-hidden", "true");
       hud.removeAttribute("role");
@@ -403,7 +657,6 @@
       }
       return;
     }
-    doc.querySelectorAll(".codex-interface-theme-table-flip-cat-animated").forEach((n) => { if(!hud.contains(n)){n.remove();} });
     let animated = hud.querySelector(".codex-interface-theme-table-flip-cat-animated");
     if (animated) {
       animated.remove();
@@ -415,7 +668,8 @@
       triggerIcon.className = "codex-interface-theme-table-flip-trigger-icon";
       hud.appendChild(triggerIcon);
     }
-    triggerIcon.style.setProperty("background-image", cssUrlFromDataUrl(payload.tableFlipCatTriggerIconDataUrl), "important");
+    installHotSwapSwitcher(hud);
+    triggerIcon.style.setProperty("background-image", cssUrlFromDataUrl(currentTableFlipTriggerIconDataUrl()), "important");
     hud.classList.remove("codex-interface-theme-table-flip-playing");
     hud.setAttribute("data-cit-table-flip-state", "idle");
     hud.setAttribute("data-cit-table-flip-frame", "idle");
@@ -426,7 +680,7 @@
     hud.removeAttribute("title");
     hud.setAttribute("data-revision", revision);
     hud.setAttribute("data-cit-table-flip-mode", "manual");
-    hud.setAttribute("data-cit-has-trigger-icon", payload.tableFlipCatTriggerIconDataUrl ? "true" : "false");
+    hud.setAttribute("data-cit-has-trigger-icon", currentTableFlipTriggerIconDataUrl() ? "true" : "false");
     hud.setAttribute("data-cit-uses-sprite", hasTableFlipSprite ? "true" : "false");
     hud.setAttribute("data-cit-lazy-playback", "true");
     if (!hud.__codexInterfaceThemeSuppressTableFlipContainerClick__) {
@@ -482,11 +736,11 @@
         return;
       }
       stopTableFlipCatPlayback();
-      const playback = loadTableFlipCatPlayback ? loadTableFlipCatPlayback() : payload;
+      const playback = currentTableFlipPlayback();
       const spriteDataUrl = String(playback.tableFlipCatSpriteDataUrl || "");
       const fallbackDataUrl = String(playback.tableFlipCatDataUrl || "");
-      hasTableFlipSprite = spriteDataUrl.startsWith("data:image/");
-      hasTableFlipFallback = fallbackDataUrl.startsWith("data:image/");
+      hasTableFlipSprite = isImageAssetUrl(spriteDataUrl);
+      hasTableFlipFallback = isImageAssetUrl(fallbackDataUrl);
       if (!hasTableFlipSprite && !hasTableFlipFallback) {
         return;
       }
@@ -554,12 +808,14 @@
     if (hud && typeof hud.__codexInterfaceThemeMaintainTableFlipPlayback__ === "function") {
       hud.__codexInterfaceThemeMaintainTableFlipPlayback__();
     }
+    updateHotSwapBayRetreat();
   }
 
   function installCharacter() {
     const characterTheme = icons.character && typeof icons.character === "object" ? icons.character : {};
     const characterPlacement = String(characterTheme.placement || "sidebar-hero").toLowerCase();
-    const hasCharacter = String(payload.characterDataUrl || "").startsWith("data:image/");
+    const characterDataUrl = currentCharacterDataUrl();
+    const hasCharacter = isImageAssetUrl(characterDataUrl);
     let character = doc.getElementById(CHARACTER_ID);
     if (!hasCharacter || characterTheme.enabled === false || characterPlacement === "off") {
       if (character) {
@@ -582,7 +838,7 @@
     }
     character.setAttribute("data-revision", revision);
     character.setAttribute("data-cit-character-placement", characterPlacement);
-    character.style.backgroundImage = cssUrlFromDataUrl(payload.characterDataUrl);
+    character.style.backgroundImage = cssUrlFromDataUrl(characterDataUrl);
     root.dataset.citCharacter = "true";
     root.dataset.citCharacterPlacement = characterPlacement;
   }
@@ -679,23 +935,17 @@
     if (!character || !hasLayoutBox(character)) {
       return false;
     }
-    const charRect = character.getBoundingClientRect();
-    const charArea = rectArea(charRect);
-    if (charArea < 1000) {
+    const characterRect = character.getBoundingClientRect();
+    const characterArea = rectArea(characterRect);
+    if (characterArea < 1000) {
       return false;
     }
-    const scanLeft = Math.max(0, charRect.left - 80);
-    const scanRight = Math.min(window.innerWidth, charRect.right + 64);
-    const containers = Array.from(doc.querySelectorAll(".thread-scroll-container article,article,[data-message-author-role]")).filter(isVisibleElement);
+    const containers = Array.from(new Set(Array.from(doc.querySelectorAll(".thread-scroll-container, main, [role=\"main\"], article")).filter(isVisibleElement)));
+    if (containers.length === 0 && doc.body) {
+      containers.push(doc.body);
+    }
     let inspected = 0;
     for (const container of containers) {
-      if (isTextNodeExcluded(container)) {
-        continue;
-      }
-      const cRect = container.getBoundingClientRect();
-      if (cRect.right < scanLeft || cRect.left > scanRight) {
-        continue;
-      }
       const walker = doc.createTreeWalker(container, 4);
       let textNode = walker.nextNode();
       while (textNode && inspected < 520) {
@@ -714,16 +964,13 @@
               rect.height < 9 ||
               rect.top < 46 ||
               rect.bottom > window.innerHeight - 74 ||
-              rect.right < 220 ||
-              rect.right < scanLeft ||
-              rect.left > scanRight ||
-              rect.width > 860
+              rect.right < 220
             ) {
               continue;
             }
-            const overlap = rectIntersectionArea(charRect, rect);
+            const overlap = rectIntersectionArea(characterRect, rect);
             const textArea = rectArea(rect);
-            if (overlap > Math.max(48, Math.min(textArea * 0.34, charArea * 0.014))) {
+            if (overlap > Math.max(48, Math.min(textArea * 0.34, characterArea * 0.014))) {
               return true;
             }
           }
@@ -748,24 +995,15 @@
     const now = Date.now();
     if (hasVisibleRightSidePanel(character)) {
       reason = "side-panel";
-      characterRetreatClearSamples = 0;
     } else if (window.innerWidth < 980) {
       reason = "narrow";
-      characterRetreatClearSamples = 0;
     } else if (characterOverlapsMainText(character)) {
       reason = "text-overlap";
       characterRetreatHoldUntil = now + 480;
-      characterRetreatClearSamples = 0;
       scheduleCharacterRetreatCheck(500);
     } else if (characterRetreatHoldUntil > now) {
       reason = "text-overlap";
       scheduleCharacterRetreatCheck(characterRetreatHoldUntil - now + 20);
-    } else if (root.dataset.citCharacterRetreat === "text-overlap" && characterRetreatClearSamples < 2) {
-      characterRetreatClearSamples += 1;
-      reason = "text-overlap";
-      scheduleCharacterRetreatCheck(260);
-    } else {
-      characterRetreatClearSamples = Math.min(characterRetreatClearSamples + 1, 2);
     }
     root.dataset.citCharacterRetreat = reason;
     character.setAttribute("data-cit-character-retreat", reason);
@@ -785,6 +1023,7 @@
       characterRetreatCheckTimer = null;
       characterRetreatLastCheckAt = Date.now();
       updateCharacterRetreat();
+      updateHotSwapBayRetreat();
     }, minDelay);
   }
 
@@ -829,8 +1068,8 @@
         }
         invalidateStaticAccess("mutation");
         scheduleCharacterRetreatCheck(160);
-        scheduleProjectPanelChromeCheck(70);
-        scheduleProjectPanelChromeFollowupCheck(360);
+        scheduleProjectPanelChromeCheck(24);
+        scheduleProjectPanelChromeFollowupCheck(180);
         return;
       }
     });
@@ -857,7 +1096,8 @@
   function installBadge() {
     const badgeTheme = icons.badge && typeof icons.badge === "object" ? icons.badge : {};
     let badge = doc.getElementById(BADGE_ID);
-    const hasIcon = String(payload.iconBadgeDataUrl || "").startsWith("data:image/");
+    const badgeDataUrl = currentIconBadgeDataUrl();
+    const hasIcon = isImageAssetUrl(badgeDataUrl);
     if (!hasIcon || badgeTheme.enabled === false || String(badgeTheme.placement || "") === "off") {
       if (badge) {
         badge.remove();
@@ -877,7 +1117,7 @@
       parent.appendChild(badge);
     }
     badge.setAttribute("data-revision", revision);
-    badge.style.backgroundImage = cssUrlFromDataUrl(payload.iconBadgeDataUrl);
+    badge.style.backgroundImage = cssUrlFromDataUrl(badgeDataUrl);
     root.dataset.citIconBadge = "true";
   }
 
@@ -1007,6 +1247,32 @@
     nativeIcon.style.display = "none";
   }
 
+  function visibleNativeSideIconCount(container) {
+    if (!container) {
+      return 0;
+    }
+    return Array.from(container.querySelectorAll("svg, img, [data-icon], [class*=\"icon\"], [class*=\"Icon\"]")).filter(function keepNativeSideIcon(node) {
+      if (
+        node.closest(".cit-button-glyph") ||
+        node.closest("[data-cit-button-module]") ||
+        node.getAttribute("data-cit-native-icon-hidden") === "true"
+      ) {
+        return false;
+      }
+      return isVisibleElement(node);
+    }).length;
+  }
+
+  function suppressSideGlyphModule(moduleName, datasetKey, container, minimumNativeIcons) {
+    cleanupButtonGlyphsForModule(moduleName);
+    if (visibleNativeSideIconCount(container) < minimumNativeIcons) {
+      return false;
+    }
+    root.dataset.citSideGlyphGuard = "native-side-gutter";
+    root.dataset[datasetKey] = "0";
+    return true;
+  }
+
   function addButtonGlyph(target, moduleName, actionName, iconKey) {
     const dataUrl = buttonDataUrls[iconKey];
     if (!dataUrl || !String(dataUrl).startsWith("data:image/")) {
@@ -1034,12 +1300,16 @@
     const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
     const sidebarModule = buttonModules.sidebarNavigation && typeof buttonModules.sidebarNavigation === "object" ? buttonModules.sidebarNavigation : {};
     if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || sidebarModule.enabled !== true) {
+      cleanupButtonGlyphsForModule("sidebarNavigation");
       root.dataset.citButtonSidebarNavigation = "0";
       return 0;
     }
     const sidebar = staticLeftSidebar();
     if (!sidebar) {
       root.dataset.citButtonSidebarNavigation = "0";
+      return 0;
+    }
+    if (suppressSideGlyphModule("sidebarNavigation", "citButtonSidebarNavigation", sidebar, 3)) {
       return 0;
     }
     const actionIcons = sidebarModule.actions && typeof sidebarModule.actions === "object" ? sidebarModule.actions : {};
@@ -1138,10 +1408,19 @@
 
   function findComposerSurfaceUncached() {
     const candidates = Array.from(doc.querySelectorAll(".composer-surface-chrome"));
+    doc.querySelectorAll(".ProseMirror, [role=\"textbox\"]").forEach(function(input) {
+      for (let node = input; node && node !== doc.body; node = node.parentElement) {
+        const rect = node.getBoundingClientRect();
+        if (/ComposerLayoutRoot/.test(String(node.className || "")) && rect.width >= 240 && rect.height >= 48) {
+          if (!candidates.includes(node)) candidates.push(node);
+          break;
+        }
+      }
+    });
     let chosen = null;
     candidates.forEach(function chooseComposer(candidate) {
       const rect = candidate.getBoundingClientRect();
-      if (rect.width < 320 || rect.height < 48 || rect.top < window.innerHeight - 230) {
+      if (rect.width < 240 || rect.height < 48 || rect.top < window.innerHeight - 230) {
         return;
       }
       if (!chosen || rect.top > chosen.getBoundingClientRect().top) {
@@ -1152,31 +1431,39 @@
   }
 
   function findComposerSurface() {
-    return cachedElement("composerSurface", findComposerSurfaceUncached, function validateComposerSurface(node) {
+    return cachedElement("composerSurface", findComposerSurfaceUncached, function(node) {
       const rect = node.getBoundingClientRect();
-      return node.matches(".composer-surface-chrome") && rect.width >= 320 && rect.height >= 48 && rect.top >= window.innerHeight - 230;
+      return (node.matches(".composer-surface-chrome") || /ComposerLayoutRoot/.test(String(node.className || ""))) && rect.width >= 240 && rect.height >= 48 && rect.top >= window.innerHeight - 230;
     });
   }
 
   function installComposerFrame() {
     const composer = findComposerSurface();
-    doc.querySelectorAll(".codex-interface-theme-composer-frame").forEach(function cleanupComposerFrame(composerFrame) {
-      composerFrame.classList.remove("codex-interface-theme-composer-frame");
-      composerFrame.style.removeProperty("--cit-composer-frame-top");
-      composerFrame.style.removeProperty("--cit-composer-frame-bottom");
-    });
+    clearComposerFrames();
     doc.querySelectorAll(".codex-interface-theme-composer-surface").forEach(function cleanupComposerSurface(composerSurface) {
       if (composerSurface !== composer) composerSurface.classList.remove("codex-interface-theme-composer-surface");
     });
-    doc.querySelectorAll(".codex-interface-theme-composer-native-fade").forEach(function cleanupComposerNativeFade(nativeFade) {
-      nativeFade.classList.remove("codex-interface-theme-composer-native-fade");
-    });
+    ["composer-native-fade", "composer-dock", "composer-native-floor"].forEach(removeThemeClass);
     if (!composer) {
       root.dataset.citComposerFrame = "0";
       return 0;
     }
     composer.classList.add("codex-interface-theme-composer-surface");
     const stickyDock = composer.closest(".sticky.bottom-0");
+    if (stickyDock) {
+      stickyDock.classList.add("codex-interface-theme-composer-dock");
+      let floorNode = composer.parentElement;
+      while (floorNode && floorNode !== stickyDock.parentElement && floorNode !== doc.body) {
+        const className = String(floorNode.className || "");
+        if (floorNode !== composer && /bg-token-editor-background|from-token-main-surface-primary|to-token-main-surface-primary|shadow/.test(className)) {
+          floorNode.classList.add("codex-interface-theme-composer-native-floor");
+        }
+        if (floorNode === stickyDock) {
+          break;
+        }
+        floorNode = floorNode.parentElement;
+      }
+    }
     const nativeFade = stickyDock ? stickyDock.querySelector('[class*="bg-gradient-to-t"][class*="from-token-main-surface-primary"]') : null;
     if (nativeFade && !composer.contains(nativeFade)) {
       nativeFade.classList.add("codex-interface-theme-composer-native-fade");
@@ -1186,12 +1473,8 @@
   }
 
   function installConversationSurfaces() {
-    doc.querySelectorAll(".codex-interface-theme-chat-bubble").forEach(function cleanupChatBubble(chatBubble) {
-      chatBubble.classList.remove("codex-interface-theme-chat-bubble");
-    });
-    doc.querySelectorAll(".codex-interface-theme-chat-card").forEach(function cleanupChatCard(chatCard) {
-      chatCard.classList.remove("codex-interface-theme-chat-card");
-    });
+    removeThemeClass("chat-bubble");
+    removeThemeClass("chat-card");
     const thread = staticThreadContainer();
     if (!thread) {
       root.dataset.citConversationSurfaces = "0";
@@ -1295,7 +1578,10 @@
         return;
       }
       const rect = node.getBoundingClientRect();
-      if (rect.width < 420 || rect.height < 116 || rect.height > Math.min(780, window.innerHeight - 80) || rect.left < 80 || rect.right > window.innerWidth - 8 || rect.top < 52 || rect.top > window.innerHeight - 120) {
+      const text = normalizeText(node.innerText || node.textContent || "");
+      const lowerText = text.toLowerCase();
+      const isProjectPicker = (text.includes("搜尋專案") || lowerText.includes("search projects")) && (text.includes("新專案") || lowerText.includes("new project") || text.includes("不在專案中工作") || lowerText.includes("not in a project"));
+      if (rect.width < (isProjectPicker ? 240 : 420) || rect.height < (isProjectPicker ? 180 : 116) || rect.height > Math.min(780, window.innerHeight - 80) || rect.left < 80 || rect.right > window.innerWidth - 8 || rect.top < 52 || rect.top > window.innerHeight - 120) {
         return;
       }
       const style = window.getComputedStyle(node);
@@ -1308,18 +1594,25 @@
       if (!hasMenuStructure && interactiveCount < 2) {
         return;
       }
-      const text = normalizeText(node.innerText || node.textContent || "");
-      if (text.length < 10 || text.length > 1800 || /已處理|已執行|已讀取|驗證通過|黑殼|透明化|實底色|不做點擊|不做動態|runtime gate|revision|selector|workspace picker|regression gate/i.test(text)) {
+      if (text.length < 10 || text.length > 5200) {
         return;
       }
-      const hasWorkspacePickerCluster = /新增.*(檔案和資料夾|附加|目標|規劃模式|外掛程式)|附加.*(目標|規劃模式)|documents.*pdf|spreadsheets.*presentations/i.test(text);
+      if (/已處理|正在思考|已執行|已讀取|驗證通過|runtime gate|revision|重疊|消失/.test(text)) {
+        return;
+      }
       let score = 0;
-      "新增|附加|chrome|目標|規劃模式|外掛程式|documents|pdf|spreadsheets|presentations".split("|").forEach(function countPickerTerm(term) {
+      if (isProjectPicker) {
+        score += 5;
+      }
+      "新增|附加|google chrome|chrome|目標|規劃模式|外掛程式|documents|pdf|spreadsheets|presentations".split("|").forEach(function countPickerTerm(term) {
         if (text.includes(term)) {
           score += 1;
         }
       });
-      if (!hasWorkspacePickerCluster || score < 3) {
+      if ((text.includes("documents") && text.includes("pdf")) || (text.includes("spreadsheets") && text.includes("presentations")) || (text.includes("附加") && (text.includes("目標") || text.includes("規劃模式")))) {
+        score += 3;
+      }
+      if (score < 5) {
         return;
       }
       const rank = workspacePickerSurfaceRank(node);
@@ -1674,6 +1967,7 @@
     const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
     const panelRowsModule = buttonModules.projectPanelRows && typeof buttonModules.projectPanelRows === "object" ? buttonModules.projectPanelRows : {};
     if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || panelRowsModule.enabled !== true) {
+      cleanupButtonGlyphsForModule("projectPanelRows");
       root.dataset.citButtonProjectPanelRows = "0";
       return 0;
     }
@@ -1851,31 +2145,45 @@
     return Boolean(findRightMajorPanelRect() || projectPanelChromeCollidesWithLargeRightColumn());
   }
 
-  function suppressProjectPanelChromeForRightMajorPanel(mode) {
-    const state = String(mode || "detected");
+  function markProjectPanelChromePreflightPending() {
+    root.dataset.citRightMajorPanel = "pending";
+    const actual = doc.querySelectorAll(".codex-interface-theme-project-panel").length;
+    if (actual > 0) {
+      return actual;
+    }
+    root.dataset.citProjectPanels = "pending-right-trigger";
+    return 0;
+  }
+
+  function suppressProjectPanelChromeForRightMajorPanel() {
     cleanupProjectPanels();
     cleanupButtonGlyphsForModule("projectPanelRows");
-    root.dataset.citRightMajorPanel = state === "pending" ? "pending" : "true";
-    root.dataset.citProjectPanels = state === "pending" ? "pending-right-trigger" : "hidden-by-major-right-panel";
+    root.dataset.citRightMajorPanel = "true";
+    root.dataset.citProjectPanels = "hidden-by-major-right-panel";
     root.dataset.citButtonProjectPanelRows = "0";
     return 0;
   }
 
   function installProjectPanelChrome() {
-    cleanupProjectPanels();
+    const isPendingProjectPanelChrome = Date.now() < projectPanelChromePendingUntil;
+    if (!isPendingProjectPanelChrome) {
+      cleanupProjectPanels();
+    }
     if (hasRightMajorPanelOpen()) {
       return suppressProjectPanelChromeForRightMajorPanel();
     }
-    if (Date.now() < projectPanelChromePendingUntil) {
-      return suppressProjectPanelChromeForRightMajorPanel("pending");
+    if (isPendingProjectPanelChrome) {
+      markProjectPanelChromePreflightPending();
+    } else {
+      root.dataset.citRightMajorPanel = "false";
     }
-    root.dataset.citRightMajorPanel = "false";
     const candidates = Array.from(doc.querySelectorAll("div")).filter(function isPanelCandidate(node) {
       const rect = node.getBoundingClientRect();
-      if (rect.width < 240 || rect.width > 420 || rect.height < 150 || rect.height > window.innerHeight - 24) {
+      const maxProjectPanelWidth = Math.min(680, Math.max(420, window.innerWidth - 24));
+      if (rect.width < 240 || rect.width > maxProjectPanelWidth || rect.height < 150 || rect.height > window.innerHeight - 24) {
         return false;
       }
-      if (rect.left < window.innerWidth - 520 || rect.right > window.innerWidth - 4 || rect.top < 36 || rect.top > 140) {
+      if (rect.right < window.innerWidth - 32 || rect.right > window.innerWidth + 8 || rect.top < 36 || rect.top > 140) {
         return false;
       }
       const text = normalizeText(node.innerText || node.textContent || "");
@@ -1907,6 +2215,9 @@
       }
     });
     if (!content) {
+      if (isPendingProjectPanelChrome) {
+        return markProjectPanelChromePreflightPending();
+      }
       root.dataset.citProjectPanels = "0";
       return 0;
     }
@@ -1920,6 +2231,9 @@
     }
     content.querySelectorAll("section").forEach(function markSection(section) {
       section.classList.add("codex-interface-theme-project-panel-section");
+    });
+    panel.querySelectorAll("[class*=\"summary-panel-item\"]").forEach(function(row) {
+      row.classList.add("codex-interface-theme-project-panel-row");
     });
     const sectionCount = content.querySelectorAll(".codex-interface-theme-project-panel-section").length;
     root.dataset.citProjectPanels = String(Math.max(1, sectionCount));
@@ -1980,14 +2294,13 @@
       return;
     }
     if (Date.now() < projectPanelChromePendingUntil) {
-      suppressProjectPanelChromeForRightMajorPanel("pending");
-      return;
+      markProjectPanelChromePreflightPending();
+    } else {
+      root.dataset.citRightMajorPanel = "false";
     }
-    root.dataset.citRightMajorPanel = "false";
-    const expectedRaw = root.dataset.citProjectPanels || "0";
-    const expected = Number(expectedRaw);
-    const actual = doc.querySelectorAll(".codex-interface-theme-project-panel").length;
-    if (expectedRaw === "hidden-by-major-right-panel" || expectedRaw === "pending-right-trigger" || !Number.isFinite(expected) || expected === 0 || actual === 0) {
+    const state = root.dataset.citProjectPanels || "0";
+    const rows = doc.querySelectorAll("[class*=\"summary-panel-item\"]").length;
+    if (state === "hidden-by-major-right-panel" || state === "pending-right-trigger" || !(Number(state) > 0) || !doc.querySelector(".codex-interface-theme-project-panel") || (rows && doc.querySelectorAll(".codex-interface-theme-project-panel-row").length < rows)) {
       installProjectPanelChrome();
     }
   }
@@ -2061,8 +2374,18 @@
 
   function triggerProjectPanelChromePreflight() {
     invalidateStaticAccess("right-trigger", true);
-    projectPanelChromePendingUntil = Date.now() + 980;
-    suppressProjectPanelChromeForRightMajorPanel("pending");
+    projectPanelChromePendingUntil = Date.now() + 1240;
+    markProjectPanelChromePreflightPending();
+    maintainProjectPanelChrome();
+    if (typeof window.requestAnimationFrame === "function") {
+      window.requestAnimationFrame(function runFirstProjectPanelChromeFrame() {
+        maintainProjectPanelChrome();
+        window.requestAnimationFrame(function runSecondProjectPanelChromeFrame() {
+          maintainProjectPanelChrome();
+          updateCharacterRetreat();
+        });
+      });
+    }
     scheduleProjectPanelChromeCheck(40);
     scheduleProjectPanelChromeFollowupCheck(220);
     window.setTimeout(function runLateProjectPanelChromePreflightCheck() {
@@ -2132,6 +2455,7 @@
   }
 
   function applyVariables() {
+    const runtimePalette = currentPalette();
     const focusX = clampNumber(art.focusX, 0, 1, 0.72) * 100;
     const focusY = clampNumber(art.focusY, 0, 1, 0.44) * 100;
     const safeArea = ["auto", "left", "right", "center", "none", "sides"].includes(String(art.safeArea || "").toLowerCase())
@@ -2149,38 +2473,38 @@
     const characterTheme = icons.character && typeof icons.character === "object" ? icons.character : {};
     const characterSize = clampNumber(characterTheme.size, 180, 520, 350);
     const characterOpacity = clampNumber(characterTheme.opacity, 0, 1, 1);
-    const tableFlipCatTheme = icons.tableFlipCat && typeof icons.tableFlipCat === "object" ? icons.tableFlipCat : {};
+    const tableFlipCatTheme = currentTableFlipCatTheme();
     const tableFlipCatSize = clampNumber(tableFlipCatTheme.size, 72, 180, 118);
     const tableFlipCatOpacity = clampNumber(tableFlipCatTheme.opacity, 0, 1, 0.96);
     const tableFlipCatFrames = Math.round(clampNumber(tableFlipCatTheme.frameCount, 2, 60, TABLE_FLIP_CAT_DEFAULT_FRAMES));
     const tableFlipCatFrameSteps = Math.max(1, tableFlipCatFrames - 1);
     const tableFlipCatDurationMs = Math.round(clampNumber(tableFlipCatTheme.durationMs, 100, 10000, TABLE_FLIP_CAT_DEFAULT_DURATION_MS));
 
-    setVariable("--cit-accent", palette.accent || "#7cc7ff");
-    setVariable("--cit-secondary", palette.secondary || "#7fffd4");
-    setVariable("--cit-highlight", palette.highlight || "#ffd166");
-    setVariable("--cit-surface", palette.surface);
-    setVariable("--cit-surface-strong", palette.surfaceStrong);
-    setVariable("--cit-text", palette.text);
-    setVariable("--cit-sidebar-accent", modules.sidebar && modules.sidebar.accent || "#00c8f8");
-    setVariable("--cit-sidebar-surface", modules.sidebar && modules.sidebar.surface || "rgba(8, 13, 16, 0.78)");
+    setVariable("--cit-accent", runtimePalette.accent || "#7cc7ff");
+    setVariable("--cit-secondary", runtimePalette.secondary || "#7fffd4");
+    setVariable("--cit-highlight", runtimePalette.highlight || "#ffd166");
+    setVariable("--cit-surface", runtimePalette.surface || palette.surface);
+    setVariable("--cit-surface-strong", runtimePalette.surfaceStrong || palette.surfaceStrong);
+    setVariable("--cit-text", runtimePalette.text || palette.text);
+    setVariable("--cit-sidebar-accent", runtimePalette.accent || modules.sidebar && modules.sidebar.accent || "#00c8f8");
+    setVariable("--cit-sidebar-surface", runtimePalette.surface || modules.sidebar && modules.sidebar.surface || "rgba(8, 13, 16, 0.78)");
     setVariable("--cit-sidebar-border", modules.sidebar && modules.sidebar.border || "rgba(0, 200, 248, 0.20)");
-    setVariable("--cit-header-accent", modules.header && modules.header.accent || "#f2a23a");
-    setVariable("--cit-header-surface", modules.header && modules.header.surface || "rgba(12, 13, 14, 0.62)");
+    setVariable("--cit-header-accent", runtimePalette.warm || modules.header && modules.header.accent || "#f2a23a");
+    setVariable("--cit-header-surface", runtimePalette.surface || modules.header && modules.header.surface || "rgba(12, 13, 14, 0.62)");
     setVariable("--cit-header-border", modules.header && modules.header.border || "rgba(242, 162, 58, 0.16)");
-    setVariable("--cit-composer-accent", modules.composer && modules.composer.accent || "#f2a23a");
-    setVariable("--cit-composer-surface", modules.composer && modules.composer.surface || "rgba(9, 10, 12, 0.56)");
+    setVariable("--cit-composer-accent", runtimePalette.warm || modules.composer && modules.composer.accent || "#f2a23a");
+    setVariable("--cit-composer-surface", runtimePalette.surface || modules.composer && modules.composer.surface || "rgba(9, 10, 12, 0.56)");
     setVariable("--cit-composer-border", modules.composer && modules.composer.border || "rgba(242, 162, 58, 0.16)");
-    setVariable("--cit-popover-accent", modules.popover && modules.popover.accent || "#ff5a45");
-    setVariable("--cit-popover-surface", modules.popover && modules.popover.surface || "rgba(16, 11, 12, 0.88)");
+    setVariable("--cit-popover-accent", runtimePalette.highlight || modules.popover && modules.popover.accent || "#ff5a45");
+    setVariable("--cit-popover-surface", runtimePalette.surfaceStrong || modules.popover && modules.popover.surface || "rgba(16, 11, 12, 0.88)");
     setVariable("--cit-popover-border", modules.popover && modules.popover.border || "rgba(255, 90, 69, 0.18)");
     setVariable("--cit-mecha-frame", modules.mecha && modules.mecha.frame || "#161a20");
-    setVariable("--cit-mecha-armor", modules.mecha && modules.mecha.armor || "#f2a23a");
-    setVariable("--cit-mecha-glow", modules.mecha && modules.mecha.glow || "#00c8f8");
-    setVariable("--cit-status-success", modules.status && modules.status.success || "#19e6a3");
-    setVariable("--cit-status-warning", modules.status && modules.status.warning || "#f2a23a");
-    setVariable("--cit-status-danger", modules.status && modules.status.danger || "#ff5a45");
-    setVariable("--cit-status-info", modules.status && modules.status.info || "#00c8f8");
+    setVariable("--cit-mecha-armor", runtimePalette.warm || modules.mecha && modules.mecha.armor || "#f2a23a");
+    setVariable("--cit-mecha-glow", runtimePalette.accent || modules.mecha && modules.mecha.glow || "#00c8f8");
+    setVariable("--cit-status-success", runtimePalette.accent || modules.status && modules.status.success || "#19e6a3");
+    setVariable("--cit-status-warning", runtimePalette.warm || modules.status && modules.status.warning || "#f2a23a");
+    setVariable("--cit-status-danger", runtimePalette.highlight || modules.status && modules.status.danger || "#ff5a45");
+    setVariable("--cit-status-info", runtimePalette.secondary || modules.status && modules.status.info || "#00c8f8");
     setVariable("--cit-bg-focus-x", focusX.toFixed(2) + "%");
     setVariable("--cit-bg-focus-y", focusY.toFixed(2) + "%");
     setVariable("--cit-badge-size", badgeSize.toFixed(0) + "px");
@@ -2193,12 +2517,14 @@
     setVariable("--cit-table-flip-cat-frame-steps", String(tableFlipCatFrameSteps));
     setVariable("--cit-table-flip-cat-sprite-width", String(tableFlipCatFrames * 100) + "%");
     setVariable("--cit-table-flip-cat-duration", tableFlipCatDurationMs + "ms");
-    root.style.setProperty("--cit-bg-image", cssUrlFromDataUrl(payload.backgroundDataUrl));
-    root.style.setProperty("--cit-character-image", cssUrlFromDataUrl(payload.characterDataUrl));
-    root.style.setProperty("--cit-table-flip-cat-trigger-icon", cssUrlFromDataUrl(payload.tableFlipCatTriggerIconDataUrl));
-    root.dataset.citHasImage = payload.backgroundDataUrl ? "true" : "false";
-    root.dataset.citTableFlipCat = typeof payload.loadTableFlipCatPlayback === "function" || payload.tableFlipCatSpriteDataUrl || payload.tableFlipCatDataUrl ? "true" : "false";
+    root.style.setProperty("--cit-bg-image", cssUrlFromDataUrl(currentBackgroundDataUrl()));
+    root.style.setProperty("--cit-character-image", cssUrlFromDataUrl(currentCharacterDataUrl()));
+    root.style.setProperty("--cit-table-flip-cat-trigger-icon", cssUrlFromDataUrl(currentTableFlipTriggerIconDataUrl()));
+    root.dataset.citHasImage = currentBackgroundDataUrl() ? "true" : "false";
+    root.dataset.citTableFlipCat = hasCurrentTableFlipAsset() ? "true" : "false";
     root.dataset.citTableFlipCatMode = root.dataset.citTableFlipCat === "true" ? "manual-lazy-sprite" : "off";
+    root.dataset.citHotSwapPacks = String(hotSwapPacks.length);
+    root.dataset.citActiveThemePack = activeHotSwapPack && activeHotSwapPack.id ? String(activeHotSwapPack.id) : String(theme.themePack && theme.themePack.id || "");
     root.dataset.citAppearance = inferAppearance();
     root.dataset.citMode = mode;
     root.dataset.citWorkspaceTreatment = String(layout.workspaceTreatment || "native").toLowerCase();
@@ -2210,6 +2536,13 @@
 
   const RUNTIME_MODULES = [
     {
+      id: "background",
+      install: maintainBodyBackgroundInline,
+      route: maintainBodyBackgroundInline,
+      light: maintainBodyBackgroundInline,
+      stabilize: maintainBodyBackgroundInline
+    },
+    {
       id: "backdrop",
       install: installBackdrop
     },
@@ -2220,6 +2553,14 @@
       light: maintainRightHud,
       heavy: installRightHud,
       stabilize: installRightHud
+    },
+    {
+      id: "themePacks",
+      install: installThemePackModule,
+      route: installThemePackModule,
+      light: updateHotSwapBayRetreat,
+      stabilize: installThemePackModule,
+      cleanup: cleanupHotSwapSwitcher
     },
     {
       id: "badge",
@@ -2302,8 +2643,7 @@
   function runRuntimeModulePhase(phaseName) {
     const phase = String(phaseName || "");
     const executed = [];
-    const modulesForPhase = isFrameworkOnlyRuntime ? RUNTIME_MODULES.slice(-1) : isCarrierRuntime ? RUNTIME_MODULES.filter(function carrierModule(m) { return !/^(backdrop|rightHud|badge|character|buttonGlyphs)$/.test(m.id); }) : RUNTIME_MODULES;
-    modulesForPhase.forEach(function runRuntimeModule(moduleConfig) {
+    RUNTIME_MODULES.forEach(function runRuntimeModule(moduleConfig) {
       const action = moduleConfig[phase];
       if (typeof action !== "function") {
         return;
@@ -2311,7 +2651,9 @@
       action();
       executed.push(moduleConfig.id);
     });
-    root.dataset.citRuntimeModules = modulesForPhase.map((m) => m.id).join(",");
+    root.dataset.citRuntimeModules = RUNTIME_MODULES.map(function mapRuntimeModule(moduleConfig) {
+      return moduleConfig.id;
+    }).join(",");
     root.dataset.citRuntimePhase = phase;
     root.dataset.citRuntimePhaseModules = executed.join(",");
     return executed.length;
@@ -2362,6 +2704,7 @@
     }
     cleanupButtonGlyphs();
     cleanupProjectPanels();
+    cleanupHotSwapSwitcher();
     root.removeAttribute(ROOT_ATTR);
     delete root.dataset.citHasImage;
     delete root.dataset.citAppearance;
@@ -2377,6 +2720,11 @@
     delete root.dataset.citCharacterRetreat;
     delete root.dataset.citTableFlipCat;
     delete root.dataset.citTableFlipCatMode;
+    delete root.dataset.citHotSwapPacks;
+    delete root.dataset.citActiveThemePack;
+    delete root.dataset.citHotSwapBayMode;
+    delete root.dataset.citHotSwapPlacement;
+    delete root.dataset.citHotSwapRetreat;
     delete root.dataset.citButtonIcons;
     delete root.dataset.citButtonSidebarNavigation;
     delete root.dataset.citButtonTitlebarNavigation;
@@ -2480,7 +2828,7 @@
     if (currentHref !== lastHref) {
       lastHref = currentHref;
       updateRouteState();
-      window.setTimeout(runRuntimeModulePhase,350,"route");
+      runRuntimeModulePhase("route");
       return;
     }
     runRuntimeModulePhase("light");
