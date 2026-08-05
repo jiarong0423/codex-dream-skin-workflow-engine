@@ -356,7 +356,7 @@
       const className = String(current.className || "");
       const maxPanelWidth = Math.min(680, Math.max(340, window.innerWidth - 24));
       if (
-        rect.right >= window.innerWidth - 32 &&
+        rect.right >= window.innerWidth * .52 &&
         rect.right <= window.innerWidth + 8 &&
         rect.width >= 280 &&
         rect.width <= maxPanelWidth &&
@@ -392,7 +392,7 @@
         rect.height >= panelRect.height &&
         rect.height <= panelRect.height + 80
       );
-      if (containsPanel && sizedLikeFrame && rect.right >= window.innerWidth - 32) {
+      if (containsPanel && sizedLikeFrame && rect.right >= window.innerWidth * .52) {
         frame = current;
       }
       current = current.parentElement;
@@ -893,7 +893,7 @@
         continue;
       }
       const rect = panel.getBoundingClientRect();
-      if (rect.width < 220 || rect.height < 140 || rect.right < window.innerWidth - 90) {
+      if (rect.width < 220 || rect.height < 140 || rect.right < window.innerWidth * .52) {
         continue;
       }
       const overlapsCharacter = characterRect && rectIntersectionArea(rect, characterRect) > 96;
@@ -2183,7 +2183,7 @@
       if (rect.width < 240 || rect.width > maxProjectPanelWidth || rect.height < 150 || rect.height > window.innerHeight - 24) {
         return false;
       }
-      if (rect.right < window.innerWidth - 32 || rect.right > window.innerWidth + 8 || rect.top < 36 || rect.top > 140) {
+      if (rect.right < window.innerWidth * .52 || rect.right > window.innerWidth + 8 || rect.top < 36 || rect.top > 140) {
         return false;
       }
       const text = normalizeText(node.innerText || node.textContent || "");
@@ -2362,7 +2362,7 @@
       rect.height > 72 ||
       rect.top > 76 ||
       rect.left < window.innerWidth * 0.48 ||
-      rect.right < window.innerWidth - 280
+      rect.right < window.innerWidth * .52
     ) {
       return false;
     }

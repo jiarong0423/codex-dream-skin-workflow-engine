@@ -160,7 +160,7 @@ class CdpSession {
 function auditExpression() {
   return `JSON.stringify((() => {
     const PROTECTED_SELECTOR = "button,input,textarea,select,pre,code,kbd,samp,img,video,canvas,iframe,picture,source,svg,a,[role='button'],[role='menuitem'],[role='option'],[role='textbox'],[role='switch'],[role='checkbox'],[role='tab'],[role='slider'],[role='combobox'],[contenteditable='true'],[data-slate-editor='true'],[data-testid='composer'],[data-testid='message-composer'],[data-cit-source-preview-block='true'],[data-cit-drag-risk='high-memory-image-resize']";
-    const CSS_OWNED_SELECTOR = ".sticky.bottom-0 [class*='ComposerLayoutRoot'],.codex-interface-theme-project-panel-frame,.codex-interface-theme-project-panel-frame *,.codex-interface-theme-project-panel,.codex-interface-theme-project-panel *";
+    const CSS_OWNED_SELECTOR = "main,[role='main'],aside.app-shell-left-panel,aside.app-shell-left-panel *,.codex-interface-theme-composer-dock,.codex-interface-theme-composer-dock *,.sticky.bottom-0 [class*='ComposerLayoutRoot'],.codex-interface-theme-composer-surface,.codex-interface-theme-composer-surface *,.codex-interface-theme-composer-native-floor,.codex-interface-theme-composer-native-floor *,.codex-interface-theme-project-panel-frame,.codex-interface-theme-project-panel-frame *,.codex-interface-theme-project-panel,.codex-interface-theme-project-panel *";
     const number = (value, fallback = 0) => {
       const parsed = Number.parseFloat(String(value || ""));
       return Number.isFinite(parsed) ? parsed : fallback;

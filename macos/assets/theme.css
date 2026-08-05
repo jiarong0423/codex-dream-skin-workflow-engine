@@ -273,11 +273,9 @@ html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-c
     var(--cit-bg-base) !important;
 }
 
-html[data-codex-interface-theme="active"][data-cit-has-image="true"][data-cit-workspace-treatment="native"]:not([data-cit-task-mode="off"]) :is(body>div:first-child,body>div:first-child>div,body>div:first-child>div>div,body>div:first-child>div>div>div,main,[role="main"]) {
-  background-color: transparent !important;
-}
+html[data-codex-interface-theme="active"][data-cit-has-image="true"][data-cit-workspace-treatment="native"]:not([data-cit-task-mode="off"]) :is(body>div:first-child,body>div:first-child>div,body>div:first-child>div>div,body>div:first-child>div>div>div,main,[role="main"]){background:transparent!important;box-shadow:none!important}
 
-html[data-codex-interface-theme=active] .flex.h-full.min-h-0.flex-col.bg-token-main-surface-primary{background:transparent!important;background-image:none!important}
+html[data-codex-interface-theme=active] .flex.h-full.min-h-0.flex-col.bg-token-main-surface-primary{background:transparent!important;box-shadow:none!important}
 html[data-codex-interface-theme=active] :is(button.bg-token-foreground.rounded-lg.h-token-button-composer,main button.bg-token-foreground.border-token-border.rounded-full:not(.size-token-button-composer)){background:rgba(6,10,13,.72)!important;color:var(--cit-text)!important;-webkit-text-fill-color:currentColor!important;border-color:rgba(255,255,255,.16)!important;box-shadow:0 0 0 1px rgba(255,255,255,.05)!important}
 
 html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) body::after {
@@ -1861,8 +1859,8 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame 
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::before,
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::after,
-html[data-codex-interface-theme="active"] .sticky.bottom-0:has(.codex-interface-theme-composer-surface)::before,
-html[data-codex-interface-theme="active"] .sticky.bottom-0:has(.codex-interface-theme-composer-surface)::after {
+html[data-codex-interface-theme="active"] .sticky.bottom-0:has(:is(.codex-interface-theme-composer-surface,[class*="ComposerLayoutRoot"]))::before,
+html[data-codex-interface-theme="active"] .sticky.bottom-0:has(:is(.codex-interface-theme-composer-surface,[class*="ComposerLayoutRoot"]))::after {
   content: none !important;
   display: none !important;
 }
@@ -1876,7 +1874,7 @@ html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-c
     var(--cit-bg-base) !important;
 }
 
-html[data-codex-interface-theme="active"] .sticky.bottom-0:has(.codex-interface-theme-composer-surface) {
+html[data-codex-interface-theme="active"] .sticky.bottom-0:has(:is(.codex-interface-theme-composer-surface,[class*="ComposerLayoutRoot"])) {
   background: transparent !important;
   background-color: transparent !important;
   background-image: none !important;
@@ -1886,6 +1884,7 @@ html[data-codex-interface-theme="active"] .sticky.bottom-0:has(.codex-interface-
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-dock,
+html[data-codex-interface-theme="active"] .codex-interface-theme-composer-dock>div,
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-native-floor {
   background: transparent !important;
   background-color: transparent !important;
@@ -2497,7 +2496,7 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-f
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background: rgba(5,8,10,.96) !important;
+  background: var(--cit-side-glass) !important;
   border: 1px solid var(--cit-side-line-soft) !important;
   box-shadow: none !important;
 }
