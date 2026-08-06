@@ -2496,7 +2496,7 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-f
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background: var(--cit-side-glass) !important;
+  background: transparent !important;
   border: 1px solid var(--cit-side-line-soft) !important;
   box-shadow: none !important;
 }
