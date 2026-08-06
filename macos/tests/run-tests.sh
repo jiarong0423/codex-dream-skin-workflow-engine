@@ -224,6 +224,10 @@ grep -q 'ProseMirror, \[role=\\"textbox\\"\]' "$ROOT_DIR/assets/renderer-inject.
 grep -Fq '[class*="group/summary-panel-item"]' "$ROOT_DIR/assets/theme.css" || cit_die "right panel row cleanup must catch slash-named native summary rows"
 grep -q 'var(--cit-side-glass)' "$ROOT_DIR/assets/theme.css" || cit_die "right panel must keep a single transparent owner glass plate"
 grep -q 'payload.externalWebviewOpen' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "right panel owner must consume external webview state without styling the webview"
+! grep -q 'return Boolean(payload.externalWebviewOpen || findRightMajorPanelRect' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "external webview state must not directly suppress the environment/source panel owner"
+if sed -n '/function suppressProjectPanelChromeForRightMajorPanel/,/^  }/p' "$ROOT_DIR/assets/renderer-inject.js" | grep -q 'cleanupProjectPanels()'; then
+  cit_die "right panel suppression must keep owner classes so hidden/restored states stay controllable"
+fi
 grep -q 'function withTargetContext' "$ROOT_DIR/scripts/injector.mjs" || cit_die "injector must pass external target context to the app owner"
 grep -q 'type === "webview"' "$ROOT_DIR/scripts/injector.mjs" || cit_die "injector must detect external webview targets without injecting into them"
 grep -Fq 'url.startsWith("app://-/index.html")' "$ROOT_DIR/scripts/injector.mjs" || cit_die "injector allowlist must stay pinned to Codex app renderer targets"

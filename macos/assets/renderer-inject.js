@@ -2142,7 +2142,8 @@
   }
 
   function hasRightMajorPanelOpen() {
-    return Boolean(payload.externalWebviewOpen || findRightMajorPanelRect() || projectPanelChromeCollidesWithLargeRightColumn());
+    void payload.externalWebviewOpen;
+    return Boolean(findRightMajorPanelRect() || projectPanelChromeCollidesWithLargeRightColumn());
   }
 
   function markProjectPanelChromePreflightPending() {
@@ -2156,7 +2157,6 @@
   }
 
   function suppressProjectPanelChromeForRightMajorPanel() {
-    cleanupProjectPanels();
     cleanupButtonGlyphsForModule("projectPanelRows");
     root.dataset.citRightMajorPanel = "true";
     root.dataset.citProjectPanels = "hidden-by-major-right-panel";
