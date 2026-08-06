@@ -150,6 +150,8 @@ grep -q 'characterRetreatHoldUntil' "$ROOT_DIR/assets/renderer-inject.js" || cit
 grep -q 'MutationObserver' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must react to side panel and text layout mutations"
 grep -q 'scheduleCharacterRetreatCheck' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat mutation checks must be throttled"
 grep -q 'characterRetreatLastCheckAt + 140' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must react quickly during side-browser transitions"
+grep -q 'characterOverlapsComposerSurface' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must treat the composer as a protected collision surface"
+grep -Fq '[data-cit-character-retreat]:not([data-cit-character-retreat="none"])' "$ROOT_DIR/assets/theme.css" || cit_die "character retreat CSS must hide the character for any active retreat reason"
 grep -q 'findRightMajorPanelRect' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must detect the large right source column"
 grep -q 'projectPanelChromeCollidesWithLargeRightColumn' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must detect project panel collision with a large right column"
 grep -q 'triggerProjectPanelChromePreflight' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must preflight project panel chrome from the top-right trigger"

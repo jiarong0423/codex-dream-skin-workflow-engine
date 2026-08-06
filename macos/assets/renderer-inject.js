@@ -58,17 +58,12 @@
   };
 
   function clampNumber(value, min, max, fallback) {
-    const numberValue = Number(value);
-    if (!Number.isFinite(numberValue)) {
-      return fallback;
-    }
-    return Math.min(max, Math.max(min, numberValue));
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
   }
 
   function setVariable(name, value) {
-    if (value !== undefined && value !== null && String(value).trim() !== "") {
-      root.style.setProperty(name, String(value));
-    }
+    if (value !== undefined && value !== null && String(value).trim() !== "") root.style.setProperty(name, String(value));
   }
 
   function isImageAssetUrl(value) {
@@ -84,15 +79,7 @@
     if (!isImageAssetUrl(value)) {
       return "none";
     }
-    return "url(\"" + value.replace(/[\\\n\r\t "]/g, function replaceUnsafe(match) {
-      if (match === " ") {
-        return "%20";
-      }
-      if (match === "\"") {
-        return "%22";
-      }
-      return "";
-    }) + "\")";
+    return "url(\"" + value.replace(/[\\\n\r\t "]/g, function(match) { return match === " " ? "%20" : match === "\"" ? "%22" : ""; }) + "\")";
   }
 
   function findHotSwapPack(packId) {
@@ -844,19 +831,12 @@
   }
 
   function rectArea(rect) {
-    if (!rect) {
-      return 0;
-    }
-    return Math.max(0, rect.width) * Math.max(0, rect.height);
+    return rect ? Math.max(0, rect.width) * Math.max(0, rect.height) : 0;
   }
 
   function rectIntersectionArea(leftRect, rightRect) {
-    if (!leftRect || !rightRect) {
-      return 0;
-    }
-    const width = Math.max(0, Math.min(leftRect.right, rightRect.right) - Math.max(leftRect.left, rightRect.left));
-    const height = Math.max(0, Math.min(leftRect.bottom, rightRect.bottom) - Math.max(leftRect.top, rightRect.top));
-    return width * height;
+    if (!leftRect || !rightRect) return 0;
+    return Math.max(0, Math.min(leftRect.right, rightRect.right) - Math.max(leftRect.left, rightRect.left)) * Math.max(0, Math.min(leftRect.bottom, rightRect.bottom) - Math.max(leftRect.top, rightRect.top));
   }
 
   function isVisibleElement(node) {
@@ -887,23 +867,25 @@
     const characterRect = character && typeof character.getBoundingClientRect === "function"
       ? character.getBoundingClientRect()
       : null;
-    const panels = Array.from(doc.querySelectorAll(".codex-interface-theme-project-panel-frame, .codex-interface-theme-project-panel"));
-    for (const panel of panels) {
-      if (!isVisibleElement(panel)) {
-        continue;
-      }
+    for (const panel of doc.querySelectorAll(".codex-interface-theme-project-panel-frame, .codex-interface-theme-project-panel")) {
+      if (!isVisibleElement(panel)) continue;
       const rect = panel.getBoundingClientRect();
       if (rect.width < 220 || rect.height < 140 || rect.right < window.innerWidth * .52) {
         continue;
       }
-      const overlapsCharacter = characterRect && rectIntersectionArea(rect, characterRect) > 96;
-      const wideDrawer = rect.width >= Math.min(420, window.innerWidth * 0.28);
       const intrudesIntoWorkspace = rect.left < Math.max(720, window.innerWidth * 0.72);
-      if (overlapsCharacter || wideDrawer || intrudesIntoWorkspace) {
+      if ((characterRect && rectIntersectionArea(rect, characterRect) > 96) || rect.width >= Math.min(420, window.innerWidth * 0.28) || intrudesIntoWorkspace) {
         return true;
       }
     }
     return false;
+  }
+
+  function characterOverlapsComposerSurface(character) {
+    const composer = findComposerSurface(), gap = 14;
+    if (!character || !composer || !hasLayoutBox(character) || !hasLayoutBox(composer)) return false;
+    const a = character.getBoundingClientRect(), b = composer.getBoundingClientRect();
+    return rectIntersectionArea(a, { left: b.left - gap, right: b.right + gap, top: b.top - gap, bottom: b.bottom + gap, width: b.width + gap * 2, height: b.height + gap * 2 }) > 72;
   }
 
   function parentElementForText(textNode) {
@@ -915,20 +897,7 @@
   }
 
   function isTextNodeExcluded(parent) {
-    return Boolean(
-      !parent ||
-      parent.closest("aside.app-shell-left-panel") ||
-      parent.closest(".composer-surface-chrome") ||
-      parent.closest(".codex-interface-theme-project-panel-frame") ||
-      parent.closest(".codex-interface-theme-project-panel") ||
-      parent.closest("#" + CHARACTER_ID) ||
-      parent.closest("#" + RIGHT_HUD_ID) ||
-      parent.closest("button") ||
-      parent.closest("[role=\"button\"]") ||
-      parent.closest("svg") ||
-      parent.closest("script") ||
-      parent.closest("style")
-    );
+    return !parent || Boolean(parent.closest("aside.app-shell-left-panel,.composer-surface-chrome,.codex-interface-theme-project-panel-frame,.codex-interface-theme-project-panel,#" + CHARACTER_ID + ",#" + RIGHT_HUD_ID + ",button,[role=\"button\"],svg,script,style"));
   }
 
   function characterOverlapsMainText(character) {
@@ -997,6 +966,10 @@
       reason = "side-panel";
     } else if (window.innerWidth < 980) {
       reason = "narrow";
+    } else if (characterOverlapsComposerSurface(character)) {
+      reason = "composer-overlap";
+      characterRetreatHoldUntil = now + 480;
+      scheduleCharacterRetreatCheck(500);
     } else if (characterOverlapsMainText(character)) {
       reason = "text-overlap";
       characterRetreatHoldUntil = now + 480;
@@ -1469,6 +1442,7 @@
       nativeFade.classList.add("codex-interface-theme-composer-native-fade");
     }
     root.dataset.citComposerFrame = "surface";
+    updateCharacterRetreat();
     return 1;
   }
 

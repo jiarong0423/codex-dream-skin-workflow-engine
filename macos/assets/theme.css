@@ -225,9 +225,7 @@ html[data-codex-interface-theme="active"][data-cit-mode="sidebar-art"][data-cit-
   mask-image: linear-gradient(180deg, black 0%, black 72%, rgba(0, 0, 0, 0.74) 100%);
 }
 
-html[data-codex-interface-theme="active"][data-cit-character-retreat="side-panel"] body > #codex-interface-theme-character,
-html[data-codex-interface-theme="active"][data-cit-character-retreat="text-overlap"] body > #codex-interface-theme-character,
-html[data-codex-interface-theme="active"][data-cit-character-retreat="narrow"] body > #codex-interface-theme-character {
+html[data-codex-interface-theme="active"][data-cit-character-retreat]:not([data-cit-character-retreat="none"]) body > #codex-interface-theme-character {
   opacity: 0 !important;
   transform: translate3d(0, 0, 0) scale(1) !important;
   filter:
@@ -2444,9 +2442,7 @@ html[data-codex-interface-theme="active"] body > #codex-interface-theme-characte
   will-change: auto !important;
 }
 
-html[data-codex-interface-theme="active"][data-cit-character-retreat="side-panel"] body > #codex-interface-theme-character,
-html[data-codex-interface-theme="active"][data-cit-character-retreat="text-overlap"] body > #codex-interface-theme-character,
-html[data-codex-interface-theme="active"][data-cit-character-retreat="narrow"] body > #codex-interface-theme-character {
+html[data-codex-interface-theme="active"][data-cit-character-retreat]:not([data-cit-character-retreat="none"]) body > #codex-interface-theme-character {
   filter: none !important;
 }
 
