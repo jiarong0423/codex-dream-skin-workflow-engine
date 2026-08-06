@@ -194,9 +194,9 @@ html[data-cit-table-flip-cat="false"] #codex-interface-theme-right-hud::after {
   transform: translate3d(0, 0, 0) scale(1);
   transform-origin: center bottom;
   transition:
-    opacity 180ms ease-out,
-    transform 180ms ease-out,
-    filter 180ms ease-out;
+    opacity 90ms ease-out,
+    transform 90ms ease-out,
+    filter 90ms ease-out;
   will-change: opacity, transform;
 }
 
@@ -2440,7 +2440,7 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-badge {
 
 html[data-codex-interface-theme="active"] body > #codex-interface-theme-character {
   filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.32)) !important;
-  transition: opacity 180ms ease-out, transform 180ms ease-out !important;
+  transition: opacity 90ms ease-out, transform 90ms ease-out !important;
   will-change: auto !important;
 }
 

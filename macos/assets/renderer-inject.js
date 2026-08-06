@@ -1015,7 +1015,7 @@
       return;
     }
     const now = Date.now();
-    const minDelay = Math.max(Number(delayMs) || 0, characterRetreatLastCheckAt + 520 - now, 0);
+    const minDelay = Math.max(Number(delayMs) || 0, characterRetreatLastCheckAt + 140 - now, 0);
     if (characterRetreatCheckTimer) {
       window.clearTimeout(characterRetreatCheckTimer);
     }
@@ -1067,7 +1067,7 @@
           continue;
         }
         invalidateStaticAccess("mutation");
-        scheduleCharacterRetreatCheck(160);
+        scheduleCharacterRetreatCheck(40);
         scheduleProjectPanelChromeCheck(24);
         scheduleProjectPanelChromeFollowupCheck(180);
         return;
@@ -1081,12 +1081,12 @@
     });
     characterRetreatResizeHandler = function onCharacterRetreatResize() {
       invalidateStaticAccess("resize", true);
-      scheduleCharacterRetreatCheck(80);
+      scheduleCharacterRetreatCheck(40);
       scheduleProjectPanelChromeCheck(40);
       scheduleProjectPanelChromeFollowupCheck(300);
     };
     characterRetreatScrollHandler = function onCharacterRetreatScroll() {
-      scheduleCharacterRetreatCheck(180);
+      scheduleCharacterRetreatCheck(120);
     };
     window.addEventListener("resize", characterRetreatResizeHandler, { passive: true });
     window.addEventListener("scroll", characterRetreatScrollHandler, true);
