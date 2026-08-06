@@ -52,12 +52,15 @@ function usage() {
     "  private-pack-loader.mjs list [--root <private-packs-dir>] [--format text|json]",
     "  private-pack-loader.mjs plan --pack <pack-id> [--root <private-packs-dir>] [--format text|json]",
     "  private-pack-loader.mjs build --pack <pack-id> [--root <private-packs-dir>] [--out-dir <dir>] [--format text|json]",
+    "  private-pack-loader.mjs apply-plan --pack <pack-id> [--root <private-packs-dir>] [--format text|json]",
+    "  private-pack-loader.mjs stage-apply --pack <pack-id> [--root <private-packs-dir>] [--out-dir <dir>] [--format text|json]",
     "",
     "Notes:",
     "  This is a private-local-only loader.",
-    "  list and plan are read-only.",
+    "  list, plan, and apply-plan are read-only.",
     "  build writes only an ignored private runtime manifest.",
-    "  build does not write macos/assets/theme.json, active.json, or the formal animal pack list.",
+    "  stage-apply writes only an ignored private one-shot apply contract.",
+    "  build and stage-apply do not write macos/assets/theme.json, active.json, or the formal animal pack list.",
     "  no Codex process is started, restarted, clicked, or injected by this script."
   ].join("\n");
 }
@@ -331,6 +334,53 @@ function assetBudgetStatus(manifest, runtimeAssets) {
   };
 }
 
+function runtimeAssetSignature(runtimePlan) {
+  return Object.fromEntries(
+    Object.entries(runtimePlan.runtimeAssets).map(([key, asset]) => [
+      key,
+      {
+        relativePath: asset.relativePath,
+        bytes: asset.bytes,
+        sha256: asset.sha256
+      }
+    ])
+  );
+}
+
+function assertCompatibleBuiltRuntime(builtRuntime, runtimePlan) {
+  if (!builtRuntime || typeof builtRuntime !== "object") {
+    throw new Error("built private runtime manifest is invalid");
+  }
+  if (builtRuntime.kind !== "dream-skin-private-runtime-plan") {
+    throw new Error(`built private runtime kind is invalid: ${builtRuntime.kind}`);
+  }
+  if (builtRuntime.id !== runtimePlan.id) {
+    throw new Error(`built private runtime id mismatch: ${builtRuntime.id}`);
+  }
+  if (builtRuntime.visibility !== "private-local-only") {
+    throw new Error(`built private runtime visibility is invalid: ${builtRuntime.visibility}`);
+  }
+  if (builtRuntime.formalActivation !== false) {
+    throw new Error("built private runtime must keep formalActivation=false");
+  }
+  if (builtRuntime.writesFormalActiveTheme !== false) {
+    throw new Error("built private runtime must not write the formal active theme");
+  }
+  if (
+    !builtRuntime.source ||
+    !builtRuntime.source.manifest ||
+    builtRuntime.source.manifest.sha256 !== runtimePlan.source.manifest.sha256
+  ) {
+    throw new Error("built private runtime is stale against PRIVATE_PACK.json");
+  }
+  if (
+    JSON.stringify(runtimeAssetSignature(builtRuntime)) !==
+    JSON.stringify(runtimeAssetSignature(runtimePlan))
+  ) {
+    throw new Error("built private runtime asset set is stale against PRIVATE_PACK.json");
+  }
+}
+
 function createRuntimePlan(command, rootDir, packId) {
   const pack = loadPrivatePack(rootDir, packId);
   const runtimeAssets = selectedRuntimeAssets(pack.selected);
@@ -387,13 +437,17 @@ function createRuntimePlan(command, rootDir, packId) {
   };
 }
 
+function privateRuntimeManifestPath(packDir) {
+  return path.join(packDir, "runtime", "private-loader", "private-runtime.json");
+}
+
 function outputPathForPlan(packDir, options) {
   if (options["out-dir"]) {
     const outDir = optionPath(options, "out-dir", "");
     const safeOutDir = ensureInside(PROJECT_ROOT_DEFAULT, outDir, "output directory");
     return path.join(safeOutDir, "private-runtime.json");
   }
-  return path.join(packDir, "runtime", "private-loader", "private-runtime.json");
+  return privateRuntimeManifestPath(packDir);
 }
 
 function commandBuild(rootDir, packId, options) {
@@ -405,6 +459,135 @@ function commandBuild(rootDir, packId, options) {
     built: true,
     output: {
       runtimeManifestPath: relativePathFromProject(runtimeManifestPath)
+    }
+  });
+}
+
+function runtimeManifestDescriptor(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return {
+      projectPath: relativePathFromProject(filePath),
+      exists: false,
+      bytes: 0,
+      sha256: null
+    };
+  }
+  return {
+    projectPath: relativePathFromProject(filePath),
+    exists: true,
+    bytes: assertPlainFile(filePath, "private runtime manifest"),
+    sha256: sha256File(filePath)
+  };
+}
+
+function createApplyBridge(command, rootDir, packId, options = {}) {
+  const packDir = resolvePackDir(rootDir, packId);
+  const runtimePlan = createRuntimePlan("apply-source", rootDir, packId);
+  const runtimeManifestPath = privateRuntimeManifestPath(packDir);
+  const runtimeManifest = runtimeManifestDescriptor(runtimeManifestPath);
+  if (options.requireBuiltRuntime && !runtimeManifest.exists) {
+    throw new Error("stage-apply requires private-runtime.json; run build first");
+  }
+  if (runtimeManifest.exists) {
+    assertCompatibleBuiltRuntime(readJson(runtimeManifestPath), runtimePlan);
+  }
+
+  return {
+    schemaVersion: 1,
+    kind: "dream-skin-private-apply-bridge",
+    command,
+    id: runtimePlan.id,
+    displayName: runtimePlan.displayName,
+    visibility: "private-local-only",
+    status: "apply-contract-ready",
+    formalActivation: false,
+    applyMode: "one-shot-cdp-contract-only",
+    liveApplyEnabled: false,
+    requiresExplicitLiveApproval: true,
+    writesFormalActiveTheme: false,
+    writesCodexProcess: false,
+    startsOrRestartsCodex: false,
+    targetAllowlist: ["app://-/index.html"],
+    forbiddenTargets: ["about:blank", "chatgpt.com", "browser/webview"],
+    source: {
+      privateRoot: runtimePlan.source.privateRoot,
+      packRoot: runtimePlan.source.packRoot,
+      manifest: runtimePlan.source.manifest,
+      runtimeManifest
+    },
+    runtimeAssets: runtimePlan.runtimeAssets,
+    budget: runtimePlan.budget,
+    loadPolicy: runtimePlan.loadPolicy,
+    rendererContract: {
+      requiredModule: "privateDuelScene",
+      bodyMountId: "codex-interface-theme-private-duel-scene",
+      canvasId: "codex-interface-theme-private-duel-sparks",
+      pointerEvents: "none",
+      loadPolicy: "selected-runtime-assets-only",
+      paintOrder: [
+        "background below native content",
+        "upperActor and lowerActor below native text and panels",
+        "spark canvas below native controls",
+        "no route shell, composer, aside, right panel, or formal pack owner changes"
+      ]
+    },
+    autoTriggerContract: {
+      plannedEnabled: true,
+      liveEnabled: false,
+      triggerWhen: [
+        "upperActor weapon contact anchor is visible",
+        "lowerActor guard contact anchor is visible",
+        "contact anchors overlap inside tolerance",
+        "scene has appeared or reappeared after retreat"
+      ],
+      maxAutoTriggers: runtimePlan.interaction.maxAutoTriggers,
+      cooldownMs: runtimePlan.interaction.cooldownMs,
+      manualFallbackEnabled: false,
+      particleOrigin: "weapon-contact-anchor-only",
+      noParticlesOnHeadBlade: true
+    },
+    motionContract: {
+      upperRetreat: "fade and drift left",
+      lowerRetreat: "fade and drift right",
+      afterimage: "short blur trail only during retreat",
+      resetTrigger: "scene reappears only after both actors are back inside allowed bounds"
+    },
+    cleanupContract: {
+      removeNodes: [
+        "codex-interface-theme-private-duel-scene",
+        "codex-interface-theme-private-duel-sparks"
+      ],
+      clearStateKeys: [
+        "codexInterfaceThemePrivateDuel",
+        "codexInterfaceThemePrivateDuelTimers"
+      ],
+      removeListeners: ["resize", "visibilitychange", "click fallback"],
+      restorePolicy: "leave formal active theme and animal hot-swap list unchanged"
+    },
+    generatedAt: new Date().toISOString()
+  };
+}
+
+function outputPathForApplyBridge(packDir, options) {
+  if (options["out-dir"]) {
+    const outDir = optionPath(options, "out-dir", "");
+    const safeOutDir = ensureInside(PROJECT_ROOT_DEFAULT, outDir, "output directory");
+    return path.join(safeOutDir, "private-apply-bridge.json");
+  }
+  return path.join(packDir, "runtime", "private-loader", "private-apply-bridge.json");
+}
+
+function commandStageApply(rootDir, packId, options) {
+  const packDir = resolvePackDir(rootDir, packId);
+  const bridge = createApplyBridge("stage-apply", rootDir, packId, {
+    requireBuiltRuntime: true
+  });
+  const applyBridgePath = outputPathForApplyBridge(packDir, options);
+  writeJsonAtomic(applyBridgePath, bridge);
+  return Object.assign({}, bridge, {
+    staged: true,
+    output: {
+      applyBridgePath: relativePathFromProject(applyBridgePath)
     }
   });
 }
@@ -431,8 +614,21 @@ function printText(value) {
   console.log(`background: ${value.runtimeAssets.background.relativePath}`);
   console.log(`upper actor: ${value.runtimeAssets.upperActor.relativePath}`);
   console.log(`lower actor: ${value.runtimeAssets.lowerActor.relativePath}`);
+  if (value.kind === "dream-skin-private-apply-bridge") {
+    console.log(`apply mode: ${value.applyMode}`);
+    console.log(`live apply enabled: ${value.liveApplyEnabled ? "yes" : "no"}`);
+    console.log(`requires explicit live approval: ${value.requiresExplicitLiveApproval ? "yes" : "no"}`);
+    console.log(`target allowlist: ${value.targetAllowlist.join(", ")}`);
+    console.log(`manual fallback enabled: ${value.autoTriggerContract.manualFallbackEnabled ? "yes" : "no"}`);
+    if (value.source.runtimeManifest) {
+      console.log(`runtime manifest exists: ${value.source.runtimeManifest.exists ? "yes" : "no"}`);
+    }
+  }
   if (value.output && value.output.runtimeManifestPath) {
     console.log(`output: ${value.output.runtimeManifestPath}`);
+  }
+  if (value.output && value.output.applyBridgePath) {
+    console.log(`output: ${value.output.applyBridgePath}`);
   }
 }
 
@@ -459,7 +655,7 @@ function main() {
     return;
   }
 
-  if (!["plan", "build"].includes(parsed.command)) {
+  if (!["plan", "build", "apply-plan", "stage-apply"].includes(parsed.command)) {
     throw new Error(`unknown command: ${parsed.command}`);
   }
 
@@ -471,6 +667,14 @@ function main() {
 
   if (parsed.command === "build") {
     printResult(commandBuild(rootDir, packId, parsed.options), format);
+    return;
+  }
+  if (parsed.command === "apply-plan") {
+    printResult(createApplyBridge("apply-plan", rootDir, packId), format);
+    return;
+  }
+  if (parsed.command === "stage-apply") {
+    printResult(commandStageApply(rootDir, packId, parsed.options), format);
     return;
   }
 
