@@ -856,9 +856,14 @@
     return style.display === "none" || style.visibility === "hidden" ? null : style;
   }
 
+  function characterCoreRect(r) {
+    const x = r.width * .24, t = r.height * .18, b = r.height * .1;
+    return { left: r.left + x, right: r.right - x, top: r.top + t, bottom: r.bottom - b, width: r.width - x * 2, height: r.height - t - b };
+  }
+
   function hasVisibleRightSidePanel(character) {
     const characterRect = character && typeof character.getBoundingClientRect === "function"
-      ? character.getBoundingClientRect()
+      ? characterCoreRect(character.getBoundingClientRect())
       : null;
     for (const panel of doc.querySelectorAll(".codex-interface-theme-project-panel-frame, .codex-interface-theme-project-panel")) {
       if (!isVisibleElement(panel)) continue;
@@ -866,8 +871,7 @@
       if (rect.width < 220 || rect.height < 140 || rect.right < window.innerWidth * .52) {
         continue;
       }
-      const intrudesIntoWorkspace = rect.left < Math.max(720, window.innerWidth * 0.72);
-      if ((characterRect && rectIntersectionArea(rect, characterRect) > 96) || rect.width >= Math.min(420, window.innerWidth * 0.28) || intrudesIntoWorkspace) {
+      if (characterRect && rectIntersectionArea(rect, characterRect) > 120) {
         return true;
       }
     }
@@ -898,8 +902,7 @@
     if (!character || !hasLayoutBox(character)) {
       return false;
     }
-    const r = character.getBoundingClientRect(), x = r.width * .18, t = r.height * .14, b = r.height * .06;
-    const characterRect = { left: r.left + x, right: r.right - x, top: r.top + t, bottom: r.bottom - b, width: r.width - x * 2, height: r.height - t - b };
+    const characterRect = characterCoreRect(character.getBoundingClientRect());
     const characterArea = rectArea(characterRect);
     if (characterArea < 1000) {
       return false;
@@ -934,7 +937,7 @@
             }
             const overlap = rectIntersectionArea(characterRect, rect);
             const textArea = rectArea(rect);
-            if (overlap > Math.max(96, Math.min(textArea * 0.52, characterArea * 0.018))) {
+            if (overlap > Math.max(160, Math.min(textArea * .68, characterArea * .024))) {
               return true;
             }
           }
@@ -983,7 +986,7 @@
       return;
     }
     const now = Date.now();
-    const minDelay = Math.max(Number(delayMs) || 0, characterRetreatLastCheckAt + 140 - now, 0);
+    const minDelay = Math.max(Number(delayMs) || 0, characterRetreatLastCheckAt + 260 - now, 0);
     if (characterRetreatCheckTimer) {
       window.clearTimeout(characterRetreatCheckTimer);
     }
