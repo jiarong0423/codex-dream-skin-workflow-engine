@@ -151,6 +151,8 @@ grep -q 'MutationObserver' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "cha
 grep -q 'scheduleCharacterRetreatCheck' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat mutation checks must be throttled"
 grep -q 'characterRetreatLastCheckAt + 140' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must react quickly during side-browser transitions"
 grep -q 'characterOverlapsComposerSurface' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must treat the composer as a protected collision surface"
+grep -q 'a.bottom - h' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "composer collision must use the character lower contact zone, not the full transparent asset box"
+grep -Fq 'r.width * .18' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "text collision must use the character visual core, not the full transparent asset box"
 grep -Fq '[data-cit-character-retreat]:not([data-cit-character-retreat="none"])' "$ROOT_DIR/assets/theme.css" || cit_die "character retreat CSS must hide the character for any active retreat reason"
 grep -q 'findRightMajorPanelRect' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must detect the large right source column"
 grep -q 'projectPanelChromeCollidesWithLargeRightColumn' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must detect project panel collision with a large right column"

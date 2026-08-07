@@ -840,27 +840,20 @@
   }
 
   function isVisibleElement(node) {
-    if (!node || typeof node.getBoundingClientRect !== "function") {
-      return false;
-    }
-    const rect = node.getBoundingClientRect();
-    if (rect.width < 2 || rect.height < 2 || rect.bottom < 0 || rect.top > window.innerHeight || rect.right < 0 || rect.left > window.innerWidth) {
-      return false;
-    }
-    const style = window.getComputedStyle(node);
-    return style.display !== "none" && style.visibility !== "hidden" && Number(style.opacity || "1") > 0.05;
+    const style = layoutStyle(node);
+    return !!style && Number(style.opacity || "1") > .05;
   }
 
   function hasLayoutBox(node) {
-    if (!node || typeof node.getBoundingClientRect !== "function") {
-      return false;
-    }
+    return !!layoutStyle(node);
+  }
+
+  function layoutStyle(node) {
+    if (!node || typeof node.getBoundingClientRect !== "function") return null;
     const rect = node.getBoundingClientRect();
-    if (rect.width < 2 || rect.height < 2 || rect.bottom < 0 || rect.top > window.innerHeight || rect.right < 0 || rect.left > window.innerWidth) {
-      return false;
-    }
+    if (rect.width < 2 || rect.height < 2 || rect.bottom < 0 || rect.top > window.innerHeight || rect.right < 0 || rect.left > window.innerWidth) return null;
     const style = window.getComputedStyle(node);
-    return style.display !== "none" && style.visibility !== "hidden";
+    return style.display === "none" || style.visibility === "hidden" ? null : style;
   }
 
   function hasVisibleRightSidePanel(character) {
@@ -882,10 +875,11 @@
   }
 
   function characterOverlapsComposerSurface(character) {
-    const composer = findComposerSurface(), gap = 14;
+    const composer = findComposerSurface();
     if (!character || !composer || !hasLayoutBox(character) || !hasLayoutBox(composer)) return false;
     const a = character.getBoundingClientRect(), b = composer.getBoundingClientRect();
-    return rectIntersectionArea(a, { left: b.left - gap, right: b.right + gap, top: b.top - gap, bottom: b.bottom + gap, width: b.width + gap * 2, height: b.height + gap * 2 }) > 72;
+    const w = Math.max(48, a.width * .58), h = Math.max(26, a.height * .16);
+    return rectIntersectionArea({ left: a.left + (a.width - w) / 2, right: a.left + (a.width + w) / 2, top: a.bottom - h, bottom: a.bottom }, { left: b.left + 4, right: b.right - 4, top: b.top - 2, bottom: b.bottom + 2 }) > 90;
   }
 
   function parentElementForText(textNode) {
@@ -904,7 +898,8 @@
     if (!character || !hasLayoutBox(character)) {
       return false;
     }
-    const characterRect = character.getBoundingClientRect();
+    const r = character.getBoundingClientRect(), x = r.width * .18, t = r.height * .14, b = r.height * .06;
+    const characterRect = { left: r.left + x, right: r.right - x, top: r.top + t, bottom: r.bottom - b, width: r.width - x * 2, height: r.height - t - b };
     const characterArea = rectArea(characterRect);
     if (characterArea < 1000) {
       return false;
@@ -939,7 +934,7 @@
             }
             const overlap = rectIntersectionArea(characterRect, rect);
             const textArea = rectArea(rect);
-            if (overlap > Math.max(48, Math.min(textArea * 0.34, characterArea * 0.014))) {
+            if (overlap > Math.max(96, Math.min(textArea * 0.52, characterArea * 0.018))) {
               return true;
             }
           }
