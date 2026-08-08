@@ -18,11 +18,16 @@ bash -n "$ROOT_DIR/scripts/customize.sh"
 bash -n "$ROOT_DIR/scripts/install-launcher.sh"
 bash -n "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
+bash -n "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.command"
 plutil -lint "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/Info.plist" >/dev/null
+plutil -lint "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/Info.plist" >/dev/null
 
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
+grep -q 'chainsaw-duel-one-click-injector.sh' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q 'DREAM_SKIN_PROJECT_ROOT' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q -- '--port "$PORT" --wait-ms "$WAIT_MS" --gate "$RUN_GATE"' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.command"
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.command"
 grep -q 'chainsaw duel one-click injector' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must identify itself"

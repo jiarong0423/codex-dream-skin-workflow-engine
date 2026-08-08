@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+APP_TITLE="Chainsaw Duel Injector"
+DEFAULT_PROJECT_ROOT="/Users/<local-user>/Documents/skin"
+PORT="${CIT_PRIVATE_DUEL_PORT:-9341}"
+WAIT_MS="${CIT_PRIVATE_DUEL_WAIT_MS:-8000}"
+RUN_GATE="${CIT_PRIVATE_DUEL_GATE:-true}"
+LOG_DIR="$HOME/Library/Application Support/DreamSkinForge/logs"
+LOG_FILE="$LOG_DIR/chainsaw-duel-injector.log"
+
+mkdir -p "$LOG_DIR"
+exec >>"$LOG_FILE" 2>&1
+
+timestamp() {
+  date '+%Y-%m-%d %H:%M:%S'
+}
+
+log() {
+  printf '[%s] %s\n' "$(timestamp)" "$*"
+}
+
+notify() {
+  /usr/bin/osascript \
+    -e 'on run argv' \
+    -e 'display notification (item 1 of argv) with title "Chainsaw Duel Injector"' \
+    -e 'end run' \
+    "$1" >/dev/null 2>&1 || true
+}
+
+alert() {
+  /usr/bin/osascript \
+    -e 'on run argv' \
+    -e 'display dialog (item 1 of argv) buttons {"OK"} default button "OK" with title "Chainsaw Duel Injector"' \
+    -e 'end run' \
+    "$1" >/dev/null 2>&1 || true
+}
+
+resolve_project_root() {
+  if [ -n "${DREAM_SKIN_PROJECT_ROOT:-}" ]; then
+    printf '%s\n' "$DREAM_SKIN_PROJECT_ROOT"
+    return 0
+  fi
+
+  local executable_dir
+  executable_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+
+  local bundled_root
+  bundled_root="$(cd "$executable_dir/../../../../.." >/dev/null 2>&1 && pwd || true)"
+  if [ -x "$bundled_root/macos/scripts/chainsaw-duel-one-click-injector.sh" ]; then
+    printf '%s\n' "$bundled_root"
+    return 0
+  fi
+
+  printf '%s\n' "$DEFAULT_PROJECT_ROOT"
+}
+
+log "desktop app started"
+
+PROJECT_ROOT="$(resolve_project_root)"
+INJECTOR="$PROJECT_ROOT/macos/scripts/chainsaw-duel-one-click-injector.sh"
+
+if [ ! -x "$INJECTOR" ]; then
+  log "missing executable injector at $INJECTOR"
+  alert "找不到 Chainsaw Duel 注入器。請確認專案仍在 $PROJECT_ROOT，或設定 DREAM_SKIN_PROJECT_ROOT。Log: $LOG_FILE"
+  exit 1
+fi
+
+log "project_root=$PROJECT_ROOT port=$PORT wait_ms=$WAIT_MS gate=$RUN_GATE"
+notify "正在開啟 9341 並注入 Chainsaw Duel。"
+
+if "$INJECTOR" --port "$PORT" --wait-ms "$WAIT_MS" --gate "$RUN_GATE"; then
+  log "desktop app apply completed"
+  notify "Chainsaw Duel 已套用。"
+  exit 0
+fi
+
+status="$?"
+log "desktop app apply failed status=$status"
+alert "Chainsaw Duel 注入失敗。請查看 log：$LOG_FILE"
+exit "$status"
