@@ -7,25 +7,27 @@ source "$SCRIPT_DIR/common.sh"
 
 show_help() {
   cat <<'EOF'
-Usage: apply-private-chainsaw.sh [options]
+Usage: chainsaw-duel-one-click-injector.sh [options]
 
 Options:
-  --port <port>             Existing CDP port. Default: 9341.
+  --port <port>             CDP port to use or open. Default: 9341.
   --wait-ms <ms>            CDP wait time for one-shot apply. Default: 8000.
   --pack <pack-id>          Private pack id. Default: anime-chainsaw-train-duel.
   --formal true|false       Apply the formal theme first. Default: true.
   --private true|false      Apply the private overlay. Default: true.
   --gate true|false         Run runtime gate before apply. Default: true.
+  --open-cdp true|false     Open port through start.sh if absent. Default: true.
+  --force-quit              If Codex is running without CDP and graceful quit times out, send TERM.
   --dry-run                 Build and budget-check only; no CDP apply.
   --remove                  Remove private overlay only; does not restore formal theme.
   -h, --help                Show help.
 
-Fixed private Chainsaw injection entry point.
+Chainsaw duel one-click injector.
 
 This command writes only ignored private loader manifests, then optionally
-performs one-shot CDP injection into an already debug-enabled Codex renderer.
-It never launches, restarts, daemonizes, clicks, drags, deletes assets, modifies
-the official app bundle, or activates the private pack as a formal animal pack.
+opens CDP on 127.0.0.1:9341 through the existing formal start.sh one-shot path.
+It never daemonizes, clicks, drags, deletes assets, modifies the official app
+bundle, or activates the private pack as a formal animal pack.
 EOF
 }
 
@@ -35,6 +37,8 @@ WAIT_MS=8000
 APPLY_FORMAL="true"
 APPLY_PRIVATE="true"
 RUN_GATE="true"
+OPEN_CDP="true"
+FORCE_QUIT="false"
 MODE="apply"
 
 while [ "$#" -gt 0 ]; do
@@ -69,6 +73,15 @@ while [ "$#" -gt 0 ]; do
       RUN_GATE="$2"
       shift 2
       ;;
+    --open-cdp)
+      [ "$#" -ge 2 ] || cit_die "--open-cdp requires true or false"
+      OPEN_CDP="$2"
+      shift 2
+      ;;
+    --force-quit)
+      FORCE_QUIT="true"
+      shift
+      ;;
     --dry-run)
       MODE="dry-run"
       shift
@@ -83,7 +96,7 @@ while [ "$#" -gt 0 ]; do
       exit 0
       ;;
     *)
-      cit_die "unknown apply-private-chainsaw option: $1"
+      cit_die "unknown chainsaw-duel-one-click-injector option: $1"
       ;;
   esac
 done
@@ -109,6 +122,10 @@ case "$RUN_GATE" in
   true|false) ;;
   *) cit_die "--gate must be true or false" ;;
 esac
+case "$OPEN_CDP" in
+  true|false) ;;
+  *) cit_die "--open-cdp must be true or false" ;;
+esac
 
 cit_assert_source_layout
 APP_PATH="$(cit_detect_app_or_die)"
@@ -126,7 +143,7 @@ WORKFLOW_GATE="$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/scripts/wo
 
 cd "$PROJECT_ROOT"
 
-cit_log "fixed private chainsaw entry pack=$PACK_ID mode=$MODE port=$PORT"
+cit_log "chainsaw duel one-click injector pack=$PACK_ID mode=$MODE port=$PORT"
 cit_log "building private runtime manifest"
 "$NODE_PATH" "$PRIVATE_LOADER" build --pack "$PACK_ID" --format text
 
@@ -147,18 +164,36 @@ if [ "$MODE" = "dry-run" ]; then
   exit 0
 fi
 
-if ! cit_port_is_open "$PORT"; then
-  cit_die "CDP port 127.0.0.1:$PORT is not open. This fixed entry point does not launch or restart Codex."
-fi
-
 if [ "$MODE" = "remove" ]; then
+  if ! cit_port_is_open "$PORT"; then
+    cit_die "CDP port 127.0.0.1:$PORT is not open; remove mode will not launch Codex."
+  fi
   cit_log "removing private overlay once from existing CDP port 127.0.0.1:$PORT"
   "$NODE_PATH" "$PRIVATE_INJECTOR" --pack "$PACK_ID" --port "$PORT" --wait-ms "$WAIT_MS" --remove --format text
   printf '{"ok":true,"pack":"%s","mode":"remove","applied":true,"formal":false,"private":true,"port":%s}\n' "$PACK_ID" "$PORT"
   exit 0
 fi
 
-if [ "$APPLY_FORMAL" = "true" ]; then
+FORMAL_ALREADY_APPLIED="false"
+if ! cit_port_is_open "$PORT"; then
+  if [ "$OPEN_CDP" != "true" ]; then
+    cit_die "CDP port 127.0.0.1:$PORT is not open. Pass --open-cdp true to launch through start.sh."
+  fi
+  START_ARGS=(--once --port "$PORT" --wait-ms "$WAIT_MS")
+  if cit_is_app_running "$APP_PATH"; then
+    cit_log "Codex is running without CDP; reopening through formal start.sh restart path"
+    START_ARGS=(--restart "${START_ARGS[@]}")
+    if [ "$FORCE_QUIT" = "true" ]; then
+      START_ARGS=(--force-quit "${START_ARGS[@]}")
+    fi
+  else
+    cit_log "CDP is absent; opening Codex through formal start.sh on 127.0.0.1:$PORT"
+  fi
+  bash "$CIT_ROOT_DIR/scripts/start.sh" "${START_ARGS[@]}"
+  FORMAL_ALREADY_APPLIED="true"
+fi
+
+if [ "$APPLY_FORMAL" = "true" ] && [ "$FORMAL_ALREADY_APPLIED" != "true" ]; then
   cit_log "applying formal theme once to existing CDP port 127.0.0.1:$PORT"
   bash "$CIT_ROOT_DIR/scripts/start.sh" --no-launch --once --port "$PORT" --wait-ms "$WAIT_MS"
 fi
