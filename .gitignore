@@ -34,6 +34,7 @@ tmp/
 /screenshots/
 /macos/previews/*.png
 /macos/previews/**/*.png
+/macos/previews/**/*.html
 /macos/previews/**/*.json
 /macos/previews/**/*.txt
 /.target-mode-quarantine/

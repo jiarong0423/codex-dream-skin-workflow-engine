@@ -57,26 +57,26 @@
   },
   "icons": {
     "badge": {
-      "enabled": true,
+      "enabled": false,
       "path": "icons/orange-hacker-cat-128.png",
-      "placement": "sidebar-dock",
+      "placement": "off",
       "size": 58,
       "opacity": 0.92
     },
     "character": {
-      "enabled": true,
+      "enabled": false,
       "path": "icons/cyber-mecha-cat-male-helmet-900.png",
-      "placement": "sidebar-hero",
+      "placement": "off",
       "size": 350,
       "opacity": 1
     },
     "tableFlipCat": {
-      "enabled": true,
+      "enabled": false,
       "path": "icons/table-flip-cat-left.gif",
       "spritePath": "icons/table-flip-cat-left-sprite.webp",
       "posterPath": "icons/table-flip-cat-left-poster.png",
       "triggerIconPath": "icons/table-flip-trigger-angry.svg",
-      "placement": "right-bottom",
+      "placement": "off",
       "size": 118,
       "opacity": 0.96,
       "frameCount": 8,

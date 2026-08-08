@@ -16,6 +16,7 @@ bash -n "$ROOT_DIR/scripts/restore.sh"
 bash -n "$ROOT_DIR/scripts/verify.sh"
 bash -n "$ROOT_DIR/scripts/customize.sh"
 bash -n "$ROOT_DIR/scripts/install-launcher.sh"
+bash -n "$ROOT_DIR/scripts/apply-private-chainsaw.sh"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.command"
 plutil -lint "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/Info.plist" >/dev/null
@@ -24,6 +25,14 @@ grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.app/
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.command"
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.command"
+grep -q 'fixed private chainsaw entry' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry point must identify itself"
+grep -q 'PRIVATE_LOADER=.*private-pack-loader.mjs' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must bind the private pack loader"
+grep -q 'PRIVATE_INJECTOR=.*private-duel-injector.mjs' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must bind the private injector"
+grep -q '"$NODE_PATH" "$PRIVATE_LOADER" build' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must build the selected runtime manifest"
+grep -q '"$NODE_PATH" "$PRIVATE_LOADER" stage-apply' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must stage a one-shot apply bridge"
+grep -q '"$NODE_PATH" "$PRIVATE_INJECTOR" --pack' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must call the private injector by pack id"
+grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must apply formal theme through one-shot no-launch"
+grep -q 'does not launch or restart Codex' "$ROOT_DIR/scripts/apply-private-chainsaw.sh" || cit_die "fixed private Chainsaw entry must refuse launch/restart behavior"
 
 if grep -R 'for (index =' "$ROOT_DIR/launcher" >/dev/null 2>&1; then
   cit_die "launcher awk loops must not use index as a variable name on macOS awk"
@@ -599,12 +608,10 @@ theme_buttons = theme["icons"]["buttons"]["paths"]
 missing_theme = sorted(expected - set(theme_buttons))
 if missing_theme:
     raise SystemExit(f"missing button glyphs in theme.json: {missing_theme}")
-if theme["icons"]["badge"]["path"] != "icons/orange-hacker-cat-128.png":
-    raise SystemExit("theme.json badge path must use the display-sized transparent orange cat asset")
-if theme["icons"]["character"]["path"] != "icons/cyber-mecha-cat-male-helmet-900.png":
-    raise SystemExit("theme.json character path must use the selected male helmet mecha cat")
-if theme["icons"]["character"]["placement"] != "sidebar-hero":
-    raise SystemExit("theme.json character placement must keep the large character in the sidebar")
+if theme["icons"]["badge"]["enabled"] is not False or theme["icons"]["badge"]["placement"] != "off":
+    raise SystemExit("theme.json must keep the sample cat badge disabled")
+if theme["icons"]["character"]["enabled"] is not False or theme["icons"]["character"]["placement"] != "off":
+    raise SystemExit("theme.json must keep the sample cat character disabled")
 table_flip_cat = theme["icons"]["tableFlipCat"]
 if table_flip_cat["path"] != "icons/table-flip-cat-left.gif":
     raise SystemExit("theme.json tableFlipCat path must keep the GIF fallback")
@@ -614,10 +621,10 @@ if table_flip_cat["posterPath"] != "icons/table-flip-cat-left-poster.png":
     raise SystemExit("theme.json tableFlipCat posterPath must use the still poster image")
 if table_flip_cat["triggerIconPath"] != "icons/table-flip-trigger-angry.svg":
     raise SystemExit("theme.json tableFlipCat triggerIconPath must use the angry trigger icon")
-if table_flip_cat["enabled"] is not True:
-    raise SystemExit("theme.json tableFlipCat must be enabled")
-if table_flip_cat["placement"] != "right-bottom":
-    raise SystemExit("theme.json tableFlipCat placement must stay right-bottom")
+if table_flip_cat["enabled"] is not False:
+    raise SystemExit("theme.json tableFlipCat must be disabled unless explicitly selected")
+if table_flip_cat["placement"] != "off":
+    raise SystemExit("theme.json tableFlipCat placement must stay off in the default theme")
 if table_flip_cat["frameCount"] != 8:
     raise SystemExit("theme.json tableFlipCat frameCount must match the sprite frame count")
 if table_flip_cat["durationMs"] != 1430:
@@ -765,8 +772,8 @@ if enabled_theme["icons"]["tableFlipCat"]["posterPath"] != "icons/table-flip-cat
     raise SystemExit("theme-store must preserve tableFlipCat posterPath")
 if enabled_theme["icons"]["tableFlipCat"]["triggerIconPath"] != "icons/table-flip-trigger-angry.svg":
     raise SystemExit("theme-store must preserve tableFlipCat triggerIconPath")
-if enabled_theme["icons"]["tableFlipCat"]["enabled"] is not True:
-    raise SystemExit("theme-store must keep tableFlipCat enabled")
+if enabled_theme["icons"]["tableFlipCat"]["enabled"] is not False:
+    raise SystemExit("theme-store must keep tableFlipCat disabled unless explicitly selected")
 if enabled_theme["icons"]["tableFlipCat"]["frameCount"] != 8:
     raise SystemExit("theme-store must preserve tableFlipCat frameCount")
 if enabled_theme["icons"]["tableFlipCat"]["durationMs"] != 1430:
@@ -868,8 +875,10 @@ matrix_rows = {row["scenario"]: row for row in module_matrix["rows"]}
 for scenario_name in ["default-theme", "active-theme", "table-flip-enabled", "table-flip-disabled", "button-glyphs-disabled", "asset-budget", "theme-packs-extension", "retained-source-assets", "archive-candidates"]:
     if matrix_rows[scenario_name]["status"] != "passed":
         raise SystemExit(f"module matrix scenario must pass: {scenario_name}")
-if module_matrix["plans"]["activeTheme"]["modules"]["tableFlipCatLoad"] != "static-cache-click":
-    raise SystemExit("module matrix must confirm click-time static-cache table flip loading")
+if module_matrix["plans"]["activeTheme"]["modules"]["tableFlipCat"] != "off":
+    raise SystemExit("module matrix must confirm active theme does not load table flip cat by default")
+if module_matrix["plans"]["tableFlipEnabled"]["modules"]["tableFlipCatLoad"] != "static-cache-click":
+    raise SystemExit("module matrix must confirm explicit table flip enablement uses click-time static-cache loading")
 if module_matrix["plans"]["activeTheme"]["modules"].get("themePacks") != "hot-swap-ready":
     raise SystemExit("module matrix must confirm developer theme packs are hot-swap ready")
 if module_matrix["plans"]["activeTheme"]["payloadBytes"] <= 0:

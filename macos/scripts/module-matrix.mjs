@@ -381,6 +381,10 @@ function buildMatrix(stateDir, assetsDir) {
   const disabledTableTheme = applyRuntimeDefaults(activeTheme);
   disabledTableTheme.icons.tableFlipCat.enabled = false;
   const disabledTablePlan = collectThemePlan(disabledTableTheme, absoluteAssetsDir, "table-flip-disabled");
+  const enabledTableTheme = applyRuntimeDefaults(activeTheme);
+  enabledTableTheme.icons.tableFlipCat.enabled = true;
+  enabledTableTheme.icons.tableFlipCat.placement = "right-bottom";
+  const enabledTablePlan = collectThemePlan(enabledTableTheme, absoluteAssetsDir, "table-flip-enabled");
   const disabledButtonsTheme = applyRuntimeDefaults(activeTheme);
   disabledButtonsTheme.icons.buttons.enabled = false;
   const disabledButtonsPlan = collectThemePlan(disabledButtonsTheme, absoluteAssetsDir, "button-glyphs-disabled");
@@ -401,8 +405,8 @@ function buildMatrix(stateDir, assetsDir) {
     matrixRow(
       "table-flip-enabled",
       "sprite is read from static cache only after trigger click",
-      activePlan.modules.tableFlipCat === "enabled" && activePlan.modules.tableFlipCatLoad === "static-cache-click" ? "passed" : "blocked",
-      `load=${activePlan.modules.tableFlipCatLoad || "off"} durationMs=${activePlan.normalizedTableFlipCat.durationMs}`
+      enabledTablePlan.modules.tableFlipCat === "enabled" && enabledTablePlan.modules.tableFlipCatLoad === "static-cache-click" ? "passed" : "blocked",
+      `load=${enabledTablePlan.modules.tableFlipCatLoad || "off"} durationMs=${enabledTablePlan.normalizedTableFlipCat.durationMs}`
     ),
     matrixRow(
       "table-flip-disabled",
@@ -456,7 +460,8 @@ function buildMatrix(stateDir, assetsDir) {
     rows,
     plans: {
       defaultTheme: defaultPlan,
-      activeTheme: activePlan
+      activeTheme: activePlan,
+      tableFlipEnabled: enabledTablePlan
     },
     retainedSourceAssets: retainedSourceAssets.entries,
     archiveCandidates,

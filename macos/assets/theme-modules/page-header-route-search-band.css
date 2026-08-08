@@ -5,9 +5,8 @@ html[data-codex-interface-theme="active"] {
   --cit-page-header-shell-fill: rgba(16, 27, 33, 0.54);
   --cit-page-header-shell-line: rgba(176, 227, 238, 0.14);
   --cit-page-header-shell-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
-  --cit-route-search-band-fill: rgba(14, 24, 30, 0.56);
-  --cit-route-search-band-line: rgba(176, 227, 238, 0.13);
-  --cit-route-search-band-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
+  --cit-route-search-band-fill: rgba(3, 9, 12, 0.14);
+  --cit-route-search-band-line: rgba(255, 255, 255, 0.065);
 }
 
 /* Page header shells: soften cross-page sticky search/header black bands only. */
@@ -29,27 +28,23 @@ html[data-codex-interface-theme="active"] main [class*="bg-token-main-surface-se
   backdrop-filter: none !important;
 }
 
-/* Route search band shell: placeholder-scoped glass for route header search strips only. */
+/* Route surface layer: projects, scheduled tasks, and plugins share one static replacement layer. */
 
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋外掛程式"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="搜尋外掛程式"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search plugins"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="Search plugins"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋已排程任務"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="搜尋已排程任務"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search scheduled tasks"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="Search scheduled tasks"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋網站"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="搜尋網站"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search websites"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="Search websites"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋專案"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="搜尋專案"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search projects"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="Search projects"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="搜尋提取要求"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="搜尋提取要求"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])),
-html[data-codex-interface-theme="active"] main:has(input[placeholder*="Search pull requests"]) :is([class*="sticky"], [class*="bg-token-main-surface-primary"], [class*="bg-token-main-surface-secondary"]):has(input[placeholder*="Search pull requests"]):not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([data-cit-source-preview-block="true"]):not(:has([data-cit-source-preview-block="true"])) {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.070), rgba(255, 255, 255, 0.018) 34%, rgba(0, 0, 0, 0)),
-    linear-gradient(96deg, rgba(0, 216, 224, 0.040), rgba(12, 22, 27, 0.16) 54%, rgba(242, 162, 58, 0.024)),
-    var(--cit-route-search-band-fill) !important;
-  background-color: var(--cit-route-search-band-fill) !important;
+html[data-codex-interface-theme="active"] main:has(input:is([placeholder*="搜尋專案"], [placeholder*="搜尋已排程任務"], [placeholder*="搜尋外掛程式"], [placeholder*="Search projects"], [placeholder*="Search scheduled"], [placeholder*="Search plugins"])) :is([class*="bg-token-input-background"][class*="rounded-full"], [data-project-row-wrapper], [data-project-row], [role="listitem"], [class*="group/plugin-row"], [role="button"][class*="rounded-2xl"]) {
+  background: var(--cit-route-search-band-fill) !important;
+  background-image: none !important;
   border-color: var(--cit-route-search-band-line) !important;
-  box-shadow:
-    var(--cit-glass-shell-edge),
-    var(--cit-route-search-band-shadow) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] main:has(input:is([placeholder*="搜尋專案"], [placeholder*="搜尋已排程任務"], [placeholder*="搜尋外掛程式"], [placeholder*="Search projects"], [placeholder*="Search scheduled"], [placeholder*="Search plugins"])) :is([class*="text-token-text-tertiary"], [class*="border-token-border"], [class*="border-token-border-light"], [class*="border-b"], [class*="border-t"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] main:has(input:is([placeholder*="搜尋專案"], [placeholder*="搜尋已排程任務"], [placeholder*="搜尋外掛程式"], [placeholder*="Search projects"], [placeholder*="Search scheduled"], [placeholder*="Search plugins"])) div[class*="bg-token-input-background"][class*="rounded-full"]:not(#cit-route-surface) {
+  background: var(--cit-route-search-band-fill) !important;
+  border-color: var(--cit-route-search-band-line) !important;
+  box-shadow: none !important;
 }

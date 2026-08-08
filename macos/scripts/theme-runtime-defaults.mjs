@@ -1,5 +1,5 @@
 export const TABLE_FLIP_CAT_DEFAULTS = Object.freeze({
-  enabled: true,
+  enabled: false,
   path: "icons/table-flip-cat-left.gif",
   spritePath: "icons/table-flip-cat-left-sprite.webp",
   posterPath: "icons/table-flip-cat-left-poster.png",

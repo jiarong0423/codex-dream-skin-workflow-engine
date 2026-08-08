@@ -275,6 +275,9 @@ html[data-codex-interface-theme="active"][data-cit-has-image="true"][data-cit-wo
 
 html[data-codex-interface-theme=active] .flex.h-full.min-h-0.flex-col.bg-token-main-surface-primary{background:transparent!important;box-shadow:none!important}
 html[data-codex-interface-theme=active] :is(button.bg-token-foreground.rounded-lg.h-token-button-composer,main button.bg-token-foreground.border-token-border.rounded-full:not(.size-token-button-composer)){background:rgba(6,10,13,.72)!important;color:var(--cit-text)!important;-webkit-text-fill-color:currentColor!important;border-color:rgba(255,255,255,.16)!important;box-shadow:0 0 0 1px rgba(255,255,255,.05)!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋專案"],[placeholder*="搜尋已排程任務"],[placeholder*="搜尋外掛程式"],[placeholder*="Search projects"],[placeholder*="Search scheduled"],[placeholder*="Search plugins"])) :is([class*="bg-token-input-background"][class*="rounded-full"],[data-project-row-wrapper],[data-project-row],[role=listitem],[class*="group/plugin-row"],[role=button][class*="rounded-2xl"]){background:rgba(3,9,12,.14)!important;background-image:none!important;border-color:rgba(255,255,255,.065)!important;outline:0!important;box-shadow:none!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋專案"],[placeholder*="搜尋已排程任務"],[placeholder*="搜尋外掛程式"],[placeholder*="Search projects"],[placeholder*="Search scheduled"],[placeholder*="Search plugins"])) :is([class*="text-token-text-tertiary"],[class*="border-token-border"],[class*="border-token-border-light"],[class*="border-b"],[class*="border-t"]){border-color:transparent!important;box-shadow:none!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋專案"],[placeholder*="搜尋已排程任務"],[placeholder*="搜尋外掛程式"],[placeholder*="Search projects"],[placeholder*="Search scheduled"],[placeholder*="Search plugins"])) div[class*="bg-token-input-background"][class*="rounded-full"]:not(#cit-route-surface){background:rgba(3,9,12,.14)!important;border-color:rgba(255,255,255,.065)!important;box-shadow:none!important}
 
 html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) body::after {
   content: none;
@@ -1677,20 +1680,6 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud::befo
   display: none !important;
 }
 
-html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.006) 30%, rgba(255, 255, 255, 0.003)),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.040), transparent 70%),
-    rgba(5, 14, 18, 0.30) !important;
-  border: 1px solid var(--cit-side-line-soft) !important;
-  box-shadow:
-    inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 76%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.042),
-    0 8px 18px rgba(0, 0, 0, 0.10) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-  backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-}
-
 html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card {
   overflow: hidden !important;
   border-radius: 16px !important;
@@ -1979,26 +1968,6 @@ html[data-codex-interface-theme="active"] .sticky.bottom-0 [class*="bg-token-edi
   box-shadow: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
-}
-
-html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.042), rgba(255, 255, 255, 0.012) 32%, rgba(255, 255, 255, 0.004)),
-    linear-gradient(100deg,
-      rgba(0, 216, 224, 0.130) 0%,
-      rgba(6, 32, 34, 0.190) 30%,
-      rgba(8, 16, 20, 0.215) 56%,
-      rgba(72, 16, 62, 0.145) 78%,
-      rgba(255, 58, 70, 0.105) 100%),
-    rgba(5, 14, 18, 0.185) !important;
-  border: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 76%) !important;
-  box-shadow:
-    inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 70%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.058),
-    inset -18px 0 28px rgba(176, 28, 126, 0.038),
-    0 0 0 1px color-mix(in srgb, var(--cit-cockpit-red), transparent 94%) !important;
-  -webkit-backdrop-filter: blur(1.5px) saturate(1.16) contrast(1.03) !important;
-  backdrop-filter: blur(1.5px) saturate(1.16) contrast(1.03) !important;
 }
 
 html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble *,
@@ -2599,14 +2568,9 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picke
   background-color: transparent !important;
   background-image: none !important;
   border-color: transparent !important;
+  border-width: 0 !important;
   box-shadow: none !important;
   outline: 0 !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker-heading {
-  background:transparent!important;
-  background-color:transparent!important;
-  color: rgba(244, 247, 251, 0.78) !important;
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker-row,
@@ -2646,9 +2610,23 @@ html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].co
 html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is(input, button, [role="button"], [role="option"], [role="menuitem"], [tabindex]) {
   background:transparent!important;
   border-color:transparent!important;
+  border-width:0!important;
   outline:0!important;
   box-shadow:none!important;
   color: var(--cit-text) !important;
+}
+
+html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is(
+  [class*="sticky"][class*="bg-token-dropdown-background"],
+  [class*="sticky"][class*="top-"],
+  [class*="text-token-description-foreground"]
+) {
+  background:linear-gradient(90deg,rgba(3,8,11,.72),rgba(4,13,19,.44))!important;
+  background-color:rgba(3,8,11,.66)!important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  color: rgba(216, 238, 241, 0.82) !important;
 }
 
 /* Final transient row cleanup. */
