@@ -43,10 +43,16 @@ function readText(filePath) {
   return fs.readFileSync(filePath, "utf8");
 }
 
+const ATTRIBUTE_PATTERN = /([\w:-]+)\s*=\s*["']([^"']*)["']/g;
+
 function attrValue(tag, name) {
-  const pattern = new RegExp(`\\b${name}=["']([^"']+)["']`, "i");
-  const match = tag.match(pattern);
-  return match ? match[1] : "";
+  const wanted = String(name).toLowerCase();
+  for (const match of tag.matchAll(ATTRIBUTE_PATTERN)) {
+    if (match[1].toLowerCase() === wanted) {
+      return match[2];
+    }
+  }
+  return "";
 }
 
 function buttonTags(html) {

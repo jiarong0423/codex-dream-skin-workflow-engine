@@ -7,10 +7,26 @@
 | 2026-09-16 | `ai-security-rules` (VibeGate) `rules-check` | Whole repository, agent-readable config, repo-borne executable config | 0 critical, 4 high, 789 medium; all high and medium hits are documentation prose and CSS/identifier keyword matches, reviewed below |
 | 2026-09-16 | `release-boundary-safety-gate` scanner | 727 local text artifacts | PASS, 0 findings |
 | 2026-09-16 | `localguard-dev-safety-gate` scanner | Whole repository | 50 findings inside tracked files, all reviewed as false positives, detailed below |
+| 2026-09-16 | semgrep 1.176.0, rulesets `p/default`, `p/javascript`, `p/secrets` (500 rules) | 208 git-tracked files; quarantine snapshots, the generated public package, and preview captures excluded | 1 finding on the first run, remediated the same day; rerun clean at 0 findings |
 | 2026-09-16 | gitleaks | Git history and working tree | Clean, see `SECRET_SCAN_EVIDENCE.md` |
 | 2026-09-16 | `node --check`, `bash -n`, `macos/tests/run-tests.sh` | All modified JavaScript, shell, and the runtime gate suite | Pass |
 
 ## Reviewed Findings
+
+### semgrep
+
+The first run reported one WARNING,
+`javascript.lang.security.audit.detect-non-literal-regexp`, in
+`macos/scripts/atomic-control-workbench-smoke.mjs`: `attrValue()` built a
+`RegExp` from its `name` argument on every call. Every call site passes a
+hardcoded attribute name, so no attacker-controlled value reached it, but the
+helper was rewritten to match attributes with one module-level literal pattern
+instead of compiling a regular expression per call. Behaviour is unchanged
+(verified by diffing the script's full output before and after) and the rerun
+reports zero findings.
+
+### Keyword-matching scanners
+
 
 - `LG-AUTH-001` (9 hits): matches `display: none` on theme-owned elements in
   `macos/assets/theme-*.css`. This project has no authentication surface and no
@@ -51,9 +67,9 @@ agent may run here and the approval they require.
 The `export-gate` mode, which is the gate that matches publication, passes with
 zero blocking findings.
 
-No dedicated SAST engine (semgrep, CodeQL, SonarQube, Bandit, or gosec) has been
-run against this repository. The codebase is macOS shell, Node ES modules, and
-CSS with no server, no database, no dependency manifest, and no network egress
-beyond loopback. Static verification is currently `node --check`, `bash -n`, the
-runtime gate suite, and the module boundary gate. Adding semgrep to this table is
-the next planned hardening step.
+semgrep covers the JavaScript and ES module surface. It does not analyse the
+shell scripts or CSS in this repository, which are verified by `bash -n`, the
+runtime gate suite, and the module boundary gate instead. The codebase has no
+server, no database, no dependency manifest, and no network egress beyond
+loopback, so the untested surface carries no request handling, authentication,
+or deserialization path.
