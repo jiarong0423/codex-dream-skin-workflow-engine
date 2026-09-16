@@ -86,13 +86,53 @@ grep -cE '\|\| cit_die|raise SystemExit' macos/tests/run-tests.sh
 
 這個結構是刻意的約束：每一輪修改都必須寫出範圍、直接原因、根本原因、修法、驗證指令與下一個接手點。它讓「AI 說修好了」不能只是宣稱。
 
-## 五、方法論限制
+## 五、發布內容的獨立驗證
+
+以下驗證針對 **GitHub 上實際發布的內容**執行，作法是重新 clone 一份 mirror、解出工作樹後再掃，而不是掃本機目錄。量測於 commit `b1c280e`（2026-09-16）。
+
+**安全與外洩**
+
+| 工具 | 掃描對象 | 結果 |
+|---|---|---|
+| gitleaks | 遠端全歷史 | no leaks found |
+| semgrep 1.176.0（`p/default` + `p/javascript` + `p/secrets`，500 規則） | 發布內容 214 檔 | 0 findings |
+| release-boundary-safety-gate | 發布樹 | PASS，0 findings |
+| ai-security-rules `export-gate` | 發布樹 | pass，0 blocking |
+| 逐 commit 逐檔本機路徑掃描 | 遠端全歷史 | 0 命中 |
+
+`docs/PROJECT_LOG.md` 經確認不存在於任何 commit。本機絕對路徑、截圖與錄影檔名、擁有者信箱與帳號在全歷史均為 0 命中。
+
+**圖表渲染**
+
+repo 內 13 張 mermaid 圖全部以 mermaid 11.17.0 官方 parser 逐張驗證，13/13 成功產出 SVG，無語法錯誤：
+
+| 檔案 | 圖數 |
+|---|---|
+| `README.md` | 2 |
+| `README.en.md` | 2 |
+| `docs/PINNED_REVISION_LOOP_STANDARD.md` | 2 |
+| `docs/VISUAL_MODIFICATION_GOVERNANCE.md` | 2 |
+| `docs/WORKBENCH_ARCHITECTURE.md` | 4 |
+| `docs/TARGET_MODE_EXECUTION_QUEUE_20260804.md` | 1 |
+
+驗證方式說明：GitHub 的 mermaid 為瀏覽器端渲染，抓取伺服器回應只會看到 `<pre>` 原始碼區塊，不能據此判斷渲染失敗。可靠的判準是語法能否被 mermaid 解析。
+
+```bash
+npx -p @mermaid-js/mermaid-cli mmdc -i <diagram>.mmd -o <diagram>.svg
+```
+
+**文件內部一致性**
+
+README 與本文件宣稱的每個檔案路徑、程式識別碼、模組 `kind` 與 `loadPolicy`、測試數量與位元組用量，均已對發布內容逐項比對。所有 markdown 連結可解析。
+
+## 六、方法論限制
 
 誠實標註本紀錄的邊界：
 
 - 第二節的佔比是**擁有者估算**，不是從逐字稿量測。完整協作逐字稿留在本機 Codex session 儲存區，未納入本 repo，因此無法在此提供可複驗的人機比例。
 - git 歷史無法區分人機：2026-07-20 至 2026-08-09 的 commit 均以擁有者身分提交，無機器歸屬 trailer。截至 `e9bd85e`，含 `Co-Authored-By` 的 20 個 commit 全部來自 2026-09-16 的一次 Claude Code 稽核與修復作業，不代表整體專案比例。
-- 第三、四節的數字可直接複驗；第二節不行。兩者刻意分開陳列。
+- 第三、四、五節的數字可直接複驗；第二節不行。兩者刻意分開陳列。
+- 第五節的驗證針對 commit `b1c280e` 的發布內容。後續 commit 需重跑；掃描指令與工具版本已列出，可自行執行。
 
 ## English Summary
 
@@ -100,4 +140,4 @@ For Build Week this repository is a deliberate capability-boundary test rather t
 
 What was actually under test was not CSS generation but page data-layer CDP injection with a guaranteed restore path, DOM ownership identification that replaces an owner instead of stacking an overlay, an offline static inspection path, and a re-entrant self-checking repair loop bounded by asset budgets and a no-resident-process rule.
 
-Section 3 and section 4 are measured at commit `e9bd85e` and independently reproducible at that commit. Section 2 is the owner's first-hand estimate and is not derived from transcripts; the collaboration transcripts remain local and are not part of this repository. Git authorship cannot separate human from model for the July–August commits, and the 20 commits carrying a `Co-Authored-By` trailer as of `e9bd85e` all come from a single Claude Code audit pass on 2026-09-16.
+Section 3 and section 4 are measured at commit `e9bd85e` and independently reproducible at that commit. Section 5 records verification run against the published remote at commit `b1c280e`: a fresh mirror clone was taken from GitHub and scanned rather than the local checkout. gitleaks over the full history, semgrep over 214 published files, the release boundary scanner, and the export gate all report clean, and a per-commit per-file scan finds no local path, screenshot filename, mail address, or account handle anywhere in history. All thirteen mermaid diagrams in the repository parse under mermaid 11.17.0 and render to SVG; GitHub renders mermaid client-side, so a server-side fetch showing raw code blocks is expected and is not evidence of a rendering failure. Section 2 is the owner's first-hand estimate and is not derived from transcripts; the collaboration transcripts remain local and are not part of this repository. Git authorship cannot separate human from model for the July–August commits, and the 20 commits carrying a `Co-Authored-By` trailer as of `e9bd85e` all come from a single Claude Code audit pass on 2026-09-16.
