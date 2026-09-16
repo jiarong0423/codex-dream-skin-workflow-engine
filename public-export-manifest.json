@@ -20,7 +20,7 @@
       "SECURITY_SCAN_EVIDENCE.md",
       "SECURITY_THREAT_MODEL.md"
     ],
-    "acceptedResidue": "Older revisions of docs/SURFACE_GAP_MATRIX.json retain 37 bare screenshot and screen-recording filenames carrying only a date and time. They hold no path, account name, or identifier, the current revision contains none of them, and no scanner flags them. Accepted rather than rewriting history again."
+    "acceptedResidue": "None. A second history rewrite on 2026-09-16 replaced 38 residual evidence strings in docs/SURFACE_GAP_MATRIX.json across 31 revisions with local-evidence placeholders, verified by a fresh clone taken from the remote afterwards. Six Chinese strings that merely contain the word for screenshot are ordinary project text and were deliberately left untouched."
   },
   "reviewedAt": "2026-09-16",
   "classifications": {

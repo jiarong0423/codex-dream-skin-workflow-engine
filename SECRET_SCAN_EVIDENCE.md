@@ -54,11 +54,17 @@ commits. GitHub Support was asked to purge cached views of the removed objects.
 No credential was involved at any point; gitleaks reported no leaks before and
 after.
 
-Residual: one screen-recording filename, dated 2026-07-31, remains in older
-revisions of `docs/SURFACE_GAP_MATRIX.json`. It is a bare filename with no path,
-account name, or identifier, and the current revision no longer contains it.
-Accepted rather than rewritten again. The filename is not reproduced here: a
-record of a residue must not reintroduce it at the tip.
+Residual: none. A first pass left 38 evidence strings in older revisions of
+`docs/SURFACE_GAP_MATRIX.json` — bare screenshot and screen-recording filenames
+carrying a date and time, plus one malformed placeholder from an earlier
+sanitisation that still held a localised time. A second history rewrite on the
+same day replaced all of them across 31 revisions and was force-pushed. Six
+Chinese strings elsewhere in the repository merely contain the word for
+screenshot in ordinary prose and code, and were deliberately left untouched.
+A mirror clone taken from the remote afterwards, plus the release boundary
+scanner, the export gate, gitleaks over the full history, and semgrep, all
+report clean. Filenames are not reproduced in this record: a note about a
+residue must not reintroduce it at the tip.
 
 Standing control: before any push, scan the commit range rather than the tip.
 None of gitleaks, the release boundary scanner, the dev safety scanner, or
