@@ -308,7 +308,38 @@ grep -Fq "codex-interface-theme-composer-dock *" "$ROOT_DIR/scripts/black-shell-
 grep -q "codex-interface-theme-project-panel-frame" "$ROOT_DIR/scripts/black-shell-layer-audit.mjs" || cit_die "black shell audit must protect scoped project panel surfaces"
 grep -q 'ProseMirror, \[role=\\"textbox\\"\]' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "composer detection must anchor from the native editable textbox"
 grep -Fq '[class*="group/summary-panel-item"]' "$ROOT_DIR/assets/theme.css" || cit_die "right panel row cleanup must catch slash-named native summary rows"
-grep -Fq -- '--cit-glass-right-panel-fill' "$ROOT_DIR/assets/theme-modules/black-shell-transparency.css" || cit_die "right panel must keep a single transparent owner glass plate"
+python3 - "$ROOT_DIR/assets/theme.css" <<'PY'
+import pathlib
+import re
+import sys
+
+css = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+RULE = re.compile(r"(?P<selectors>[^{}]+)\{(?P<body>[^{}]*)\}", re.S)
+FRAME = 'html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame'
+PANEL = 'html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel'
+
+def blocks_owning(selector):
+    found = []
+    for rule in RULE.finditer(css):
+        parts = [part.strip().split("\n")[-1].strip() for part in rule.group("selectors").split(",")]
+        if selector in parts:
+            found.append(rule.group("body"))
+    return found
+
+frames = blocks_owning(FRAME)
+panels = blocks_owning(PANEL)
+if not frames:
+    raise SystemExit("theme.css must own the right panel frame")
+if not panels:
+    raise SystemExit("theme.css must own the right panel surface")
+if not any("background: transparent !important;" in block for block in frames):
+    raise SystemExit("right panel frame must stay transparent so the panel owns the only glass plate")
+plates = [block for block in panels if re.search(r"background:\s*rgba\([^)]*\)\s*!important;", block)]
+if len(plates) != 1:
+    raise SystemExit(f"right panel must keep a single transparent owner glass plate, found {len(plates)}")
+if "background-image: none !important;" not in plates[0]:
+    raise SystemExit("right panel glass plate must not carry a second background image layer")
+PY
 grep -q 'payload.externalWebviewOpen' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "right panel owner must consume external webview state without styling the webview"
 ! grep -q 'return Boolean(payload.externalWebviewOpen || findRightMajorPanelRect' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "external webview state must not directly suppress the environment/source panel owner"
 if sed -n '/function suppressProjectPanelChromeForRightMajorPanel/,/^  }/p' "$ROOT_DIR/assets/renderer-inject.js" | grep -q 'cleanupProjectPanels()'; then
