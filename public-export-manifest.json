@@ -1,0 +1,164 @@
+{
+  "manifest": "public-export-manifest",
+  "version": "1.0.0",
+  "repository": "codex-dream-skin-workflow-engine",
+  "visibility": "public",
+  "reviewedAt": "2026-09-16",
+  "classifications": {
+    "public-export": "Cleared for the public repository and the public package.",
+    "archive": "Kept locally for history; never published.",
+    "scratch": "Regenerable working output; never published.",
+    "local-only": "Contains local paths, private assets, or unreviewed material; never published."
+  },
+  "enforcement": [
+    ".gitignore excludes every archive, scratch, and local-only path listed here.",
+    "submission/build-public-package.sh refuses to publish when a local path, screenshot filename, mail address, or key-shaped string enters the package."
+  ],
+  "paths": [
+    {
+      "path": "README.md",
+      "classification": "public-export",
+      "note": "Project overview"
+    },
+    {
+      "path": "README.en.md",
+      "classification": "public-export",
+      "note": "English judge copy"
+    },
+    {
+      "path": "LICENSE",
+      "classification": "public-export",
+      "note": "License"
+    },
+    {
+      "path": "NOTICE.md",
+      "classification": "public-export",
+      "note": "Attribution notice"
+    },
+    {
+      "path": "CREDITS.md",
+      "classification": "public-export",
+      "note": "Asset and reference credits"
+    },
+    {
+      "path": "SECURITY.md",
+      "classification": "public-export",
+      "note": "Security policy and secret ownership"
+    },
+    {
+      "path": "SECURITY_THREAT_MODEL.md",
+      "classification": "public-export",
+      "note": "Threat model"
+    },
+    {
+      "path": "SECURITY_SCAN_EVIDENCE.md",
+      "classification": "public-export",
+      "note": "Code-security scan evidence"
+    },
+    {
+      "path": "SECRET_SCAN_EVIDENCE.md",
+      "classification": "public-export",
+      "note": "Secret scan evidence"
+    },
+    {
+      "path": "MCP_SERVER_ALLOWLIST.md",
+      "classification": "public-export",
+      "note": "Agent command allowlist"
+    },
+    {
+      "path": "competition-manifest.json",
+      "classification": "public-export",
+      "note": "Build Week submission manifest"
+    },
+    {
+      "path": "public-export-manifest.json",
+      "classification": "public-export",
+      "note": "This manifest"
+    },
+    {
+      "path": "macos/",
+      "classification": "public-export",
+      "note": "Theme engine, assets, scripts, launchers, tests"
+    },
+    {
+      "path": "theme-packs/",
+      "classification": "public-export",
+      "note": "Public theme packs and pack tooling"
+    },
+    {
+      "path": "docs/",
+      "classification": "public-export",
+      "note": "Architecture, governance, and standards documents"
+    },
+    {
+      "path": ".agents/",
+      "classification": "public-export",
+      "note": "Workflow skill definition"
+    },
+    {
+      "path": "scripts/",
+      "classification": "public-export",
+      "note": "Repository-level helper scripts"
+    },
+    {
+      "path": "submission/",
+      "classification": "public-export",
+      "note": "Submission material and package builders"
+    },
+    {
+      "path": "docs/PROJECT_LOG.md",
+      "classification": "local-only",
+      "note": "Development journal; records absolute local paths and screenshot evidence"
+    },
+    {
+      "path": "docs/PROJECT_LOG.local-private.md",
+      "classification": "local-only",
+      "note": "Private development journal"
+    },
+    {
+      "path": "macos/previews/",
+      "classification": "scratch",
+      "note": "Defect evidence captures; PNG, HTML, JSON, SUMMARY markdown, and .err files stay local"
+    },
+    {
+      "path": "theme-packs/private-packs/",
+      "classification": "local-only",
+      "note": "Private theme packs, not cleared for publication"
+    },
+    {
+      "path": "theme-packs/private-drafts/",
+      "classification": "local-only",
+      "note": "Private drafts, promote into theme-packs/<pack-id>/ only after the public gate passes"
+    },
+    {
+      "path": ".target-mode-quarantine/",
+      "classification": "archive",
+      "note": "Dated snapshots of superseded runtime states"
+    },
+    {
+      "path": "submission/exports/",
+      "classification": "scratch",
+      "note": "Local build artifacts"
+    },
+    {
+      "path": "submission/public-package/",
+      "classification": "scratch",
+      "note": "Generated public bundle; rebuilt by submission/build-public-package.sh"
+    },
+    {
+      "path": "recordings/",
+      "classification": "local-only",
+      "note": "Screen recordings"
+    },
+    {
+      "path": "screenshots/",
+      "classification": "local-only",
+      "note": "Local screenshots"
+    },
+    {
+      "path": "CodexInterfaceTheme/",
+      "classification": "local-only",
+      "note": "Installed runtime state, lives outside the repository"
+    }
+  ]
+}
