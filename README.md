@@ -2,11 +2,15 @@
 
 English judge copy: [README.en.md](README.en.md)
 
-本專案是一次 **Codex / GPT-5.6 能力邊界測試**，題目是 macOS Codex 桌面端的本機介面主題化。實作全程放手給模型，使用者只提供 intent、constraints、缺陷回報與最終判斷（擁有者估算：使用者約 20–30%、模型約 70–80%，見下方佔比表）。
+本專案同時是兩件事：一套可運作的 macOS Codex 桌面端介面主題引擎，以及一次 **Codex / GPT-5.6 能力邊界測試**。兩者不是主從關係——正是因為題目要求的技術深度夠，這個測試才有意義。
 
-受測的是五件在單純生成任務中不會出現的能力：CDP 注入與還原、DOM 擁有權替換、靜態存取、記憶體釋放、動態退讓。換皮是題目，不是目的。
+**工程內容**不是一張 CSS 皮膚，而是一條 11 段管線加兩條回寫迴圈：視覺需求 → 結構化 theme spec → 素材管線（去背、壓縮、圖示 manifest）→ 模組清單與內容雜湊 → 原生 UI adapter 與幾何驗證 → 掛載契約（surface + collision + lifecycle）→ 靜態檢查（376 條 assertion、資產預算、module matrix）→ 本機 CDP 單次套用 → renderer 模組 → 視覺驗證 → 安裝或範圍化還原。失敗案例回寫 direct/root cause，模組修補走 regression gate。
 
-運作上它透過 `127.0.0.1` 的 Chromium DevTools Protocol 注入 CSS 與輕量 DOM 狀態，不修改官方 `/Applications/ChatGPT.app`、`app.asar`、簽名或使用者登入資料。
+**測試內容**是把上述整段——架構、實作、素材管線、驗證、封裝——全部交給模型，只由使用者提供 intent、constraints、缺陷回報與最終判斷，看能推到哪裡、在哪裡會斷。擁有者估算：使用者約 20–30%、模型約 70–80%，見下方佔比表。
+
+受測的五個能力面在單純生成任務中不會出現：CDP 注入與還原、DOM 擁有權替換、靜態存取、記憶體釋放、動態退讓。
+
+運作邊界：透過 `127.0.0.1` 的 Chromium DevTools Protocol 注入 CSS 與輕量 DOM 狀態，不修改官方 `/Applications/ChatGPT.app`、`app.asar`、簽名或使用者登入資料。
 
 ## 這不只是一個桌面換皮工具
 
@@ -88,7 +92,7 @@ ORIENT -> CDP_CHECK -> SCAN_QUEUE -> LAYER_CLASSIFY -> 決策
 
 ## Codex Dream Skin Workflow Engine
 
-邊界測試沿途產出的東西，是一套由 Codex 協助運作的主題工作流：把視覺需求轉為結構化 theme spec，處理並壓縮素材，依模組套用，驗證原生介面幾何與互動，最後可完整還原。cyber-mecha cat 主題是用來操練這套流程的樣本主題，不是交付物。
+Codex Dream Skin 不是單一 CSS 皮膚，而是一套由 Codex 協助運作的主題工作流：把視覺需求轉為結構化 theme spec，處理並壓縮素材，依模組套用，驗證原生介面幾何與互動，最後可完整還原。cyber-mecha cat 是用來操練並證明這套流程的樣本主題，流程本身才是產品。
 
 使用者不需要先寫好專門提示詞。可以從不完整的想法開始，和 Codex 一起探索變體、逐項修正、選擇場景，再把接受的結果組成可測試的互動工作區。架構圖不是事後文件，而是限制模組歸屬、原生掛載位置、碰撞、效能與還原行為的控制平面。
 
@@ -96,7 +100,7 @@ OpenAI Build Week 定位：
 
 - 主賽道：`Developer Tools`
 - 價值對齊：`Work & Productivity`
-- 提交定位：**能力邊界測試**。目的不是交付一個換皮工具，而是量測把架構、實作、素材管線、驗證與封裝整段交給 Codex / GPT-5.6 之後，能推到哪裡、在哪裡會斷。
+- 提交定位：一套可運作的主題工作流引擎，**同時**是一次能力邊界測試。技術深度與測試價值互為條件——題目不夠硬，測試就沒有意義；模型撐不住，工具就做不出來。
 - 單一產品：安全主題工具鏈與工作舒適度改善是同一套 workflow 的技術面與使用者價值面，不拆成兩個專案。
 - 證據：協作分工與人機佔比見下方表格；可量測的實作規模、驗證覆蓋與證據層密度見 [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md)，數值釘在 commit `e9bd85e` 可複驗。
 

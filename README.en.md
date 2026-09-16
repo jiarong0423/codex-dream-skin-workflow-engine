@@ -1,20 +1,32 @@
 # Codex Dream Skin Workflow Engine
 
-This repository is a **Codex / GPT-5.6 capability boundary test**. The subject
-is local interface theming of the Codex desktop app on macOS. Implementation was
-handed to the model in full; the user supplied intent, constraints, defect
-reports, and final judgment (owner's estimate: roughly 20–30% user, 70–80%
-model — see the split table below).
+This repository is two things at once: a working interface theming engine for
+the Codex desktop app on macOS, and a **Codex / GPT-5.6 capability boundary
+test**. Neither is subordinate to the other — the test is only meaningful
+because the subject demands real engineering depth.
 
-Five capabilities were under test, none of which appear in a plain generation
-task: CDP injection with a guaranteed restore path, DOM ownership replacement,
-static inspection, memory release, and dynamic retreat. Theming is the subject,
-not the goal.
+**The engineering** is not a CSS skin but an eleven-stage pipeline with two
+feedback loops: visual brief → structured theme specification → asset pipeline
+(cutout, compression, icon manifest) → module manifest with content hashes →
+native UI adapter with geometry validation → mount contract (surface, collision,
+lifecycle) → static gate (376 assertions, asset budgets, module matrix) →
+one-shot local CDP apply → renderer modules → visual verification → install or
+scoped restore. Failures write direct and root cause back into the
+specification, and module repairs pass through a regression gate.
 
-Operationally it turns a visual brief into a structured theme specification,
-optimizes assets, applies selected modules through local Chromium DevTools
-Protocol access, verifies geometry and interaction safety, and restores the
-native interface without patching the official app.
+**The test** was handing all of that — architecture, implementation, asset
+pipeline, verification, packaging — to the model, with the user supplying only
+intent, constraints, defect reports, and final judgment, to see how far it goes
+and where it breaks. Owner's estimate: roughly 20–30% user, 70–80% model; see
+the split table below.
+
+The five capabilities under test do not appear in a plain generation task: CDP
+injection with a guaranteed restore path, DOM ownership replacement, static
+inspection, memory release, and dynamic retreat.
+
+Runtime boundary: CSS and lightweight DOM state are injected over the Chromium
+DevTools Protocol on `127.0.0.1`, never modifying the official
+`/Applications/ChatGPT.app`, its `app.asar`, its signature, or the user session.
 
 ## Not Only a Desktop Skin
 
@@ -142,18 +154,18 @@ transfers, not a crawler bundled with this repository.
 - Impact lens: Work and Productivity
 - Supported platform for this submission: macOS
 - Runtime boundary: local CDP on `127.0.0.1`
-- Submission framing: a **capability boundary test**. The goal is not to ship a
-  theming tool but to measure how far architecture, implementation, the asset
-  pipeline, verification, and packaging can be driven when all of it is handed
-  to Codex / GPT-5.6, and where it breaks.
+- Submission framing: a working theming workflow engine that is **also** a
+  capability boundary test. The engineering depth and the test value are
+  conditions for each other — a soft subject would make the test meaningless,
+  and a model that could not carry it would leave no tool.
 - Evidence: the contribution split is in the table below; the measured
   implementation size, verification coverage, and evidence-layer density are in
   [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md),
   pinned to commit `e9bd85e` so they stay reproducible.
 
-What the test produced along the way is a working demonstration of safe
-developer-environment personalization. The cyber-mecha cat theme is the sample
-theme used to exercise the workflow, not the deliverable.
+The project demonstrates safe developer-environment personalization rather than
+a static CSS skin. The cyber-mecha cat theme is the sample used to exercise and
+prove the workflow; the workflow itself is the product.
 
 No prompt engineering template is required. A user can begin with an incomplete
 idea, explore alternatives with Codex, refine individual elements, select a
