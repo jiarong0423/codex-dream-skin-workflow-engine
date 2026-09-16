@@ -33,6 +33,25 @@ Both have an offline static path. `macos/scripts/static-black-layer-index.mjs`,
 layer owners and colour baselines. No debug port, no running application, and no
 screenshot is required.
 
+## Five Capabilities Under Test
+
+Implementation was handed to GPT-5.6 in full; the user supplied intent,
+constraints, and final judgment. The test was whether these five could be driven
+to something usable:
+
+| Capability | Requirement | Implementation |
+|---|---|---|
+| **CDP** | Attach on `127.0.0.1` and inject once, never modifying the application bundle, its signature, or the session, and always keeping a full restore path | `macos/scripts/injector.mjs`, `restore.sh`, `verify.sh` |
+| **DOM ownership** | Decide which native node owns an effect and replace that owner rather than stacking an overlay; never change a hitbox, cover text, or let a transient panel bleed through | `macos/assets/surface-registry.js`, owner marking in `renderer-inject.js` |
+| **Static access** | Index layer owners and colour baselines from source alone, with no debug port, no running application, and no screenshot; plus a runtime DOM cache that avoids repeated queries | `static-black-layer-index.mjs`, `static-interactive-black-layer-index.mjs`, `static-color-baseline-compare.mjs`; module `staticAccess` (`kind: dom-cache`) |
+| **Memory release** | Load animation assets on click, release the node when playback ends, run no idle loop; group assets by content hash and prune stale groups | `releaseTableFlipPlaybackNode()`, lazy `loadGroup()`, `assetGroupsPruned`; module `tableFlipCat` (`loadPolicy: static-cache-click`) |
+| **Dynamic retreat** | Character and decoration layers must yield to the composer, panels, and text using live geometry, with bounded collision checks and no unbounded polling | `characterRetreat` (`kind: dom-geometry`) and `collisionScheduler` (`kind: scheduler`), both `loadPolicy: no-extra-asset` |
+
+None of this rests on assertion alone: `macos/tests/run-tests.sh` carries 376
+checks against the identifiers and bounds above, `module-boundary-gate.mjs`
+verifies the module boundary declarations, and `performance-probe.mjs` measures
+runtime load.
+
 ## Self-checking, Self-repairing Loop
 
 `docs/PINNED_REVISION_LOOP_STANDARD.md` defines a re-entrant loop:
