@@ -3,6 +3,25 @@
   "version": "1.0.0",
   "repository": "codex-dream-skin-workflow-engine",
   "visibility": "public",
+  "reviewStatus": "approved",
+  "review": {
+    "approvedBy": "repository owner",
+    "approvedAt": "2026-09-16",
+    "scope": "Every path in this manifest, the published tree, and the full git history of both branches.",
+    "gates": [
+      "gitleaks over the complete history and working tree: no leaks",
+      "semgrep 1.176.0, p/default + p/javascript + p/secrets over 208 tracked files: 0 findings",
+      "ai-security-rules export-gate: pass, 0 blocking",
+      "release-boundary-safety-gate over the published tree",
+      "commit-range scan of every file in every commit being pushed"
+    ],
+    "evidence": [
+      "SECRET_SCAN_EVIDENCE.md",
+      "SECURITY_SCAN_EVIDENCE.md",
+      "SECURITY_THREAT_MODEL.md"
+    ],
+    "acceptedResidue": "Older revisions of docs/SURFACE_GAP_MATRIX.json retain 37 bare screenshot and screen-recording filenames carrying only a date and time. They hold no path, account name, or identifier, the current revision contains none of them, and no scanner flags them. Accepted rather than rewriting history again."
+  },
   "reviewedAt": "2026-09-16",
   "classifications": {
     "public-export": "Cleared for the public repository and the public package.",
