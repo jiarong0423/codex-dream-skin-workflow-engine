@@ -31,6 +31,26 @@
 
 ## Accepted Residual Risk
 
+The VibeGate `rules-check` gate reports one blocking P1,
+`mcp_or_agent_shell_without_allowlist`, on 2026-09-16. It is raised by the four
+high findings listed above, which are prose lines in the workflow skill document
+that name `macos/tests/run-tests.sh` and use the word "install". The rule keys on
+the presence of those high findings rather than on evidence, and the scanner's
+tuning file cannot suppress high findings or gate failures, so the gate cannot be
+cleared by documentation.
+
+This is accepted rather than remediated. Rewording the skill document to avoid
+the matched keywords would hide the string without changing any behaviour, and
+would make the operator instructions less clear. The actual exposure was checked
+directly: the repository contains no `.mcp.json`, no `.claude/` hook
+configuration, no `.cursor` or `.vscode` task definition, and no `package.json`,
+so no command in this repository can auto-run from workspace trust, agent
+startup, or dependency install. `MCP_SERVER_ALLOWLIST.md` records the commands an
+agent may run here and the approval they require.
+
+The `export-gate` mode, which is the gate that matches publication, passes with
+zero blocking findings.
+
 No dedicated SAST engine (semgrep, CodeQL, SonarQube, Bandit, or gosec) has been
 run against this repository. The codebase is macOS shell, Node ES modules, and
 CSS with no server, no database, no dependency manifest, and no network egress
