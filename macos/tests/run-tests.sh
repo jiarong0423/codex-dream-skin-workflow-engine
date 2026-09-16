@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." >/dev/null 2>&1 && pwd)"
+PROJECT_ROOT="$(cd "$ROOT_DIR/.." >/dev/null 2>&1 && pwd)"
 source "$ROOT_DIR/scripts/common.sh"
 
 APP_PATH="$(cit_detect_app_or_die)"
@@ -16,26 +17,82 @@ bash -n "$ROOT_DIR/scripts/restore.sh"
 bash -n "$ROOT_DIR/scripts/verify.sh"
 bash -n "$ROOT_DIR/scripts/customize.sh"
 bash -n "$ROOT_DIR/scripts/install-launcher.sh"
+bash -n "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
 bash -n "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh"
+bash -n "$ROOT_DIR/scripts/revision-loop-one-click.sh"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
 bash -n "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.command"
+bash -n "$ROOT_DIR/launcher/Chainsaw Duel Injector.command"
 plutil -lint "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/Info.plist" >/dev/null
 plutil -lint "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/Info.plist" >/dev/null
+
+grep -Fq 'Post-Revision Layer Scan Rule' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must require post-revision layer scans"
+grep -Fq 'docs/KNOWN_BLACK_RANGE_LEDGER.json' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must route black surfaces through the known black ledger"
+grep -Fq 'docs/SURFACE_GAP_MATRIX.json' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must route black surfaces through the surface gap matrix"
+grep -Fq 'coordinates as evidence only' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must forbid coordinate-only layer ownership"
+grep -Fq 'unmarkedNearBlackShells' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must report unmarked near-black shell status"
+grep -Fq 'Multi-layer scan is mandatory' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must require multi-layer black scans"
+grep -Fq 'Repair means replacement, not overlay' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must forbid overlay-based black-layer repairs"
+grep -Fq 'docs/PINNED_REVISION_LOOP_STANDARD.md' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must point to the pinned revision loop standard"
+if [ -f "$PROJECT_ROOT/docs/PROJECT_LOG.md" ]; then
+  grep -Fq 'docs/PINNED_REVISION_LOOP_STANDARD.md' "$PROJECT_ROOT/docs/PROJECT_LOG.md" || cit_die "project log must keep the pinned revision standard visible"
+fi
+grep -Fq 'Successful Architecture' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include the successful architecture diagram"
+grep -Fq 'Decision Matrix' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include decision rules"
+grep -Fq 'Replace the existing owner rule or owner marker' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must require replacement-only repair"
+grep -Fq 'queued-route-black-scan.mjs' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include queued route scanning"
+grep -Fq 'chainsaw-duel-one-click-injector.sh' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include one-shot injection"
+grep -Fq 'revision-loop-one-click.sh' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include the one-command wrapper"
+grep -Fq 'restore.sh --port 9341' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include restore readiness"
+grep -Fq 'workflow-gate.sh --runtime' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include the runtime workflow gate"
+grep -Fq 'Click And Load Layout Stability Contract' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "pinned revision loop must include click/load layout stability rules"
+grep -Fq 'stable CSS dimensions before interaction' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "layout stability contract must require stable dimensions"
+grep -Fq 'must not create unbounded polling' "$PROJECT_ROOT/docs/PINNED_REVISION_LOOP_STANDARD.md" || cit_die "layout stability contract must forbid unbounded click/load polling"
+grep -Fq 'blackLayers' "$PROJECT_ROOT/macos/scripts/priority-black-layer-scan.mjs" || cit_die "priority black-layer scanner must report exact black layers"
+grep -Fq 'stackedBlackLayerCount' "$PROJECT_ROOT/macos/scripts/priority-black-layer-scan.mjs" || cit_die "priority black-layer scanner must count stacked black layers"
+grep -Fq 'replace-existing-owner-rule-only' "$PROJECT_ROOT/docs/SURFACE_GAP_MATRIX.json" || cit_die "surface gap matrix must require owner-rule replacement for black-layer repair"
 
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher"
 grep -q 'chainsaw-duel-one-click-injector.sh' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
 grep -q 'DREAM_SKIN_PROJECT_ROOT' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q 'INSTALLED_PROJECT_ROOT=.*chainsaw-project' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q '/bin/bash "$INJECTOR" --port "$PORT" --wait-ms "$WAIT_MS" --gate "$RUN_GATE"' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
 grep -q -- '--port "$PORT" --wait-ms "$WAIT_MS" --gate "$RUN_GATE"' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q 'desktop app apply failed status=$status' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q 'Log: ${LOG_FILE}' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q 'Chainsaw Duel Injector.command' "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
+grep -q 'INSTALLED_PROJECT_ROOT=.*chainsaw-project' "$ROOT_DIR/launcher/Chainsaw Duel Injector.command"
+grep -q '/bin/bash "$INJECTOR" --port "$PORT" --wait-ms "$WAIT_MS" --gate "$RUN_GATE"' "$ROOT_DIR/launcher/Chainsaw Duel Injector.command"
+grep -q 'chainsaw-duel-injector-command.log' "$ROOT_DIR/launcher/Chainsaw Duel Injector.command"
+grep -q 'SOURCE_COMMAND=.*Chainsaw Duel Injector.command' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
+grep -q 'RUNTIME_ROOT=.*chainsaw-project' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
+grep -q 'rsync -a --delete "$PROJECT_ROOT/macos/" "$RUNTIME_ROOT/macos/"' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
+grep -q 'rsync -a --delete "$PROJECT_ROOT/theme-packs/" "$RUNTIME_ROOT/theme-packs/"' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
+grep -q 'runtimeProjectRoot=%s' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
+grep -q 'codesign --force --deep --sign - "$TARGET_APP"' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
+grep -q 'xattr -dr com.apple.quarantine "$TARGET_APP" "$TARGET_COMMAND" "$RUNTIME_ROOT"' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.command"
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.command"
 grep -q 'chainsaw duel one-click injector' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must identify itself"
+grep -q 'Pinned revision loop wrapper' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must identify itself"
+grep -q 'docs/PINNED_REVISION_LOOP_STANDARD.md' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must point to the pinned standard"
+grep -q 'bash "$CIT_ROOT_DIR/tests/run-tests.sh"' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must run local tests"
+grep -q 'workflow-gate.sh --runtime' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must run the runtime workflow gate"
+grep -q 'git diff --check' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must run diff whitespace checks"
+grep -q 'chainsaw-duel-one-click-injector.sh' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must call the one-click injector"
+grep -q 'queued-route-black-scan.sh' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must call the queued route scanner"
+grep -q 'restore.sh --port' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must print a restore command"
+grep -q 'VISUAL_GATE_BLOCKED' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must record CDP blockers"
+grep -q 'ROLLBACK_REQUIRED' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must record failed apply or scan states"
 grep -q 'PRIVATE_LOADER=.*private-pack-loader.mjs' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must bind the private pack loader"
 grep -q 'PRIVATE_INJECTOR=.*private-duel-injector.mjs' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must bind the private injector"
+grep -q 'NODE_DIR=.*dirname "$NODE_PATH"' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must expose bundled Node directory to shell gates"
 grep -q '"$NODE_PATH" "$PRIVATE_LOADER" build' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must build the selected runtime manifest"
 grep -q '"$NODE_PATH" "$PRIVATE_LOADER" stage-apply' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must stage a one-shot apply bridge"
 grep -q '"$NODE_PATH" "$PRIVATE_INJECTOR" --pack' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must call the private injector by pack id"
+grep -q 'PATH="$NODE_DIR:$PATH" bash "$WORKFLOW_GATE" --runtime' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must run workflow gate with bundled Node on PATH"
 grep -q 'START_ARGS=(--once --port "$PORT" --wait-ms "$WAIT_MS")' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must be able to open CDP through one-shot start.sh"
 grep -q 'START_ARGS=(--restart "${START_ARGS\[@\]}")' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must reopen Codex when it is already running without CDP"
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must apply formal theme through one-shot no-launch when CDP already exists"
@@ -157,6 +214,15 @@ fi
 grep -q 'animation: cit-table-flip-cat-sprite-once' "$ROOT_DIR/assets/theme.css" || cit_die "table flip sprite must use compositor-friendly CSS steps playback"
 grep -q 'triggerIcon.onclick = playTableFlipCat' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "table flip cat playback must be bound to the angry icon only"
 grep -q 'triggerIcon.setAttribute("role", "button")' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "table flip trigger icon must expose button semantics"
+grep -q 'releaseTableFlipPlaybackNode()' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "table flip playback must release temporary playback nodes"
+if grep -q 'tableFlipCatPlaybackInterval' "$ROOT_DIR/assets/renderer-inject.js"; then
+  cit_die "table flip playback must not use an extra unbounded interval poll"
+fi
+grep -q 'workspacePickerHoldUntil = Date.now() + 1400' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "workspace picker detection must keep a bounded hold gate"
+grep -q 'projectPanelChromePendingUntil = Date.now() + 1240' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "project panel preflight must keep a bounded hold gate"
+grep -q 'characterRetreatHoldUntil = now + 480' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must keep a bounded hold gate"
+grep -q 'positionHotSwapBayInLeftSidebar(bay)' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "hot-swap bay must keep stable sidebar anchoring after clicks"
+grep -q 'target.insertBefore(glyph, target.firstChild)' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "button glyphs must be inserted in-place without replacing native buttons"
 grep -q 'data-cit-character-retreat' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must expose character-only retreat state"
 grep -q 'hasVisibleRightSidePanel(character)' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must use character-aware side panel geometry"
 grep -q 'characterCoreRect(character.getBoundingClientRect())' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "character retreat must use the visual core for text and side-panel collision"
@@ -224,8 +290,8 @@ fi
 grep -q 'invalidateStaticAccess("right-trigger", true)' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "static access cache must invalidate on right-top trigger preflight"
 grep -q 'Composer five-batch rebuild' "$ROOT_DIR/assets/theme.css" || cit_die "theme.css must use the five-batch composer rebuild"
 grep -q 'Composer batch 1' "$ROOT_DIR/assets/theme.css" || cit_die "composer rebuild must keep the frame reset batch"
-grep -q 'Composer batch 2' "$ROOT_DIR/assets/theme.css" || cit_die "composer rebuild must keep the bottom floor light batch"
-grep -q 'Composer batch 3' "$ROOT_DIR/assets/theme.css" || cit_die "composer rebuild must keep the fifth-layer shell removal batch"
+grep -Fq '.sticky.bottom-0:has([class*="ComposerLayoutRoot"])' "$ROOT_DIR/assets/theme-modules/composer-shell.css" || cit_die "composer rebuild must keep the bottom floor light batch in the composer-shell module"
+grep -Fq '.codex-interface-theme-composer-surface::after' "$ROOT_DIR/assets/theme-modules/composer-shell.css" || cit_die "composer rebuild must keep the fifth-layer shell removal batch in the composer-shell module"
 grep -q 'Composer batch 4' "$ROOT_DIR/assets/theme.css" || cit_die "composer rebuild must keep the inner control safety batch"
 grep -q 'Composer batch 5' "$ROOT_DIR/assets/theme.css" || cit_die "composer rebuild must keep the chip separation batch"
 grep -q 'Composer batch 6' "$ROOT_DIR/assets/theme.css" || cit_die "composer rebuild must clear native input floors separately"
@@ -242,7 +308,7 @@ grep -Fq "codex-interface-theme-composer-dock *" "$ROOT_DIR/scripts/black-shell-
 grep -q "codex-interface-theme-project-panel-frame" "$ROOT_DIR/scripts/black-shell-layer-audit.mjs" || cit_die "black shell audit must protect scoped project panel surfaces"
 grep -q 'ProseMirror, \[role=\\"textbox\\"\]' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "composer detection must anchor from the native editable textbox"
 grep -Fq '[class*="group/summary-panel-item"]' "$ROOT_DIR/assets/theme.css" || cit_die "right panel row cleanup must catch slash-named native summary rows"
-grep -q 'var(--cit-side-glass)' "$ROOT_DIR/assets/theme.css" || cit_die "right panel must keep a single transparent owner glass plate"
+grep -Fq -- '--cit-glass-right-panel-fill' "$ROOT_DIR/assets/theme-modules/black-shell-transparency.css" || cit_die "right panel must keep a single transparent owner glass plate"
 grep -q 'payload.externalWebviewOpen' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "right panel owner must consume external webview state without styling the webview"
 ! grep -q 'return Boolean(payload.externalWebviewOpen || findRightMajorPanelRect' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "external webview state must not directly suppress the environment/source panel owner"
 if sed -n '/function suppressProjectPanelChromeForRightMajorPanel/,/^  }/p' "$ROOT_DIR/assets/renderer-inject.js" | grep -q 'cleanupProjectPanels()'; then
@@ -289,14 +355,15 @@ grep -q 'workspacePickerShells' "$ROOT_DIR/scripts/injector.mjs" || cit_die "ver
 grep -q 'workspacePickerPlate' "$ROOT_DIR/scripts/injector.mjs" || cit_die "verify smoke must report absence of detached workspace picker backing plates"
 grep -q 'installBodyBackgroundInline' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must use controlled body inline background installation"
 grep -q 'removeLegacyBackgroundStyle' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must remove the retired direct background style rule"
-grep -q 'linear-gradient(180deg, rgba(12, 16, 18, 0.026), rgba(4, 6, 8, 0.155))' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "body background must use the low-darkness floor overlay"
+grep -Fq 'linear-gradient(180deg, rgba(38, 82, 101, 0.026), rgba(38, 82, 101, 0.155))' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "body background must use the low-darkness floor overlay"
 grep -q 'background-size", "cover, cover, cover"' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "body wallpaper must stay within the three-layer composition budget"
 grep -q 'background-attachment", "scroll, scroll, scroll"' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "body wallpaper layers must not use fixed attachment"
 grep -q 'GPU composition budget' "$ROOT_DIR/assets/theme.css" || cit_die "theme must declare the low-cost GPU composition convergence pass"
 grep -q 'Subtractive effects pass' "$ROOT_DIR/assets/theme.css" || cit_die "theme must remove idle per-icon and character filter stacks"
 grep -q 'Official titlebar/sidebar junction' "$ROOT_DIR/assets/theme.css" || cit_die "theme must keep the final left titlebar/sidebar junction fix"
 grep -q 'Opaque transient surfaces' "$ROOT_DIR/assets/theme.css" || cit_die "modal and menu surfaces must remain readable without live blur"
-grep -q 'Opaque workspace pickers' "$ROOT_DIR/assets/theme.css" || cit_die "workspace picker listbox surfaces must isolate text from the conversation"
+grep -q 'Single-owner workspace glass' "$PROJECT_ROOT/macos/assets/theme-modules/workspace-glass.css" || cit_die "workspace picker glass must live in the single-owner module"
+grep -q 'workspaceGlassCss' "$PROJECT_ROOT/theme-packs/scripts/private-duel-injector.mjs" || cit_die "private runtime must load workspace glass module"
 grep -Fq '[role="listbox"]' "$ROOT_DIR/assets/theme.css" || cit_die "workspace picker fix must cover listbox surfaces"
 grep -Fq '[cmdk-root]' "$ROOT_DIR/assets/theme.css" || cit_die "workspace picker fix must cover command palette surfaces"
 grep -q 'codex-interface-theme-workspace-picker' "$ROOT_DIR/assets/theme.css" || cit_die "workspace picker fix must cover runtime-marked picker shells"
@@ -342,10 +409,8 @@ if "background: transparent !important;" not in transient_clean:
     raise SystemExit("transient menu rows must be transparent by default")
 if "box-shadow: none !important;" not in transient_clean:
     raise SystemExit("transient menu rows must not draw stacked black capsules")
-if "rgba(255,255,255,.028)" not in transient_clean:
-    raise SystemExit("transient hover or selected state must stay faint")
-if "rgba(0,216,224,.040)" not in transient_clean:
-    raise SystemExit("transient hover tint must stay low-color")
+if "background-image:none!important;" not in transient_clean:
+    raise SystemExit("transient hover or selected state must not add a second layer")
 PY
 
 if grep -q 'radial-gradient(ellipse at 43% 98%' "$ROOT_DIR/assets/renderer-inject.js"; then
@@ -419,8 +484,7 @@ required = [
     "background-color: transparent !important;",
     "background-image: none !important;",
     "box-shadow: none !important;",
-    "rgba(255,255,255,.028)",
-    "rgba(0,216,224,.040)",
+    "--cit-sidebar-row-state: transparent;",
     ".sidebar-item[aria-current=\"page\"].bg-token-list-hover-background:not(:hover):not(:focus-visible)",
 ]
 if any(item not in block for item in required):

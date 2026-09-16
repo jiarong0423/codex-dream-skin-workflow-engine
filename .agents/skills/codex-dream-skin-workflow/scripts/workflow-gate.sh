@@ -42,7 +42,6 @@ cd "$PROJECT_ROOT"
 
 required_files=(
   "README.md"
-  "docs/PROJECT_LOG.md"
   "competition-manifest.json"
   "macos/assets/theme.json"
   "macos/assets/runtime-modules.json"
@@ -56,6 +55,17 @@ required_files=(
   ".agents/skills/codex-dream-skin-workflow/SKILL.md"
   ".agents/skills/codex-dream-skin-workflow/competition-manifest.json"
 )
+
+# The development journal is local-only and never enters the public repository.
+local_only_files=(
+  "docs/PROJECT_LOG.md"
+)
+
+for local_only_file in "${local_only_files[@]}"; do
+  if [ ! -f "$local_only_file" ]; then
+    printf '[dream-skin-workflow] local journal not present, skipping: %s\n' "$local_only_file" >&2
+  fi
+done
 
 for required_file in "${required_files[@]}"; do
   if [ ! -f "$required_file" ]; then
