@@ -274,12 +274,56 @@
     "icons/orange-hacker-cat-cutout.png",
     "icons/table-flip-cat-left.webp"
   ],
+  "styleEntry": "theme-kernel.css",
+  "frameworkStyleEntry": "theme-framework.css",
+  "carrierStyleEntry": "theme-carrier.css",
+  "controlStyleEntry": "theme-control.css",
+  "rendererEntry": "renderer-inject.js",
+  "controlRendererEntry": "renderer-control.js",
+  "loadModes": {
+    "visual": {
+      "runtimeMode": "visual",
+      "styleEntry": "theme-kernel.css",
+      "rendererEntry": "renderer-inject.js",
+      "assetGroups": [
+        "runtimeBackground",
+        "sidebarBadge",
+        "heroCharacter",
+        "tableFlipCat",
+        "buttonGlyphs"
+      ],
+      "rendererPolicy": "all declared runtime modules"
+    },
+    "carrier-only": {
+      "runtimeMode": "carrier-only",
+      "styleEntry": "theme-carrier.css",
+      "rendererEntry": "renderer-inject.js",
+      "assetGroups": [],
+      "rendererPolicy": "native boundary, composer, conversation, workspace picker, collision, and marker modules only"
+    },
+    "framework-only": {
+      "runtimeMode": "framework-only",
+      "styleEntry": "theme-framework.css",
+      "rendererEntry": "renderer-inject.js",
+      "assetGroups": [],
+      "rendererPolicy": "marker-only restore-safe sentinel mode"
+    },
+    "control-only": {
+      "runtimeMode": "control-only",
+      "styleEntry": "theme-control.css",
+      "rendererEntry": "renderer-control.js",
+      "assetGroups": [],
+      "rendererPolicy": "offline atomic command planner control panel only; no visual assets, no surface registry, no style modules, no shell execution"
+    }
+  },
   "modules": [
     {
       "id": "background",
       "kind": "asset",
       "activation": "backgroundImagePath",
-      "payloadKeys": ["backgroundDataUrl"],
+      "payloadKeys": [
+        "backgroundDataUrl"
+      ],
       "loadPolicy": "active-theme-only",
       "disableValue": ""
     },
@@ -287,14 +331,18 @@
       "id": "iconBadge",
       "kind": "asset",
       "activation": "icons.badge.enabled && icons.badge.placement !== off",
-      "payloadKeys": ["iconBadgeDataUrl"],
+      "payloadKeys": [
+        "iconBadgeDataUrl"
+      ],
       "loadPolicy": "enabled-only"
     },
     {
       "id": "character",
       "kind": "asset",
       "activation": "icons.character.enabled && icons.character.placement !== off",
-      "payloadKeys": ["characterDataUrl"],
+      "payloadKeys": [
+        "characterDataUrl"
+      ],
       "loadPolicy": "enabled-only"
     },
     {
@@ -344,7 +392,9 @@
       "id": "themePacks",
       "kind": "developer-extension",
       "activation": "theme-packs/*/pack.json with at least two asset-ready-unmounted packs",
-      "payloadKeys": ["themePackDataUrls"],
+      "payloadKeys": [
+        "themePackDataUrls"
+      ],
       "loadPolicy": "manifest-plus-file-url-candidates",
       "eventPolicy": "right HUD transparent bay plus dropdown selector switches CSS variables and file-url asset references; no base64 candidate payload, no polling, no daemon, and no idle playback DOM"
     },
@@ -360,7 +410,9 @@
       "id": "buttonGlyphs",
       "kind": "asset-map",
       "activation": "icons.buttons.enabled && icons.buttons.applyMode === module",
-      "payloadKeys": ["iconButtonDataUrls"],
+      "payloadKeys": [
+        "iconButtonDataUrls"
+      ],
       "loadPolicy": "enabled-module-only"
     },
     {
