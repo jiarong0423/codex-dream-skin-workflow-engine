@@ -42,16 +42,16 @@
 
 ## 三、可量測的實作規模
 
-以下為從已發布 git 歷史與工作樹直接量測，可自行複驗。
+以下數值**量測於 commit `e9bd85e`**（2026-09-16）。數字釘在該 commit 上，因此可永久複驗；後續 commit 會使實際值改變，這是預期的。
 
 | 項目 | 數值 |
 |---|---|
-| 已發布 commit 數 | 35 |
+| 該 commit 時的 commit 總數 | 38 |
 | 開發期間 | 2026-07-20 → 2026-09-16 |
 | `.mjs` | 38 檔 / 20,069 行 |
 | `.sh` | 32 檔 / 5,729 行 |
 | `.js` | 3 檔 / 3,851 行 |
-| `.md` | 27 檔 / 4,429 行 |
+| `.md` | 28 檔 / 4,598 行 |
 | `.json` | 19 檔 / 3,319 行 |
 | `.css` | 11 檔 / 2,542 行 |
 | 測試 assertion | 376 |
@@ -59,7 +59,7 @@
 | runtime 模組宣告 | 14 |
 | 公開 theme pack | 3 |
 
-驗證指令：
+複驗指令（先 `git checkout e9bd85e`）：
 
 ```bash
 git rev-list --all --count
@@ -91,7 +91,7 @@ grep -cE '\|\| cit_die|raise SystemExit' macos/tests/run-tests.sh
 誠實標註本紀錄的邊界：
 
 - 第二節的佔比是**擁有者估算**，不是從逐字稿量測。完整協作逐字稿留在本機 Codex session 儲存區，未納入本 repo，因此無法在此提供可複驗的人機比例。
-- git 歷史無法區分人機：2026-07-20 至 2026-08-09 的 commit 均以擁有者身分提交，無機器歸屬 trailer。含 `Co-Authored-By` 的 16 個 commit 全部來自 2026-09-16 的一次 Claude Code 稽核與修復作業，不代表整體專案比例。
+- git 歷史無法區分人機：2026-07-20 至 2026-08-09 的 commit 均以擁有者身分提交，無機器歸屬 trailer。截至 `e9bd85e`，含 `Co-Authored-By` 的 20 個 commit 全部來自 2026-09-16 的一次 Claude Code 稽核與修復作業，不代表整體專案比例。
 - 第三、四節的數字可直接複驗；第二節不行。兩者刻意分開陳列。
 
 ## English Summary
@@ -100,4 +100,4 @@ For Build Week this repository is a deliberate capability-boundary test rather t
 
 What was actually under test was not CSS generation but page data-layer CDP injection with a guaranteed restore path, DOM ownership identification that replaces an owner instead of stacking an overlay, an offline static inspection path, and a re-entrant self-checking repair loop bounded by asset budgets and a no-resident-process rule.
 
-Section 3 and section 4 are measured and independently reproducible. Section 2 is the owner's first-hand estimate and is not derived from transcripts; the collaboration transcripts remain local and are not part of this repository. Git authorship cannot separate human from model for the July–August commits, and the 16 commits carrying a `Co-Authored-By` trailer all come from a single Claude Code audit pass on 2026-09-16.
+Section 3 and section 4 are measured at commit `e9bd85e` and independently reproducible at that commit. Section 2 is the owner's first-hand estimate and is not derived from transcripts; the collaboration transcripts remain local and are not part of this repository. Git authorship cannot separate human from model for the July–August commits, and the 20 commits carrying a `Co-Authored-By` trailer as of `e9bd85e` all come from a single Claude Code audit pass on 2026-09-16.
