@@ -255,6 +255,80 @@
       }
     ]
   },
+  "boundaryProfiles": {
+    "themeAsset": {
+      "identity": "payload-key",
+      "geometry": "placement-only",
+      "paint": "theme-owned-node",
+      "lifecycle": [
+        "install",
+        "cleanup"
+      ]
+    },
+    "themeDom": {
+      "identity": "scoped-dom-structure",
+      "geometry": "qualification-only",
+      "paint": "class-scoped",
+      "lifecycle": [
+        "install",
+        "route",
+        "stabilize",
+        "cleanup"
+      ]
+    },
+    "nativeBoundary": {
+      "identity": "dom-path-plus-weakmap-owner",
+      "geometry": "qualification-only",
+      "paint": "none",
+      "lifecycle": [
+        "install",
+        "route",
+        "light",
+        "cleanup"
+      ]
+    },
+    "nativeQuarantine": {
+      "identity": "runtime-marker-from-native-boundary",
+      "geometry": "none",
+      "paint": "reset-only-no-theme-coloration",
+      "lifecycle": [
+        "install",
+        "route",
+        "cleanup"
+      ]
+    },
+    "cache": {
+      "identity": "connected-node-validation",
+      "geometry": "none",
+      "paint": "none",
+      "lifecycle": [
+        "install",
+        "invalidate",
+        "cleanup"
+      ]
+    },
+    "scheduler": {
+      "identity": "shared-signal",
+      "geometry": "measurement-only",
+      "paint": "none",
+      "lifecycle": [
+        "install",
+        "trigger",
+        "cleanup"
+      ]
+    },
+    "manualAnimation": {
+      "identity": "explicit-trigger",
+      "geometry": "placement-only",
+      "paint": "theme-owned-node",
+      "lifecycle": [
+        "idle",
+        "wake",
+        "release",
+        "cleanup"
+      ]
+    }
+  },
   "budgets": {
     "themeCssBytes": 130000,
     "rendererBytes": 120000,
@@ -320,6 +394,7 @@
     {
       "id": "background",
       "kind": "asset",
+      "boundaryProfile": "themeAsset",
       "activation": "backgroundImagePath",
       "payloadKeys": [
         "backgroundDataUrl"
@@ -330,6 +405,7 @@
     {
       "id": "iconBadge",
       "kind": "asset",
+      "boundaryProfile": "themeAsset",
       "activation": "icons.badge.enabled && icons.badge.placement !== off",
       "payloadKeys": [
         "iconBadgeDataUrl"
@@ -339,6 +415,7 @@
     {
       "id": "character",
       "kind": "asset",
+      "boundaryProfile": "themeAsset",
       "activation": "icons.character.enabled && icons.character.placement !== off",
       "payloadKeys": [
         "characterDataUrl"
@@ -348,6 +425,7 @@
     {
       "id": "characterRetreat",
       "kind": "dom-geometry",
+      "boundaryProfile": "themeDom",
       "activation": "icons.character.enabled && renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -356,6 +434,7 @@
     {
       "id": "staticAccess",
       "kind": "dom-cache",
+      "boundaryProfile": "cache",
       "activation": "renderer-module-registry",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -364,6 +443,7 @@
     {
       "id": "collisionScheduler",
       "kind": "scheduler",
+      "boundaryProfile": "scheduler",
       "activation": "renderer-module-registry",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -372,6 +452,7 @@
     {
       "id": "sourcePreviewQuarantine",
       "kind": "dom-class",
+      "boundaryProfile": "nativeQuarantine",
       "activation": "renderer-detected source preview blocks",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -380,6 +461,7 @@
     {
       "id": "tableFlipCat",
       "kind": "manual-animation",
+      "boundaryProfile": "manualAnimation",
       "activation": "icons.tableFlipCat.enabled && icons.tableFlipCat.placement === right-bottom",
       "payloadKeys": [
         "tableFlipCatTriggerIconDataUrl",
@@ -391,6 +473,7 @@
     {
       "id": "themePacks",
       "kind": "developer-extension",
+      "boundaryProfile": "themeAsset",
       "activation": "theme-packs/*/pack.json with at least two asset-ready-unmounted packs",
       "payloadKeys": [
         "themePackDataUrls"
@@ -401,6 +484,7 @@
     {
       "id": "workspacePickers",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "event-triggered workspace picker geometry and text detection",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset",
@@ -409,6 +493,7 @@
     {
       "id": "buttonGlyphs",
       "kind": "asset-map",
+      "boundaryProfile": "themeAsset",
       "activation": "icons.buttons.enabled && icons.buttons.applyMode === module",
       "payloadKeys": [
         "iconButtonDataUrls"
@@ -418,6 +503,7 @@
     {
       "id": "projectPanels",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
@@ -425,6 +511,7 @@
     {
       "id": "composerSurface",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
@@ -432,6 +519,7 @@
     {
       "id": "conversationSurface",
       "kind": "dom-class",
+      "boundaryProfile": "themeDom",
       "activation": "renderer-detected",
       "payloadKeys": [],
       "loadPolicy": "no-extra-asset"
