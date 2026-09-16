@@ -37,9 +37,14 @@ tmp/
 /macos/previews/**/*.html
 /macos/previews/**/*.json
 /macos/previews/**/*.txt
+/macos/previews/**/*.md
+/macos/previews/**/*.err
 /.target-mode-quarantine/
 /macos/assets/backgrounds/*cyberpunk-orange-cat.png
 /docs/PROJECT_LOG.local-private.md
+# Development journal stays local: it records absolute local paths and
+# screenshot evidence that must not enter the public repository.
+/docs/PROJECT_LOG.md
 
 # Local public-package scratch gates. Runtime gates live under macos/scripts.
 /scripts/forge-gate.sh
