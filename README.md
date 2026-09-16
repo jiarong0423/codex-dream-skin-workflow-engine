@@ -6,6 +6,9 @@ English judge copy: [README.en.md](README.en.md)
 
 ## 這不只是一個桌面換皮工具
 
+> Build Week 定位補充：這個 repo 主要是一次 **Codex / GPT-5.6 能力邊界測試**，不是單純的換皮專案。協作分工、人機貢獻估算、可量測的實作規模與證據層密度，記錄在 [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md)。
+
+
 技術主體是對兩件事的**偵測、實踐與靜態存取**：
 
 1. **頁面資料層的 CDP 注入** — 透過 `127.0.0.1` 的 Chromium DevTools Protocol 完成一次性注入，不修改應用程式本體、不碰簽名、不動使用者登入資料，且保留完整還原路徑。

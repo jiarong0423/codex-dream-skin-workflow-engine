@@ -8,6 +8,13 @@ and restores the native interface without patching the official app.
 
 ## Not Only a Desktop Skin
 
+> Build Week note: this repository is primarily a **Codex / GPT-5.6 capability
+> boundary test**, not a skin project. The division of work, the owner's
+> human-versus-model contribution estimate, the measured implementation size,
+> and the evidence-layer density are recorded in
+> [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md).
+
+
 The technical subject is the detection, practice, and static inspection of two
 things:
 
