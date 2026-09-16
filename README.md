@@ -2,12 +2,13 @@
 
 English judge copy: [README.en.md](README.en.md)
 
-本專案是給 macOS Codex 桌面端使用的本機介面主題工具。它透過 `127.0.0.1` 上的 Chromium DevTools Protocol 注入 CSS 與輕量 DOM 狀態，不修改官方 `/Applications/ChatGPT.app`、`app.asar`、簽名或使用者登入資料。
+本專案是一次 **Codex / GPT-5.6 能力邊界測試**，題目是 macOS Codex 桌面端的本機介面主題化。實作全程放手給模型，使用者只提供 intent、constraints、缺陷回報與最終判斷（擁有者估算：使用者約 20–30%、模型約 70–80%，見下方佔比表）。
+
+受測的是五件在單純生成任務中不會出現的能力：CDP 注入與還原、DOM 擁有權替換、靜態存取、記憶體釋放、動態退讓。換皮是題目，不是目的。
+
+運作上它透過 `127.0.0.1` 的 Chromium DevTools Protocol 注入 CSS 與輕量 DOM 狀態，不修改官方 `/Applications/ChatGPT.app`、`app.asar`、簽名或使用者登入資料。
 
 ## 這不只是一個桌面換皮工具
-
-> Build Week 定位補充：這個 repo 主要是一次 **Codex / GPT-5.6 能力邊界測試**，不是單純的換皮專案。協作分工、人機貢獻估算、可量測的實作規模與證據層密度，記錄在 [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md)。
-
 
 技術主體是對兩件事的**偵測、實踐與靜態存取**：
 
@@ -95,7 +96,9 @@ OpenAI Build Week 定位：
 
 - 主賽道：`Developer Tools`
 - 價值對齊：`Work & Productivity`
+- 提交定位：**能力邊界測試**。目的不是交付一個換皮工具，而是量測把架構、實作、素材管線、驗證與封裝整段交給 Codex / GPT-5.6 之後，能推到哪裡、在哪裡會斷。
 - 單一產品：安全主題工具鏈與工作舒適度改善是同一套 workflow 的技術面與使用者價值面，不拆成兩個專案。
+- 證據：協作分工與人機佔比見下方表格；可量測的實作規模、驗證覆蓋與證據層密度見 [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md)，數值釘在 commit `e9bd85e` 可複驗。
 
 統一流程：
 

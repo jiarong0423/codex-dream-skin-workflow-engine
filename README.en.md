@@ -1,18 +1,22 @@
 # Codex Dream Skin Workflow Engine
 
-Codex Dream Skin is a local, reversible workflow engine for personalizing the
-Codex desktop interface on macOS. It turns a visual brief into a structured
-theme specification, optimizes assets, applies selected modules through local
-Chromium DevTools Protocol access, verifies geometry and interaction safety,
-and restores the native interface without patching the official app.
+This repository is a **Codex / GPT-5.6 capability boundary test**. The subject
+is local interface theming of the Codex desktop app on macOS. Implementation was
+handed to the model in full; the user supplied intent, constraints, defect
+reports, and final judgment (owner's estimate: roughly 20–30% user, 70–80%
+model — see the split table below).
+
+Five capabilities were under test, none of which appear in a plain generation
+task: CDP injection with a guaranteed restore path, DOM ownership replacement,
+static inspection, memory release, and dynamic retreat. Theming is the subject,
+not the goal.
+
+Operationally it turns a visual brief into a structured theme specification,
+optimizes assets, applies selected modules through local Chromium DevTools
+Protocol access, verifies geometry and interaction safety, and restores the
+native interface without patching the official app.
 
 ## Not Only a Desktop Skin
-
-> Build Week note: this repository is primarily a **Codex / GPT-5.6 capability
-> boundary test**, not a skin project. The division of work, the owner's
-> human-versus-model contribution estimate, the measured implementation size,
-> and the evidence-layer density are recorded in
-> [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md).
 
 
 The technical subject is the detection, practice, and static inspection of two
@@ -138,6 +142,14 @@ transfers, not a crawler bundled with this repository.
 - Impact lens: Work and Productivity
 - Supported platform for this submission: macOS
 - Runtime boundary: local CDP on `127.0.0.1`
+- Submission framing: a **capability boundary test**. The goal is not to ship a
+  theming tool but to measure how far architecture, implementation, the asset
+  pipeline, verification, and packaging can be driven when all of it is handed
+  to Codex / GPT-5.6, and where it breaks.
+- Evidence: the contribution split is in the table below; the measured
+  implementation size, verification coverage, and evidence-layer density are in
+  [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md),
+  pinned to commit `e9bd85e` so they stay reproducible.
 
 The project demonstrates safe developer-environment personalization rather than
 a static CSS skin. The current cyber-mecha cat theme is the sample theme used to
