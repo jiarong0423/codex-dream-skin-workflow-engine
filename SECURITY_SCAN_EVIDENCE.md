@@ -21,9 +21,26 @@ The first run reported one WARNING,
 `RegExp` from its `name` argument on every call. Every call site passes a
 hardcoded attribute name, so no attacker-controlled value reached it, but the
 helper was rewritten to match attributes with one module-level literal pattern
-instead of compiling a regular expression per call. Behaviour is unchanged
-(verified by diffing the script's full output before and after) and the rerun
-reports zero findings.
+instead of compiling a regular expression per call, and the rerun reports zero
+findings.
+
+The rewrite is not behaviour-preserving in general. Eighteen paired cases were
+run against both versions; six diverge. The old pattern anchored on `\b`, which
+matches after a hyphen, so a lookup for `mode` returned the value of
+`data-mode` and a lookup for `type` returned the value of `data-type`. The new
+matcher compares whole attribute names and does not. The old value group
+required at least one character and skipped an empty attribute to find a later
+duplicate; the new one accepts an empty value and returns the first match. The
+new matcher also tolerates whitespace around `=`. Case handling in both
+directions, regex metacharacters inside attribute values, mixed quote styles,
+and empty values are equivalent. The divergences are corrections, not
+regressions.
+
+Against the file this script actually parses,
+`macos/previews/atomic-control-workbench.html`, both versions were run over
+every button and attribute lookup: 912 checks, zero differences. The file
+contains no duplicate attributes, no `mode` alongside `data-mode`, and no
+whitespace around `=`.
 
 ### Keyword-matching scanners
 
