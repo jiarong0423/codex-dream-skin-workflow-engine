@@ -25,10 +25,20 @@ English judge copy: [README.en.md](README.en.md)
 | **CDP** | 從 `127.0.0.1` 附著並一次性注入，不改應用程式本體、不碰簽名、不動登入狀態，且必須留完整還原路徑 | `macos/scripts/injector.mjs`、`restore.sh`、`verify.sh` |
 | **DOM 擁有權** | 判斷效果該掛哪個原生節點，替換該節點的擁有者，而不是往上疊遮罩；不改 hitbox、不覆蓋文字、不讓 transient panel 穿透 | `macos/assets/surface-registry.js`、`renderer-inject.js` 的 owner marking |
 | **靜態存取** | 不連 CDP、不啟動程式、不截圖，只讀原始碼就盤點圖層擁有者與色彩基準；另有 runtime 端的 DOM 快取避免重複查詢 | `static-black-layer-index.mjs`、`static-interactive-black-layer-index.mjs`、`static-color-baseline-compare.mjs`；模組 `staticAccess`（`kind: dom-cache`） |
-| **記憶體釋放** | 動畫素材點擊才載入、播完即釋放節點，不做 idle 迴圈；素材以 content hash 分組，過期組自動剪除 | `releaseTableFlipPlaybackNode()`、`loadGroup()` 延遲載入、`assetGroupsPruned`；模組 `tableFlipCat`（`loadPolicy: static-cache-click`） |
+| **記憶體釋放** | 動畫一次性播放：點擊才查快取載入，播完清 timer、移除 class 與 deadline 屬性、`node.remove()` 播放節點，不留常駐動畫、不做 idle 迴圈；素材以 content hash 分組，過期組自動剪除 | `releaseTableFlipPlaybackNode()`、`loadGroup()` 延遲載入、`assetGroupsPruned`；模組 `tableFlipCat`（`loadPolicy: static-cache-click`） |
 | **動態退讓** | 角色與裝飾層必須依即時幾何避開 composer、面板與文字，碰撞判斷要有界限、不能無上限輪詢 | `characterRetreat`（`kind: dom-geometry`）、`collisionScheduler`（`kind: scheduler`），兩者 `loadPolicy: no-extra-asset` |
 
 這五項的驗證不是靠宣稱：`macos/tests/run-tests.sh` 有 376 條 assertion 直接檢查上述識別碼與邊界值，`module-boundary-gate.mjs` 檢查模組邊界宣告，`performance-probe.mjs` 量測 runtime 負載。
+
+負載上限是寫死並由 gate 強制的，不是自我約束：
+
+| 項目 | 目前 | 上限 | 用量 |
+|---|---|---|---|
+| `theme.css` | 83,170 B | 130,000 B | 64.0% |
+| `renderer-inject.js` | 116,581 B | 120,000 B | 97.2% |
+
+超標由 `macos/scripts/module-matrix.mjs` 直接判錯。`runtime-modules.json` 的 `policy` 另外寫死 `rendererMaintenanceMs: 2500`、`heavyMaintenanceMs: 10000`，並禁止 idle backdrop blur 與 per-icon filter stack；素材載入限於「已啟用模組實際引用的部分」。
+
 
 ## 自我檢測、自我修復的工作流
 
