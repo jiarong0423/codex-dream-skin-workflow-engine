@@ -151,9 +151,9 @@ transfers, not a crawler bundled with this repository.
   [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md),
   pinned to commit `e9bd85e` so they stay reproducible.
 
-The project demonstrates safe developer-environment personalization rather than
-a static CSS skin. The current cyber-mecha cat theme is the sample theme used to
-prove the workflow.
+What the test produced along the way is a working demonstration of safe
+developer-environment personalization. The cyber-mecha cat theme is the sample
+theme used to exercise the workflow, not the deliverable.
 
 No prompt engineering template is required. A user can begin with an incomplete
 idea, explore alternatives with Codex, refine individual elements, select a
