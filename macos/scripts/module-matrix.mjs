@@ -79,7 +79,6 @@ function portableArchivePath(assetsDir, filePath) {
 
 const RETIRED_BACKGROUND_ARCHIVE_BASENAME = ["matrix", "cyberpunk", "orange", "cat"].join("-") + ".png";
 const THEME_PACK_ID_RE = /^[a-z0-9][a-z0-9-]{1,80}$/;
-const THEME_PACK_HOT_SWAP_LIMIT = 3;
 
 function isRetiredArchiveCandidate(archivePath) {
   return archivePath.endsWith(`backgrounds/${RETIRED_BACKGROUND_ARCHIVE_BASENAME}`);
@@ -206,6 +205,46 @@ function resolveThemePackAsset(packDir, relativePath, fieldName) {
   return absolutePath;
 }
 
+function loadPublicThemePackSet(packRoot, errors) {
+  const packSetPath = path.join(packRoot, "public-pack-set.json");
+  if (!existsFile(packSetPath)) {
+    errors.push(`themePacks:public pack set missing: ${packSetPath}`);
+    return null;
+  }
+  let packSet;
+  try {
+    packSet = readJson(packSetPath);
+  } catch (error) {
+    errors.push(`themePacks:public pack set invalid JSON: ${String(error && error.message ? error.message : error)}`);
+    return null;
+  }
+  const orderedPackIds = Array.isArray(packSet.orderedPackIds) ? packSet.orderedPackIds.map(String) : [];
+  const requiredAssetKeys = Array.isArray(packSet.requiredAssetKeys) ? packSet.requiredAssetKeys.map(String) : [];
+  const requiredIconMapKeys = Array.isArray(packSet.requiredIconMapKeys) ? packSet.requiredIconMapKeys.map(String) : [];
+  if (packSet.schemaVersion !== 1 || packSet.contract !== "public-hot-swap-pack-set") {
+    errors.push("themePacks:public pack set contract is invalid");
+  }
+  if (packSet.exactCount !== 3 || orderedPackIds.length !== packSet.exactCount) {
+    errors.push(`themePacks:public pack set must declare exactly 3 packs, got ${orderedPackIds.length}`);
+  }
+  if (new Set(orderedPackIds).size !== orderedPackIds.length || orderedPackIds.some((packId) => !THEME_PACK_ID_RE.test(packId))) {
+    errors.push("themePacks:public pack set contains duplicate or invalid pack ids");
+  }
+  if (requiredAssetKeys.length !== 6 || new Set(requiredAssetKeys).size !== requiredAssetKeys.length) {
+    errors.push("themePacks:public pack set must declare exactly 6 unique asset keys");
+  }
+  if (requiredIconMapKeys.length !== 15 || new Set(requiredIconMapKeys).size !== requiredIconMapKeys.length) {
+    errors.push("themePacks:public pack set must declare exactly 15 unique icon map keys");
+  }
+  return {
+    path: packSetPath,
+    exactCount: Number(packSet.exactCount || 0),
+    orderedPackIds,
+    requiredAssetKeys,
+    requiredIconMapKeys
+  };
+}
+
 function collectThemePackHotSwapPlan(assetsDir) {
   const projectRoot = path.resolve(assetsDir, "..", "..");
   const packRoot = path.join(projectRoot, "theme-packs");
@@ -213,60 +252,104 @@ function collectThemePackHotSwapPlan(assetsDir) {
     modules: {},
     assets: [],
     payloadBytes: 0,
-    errors: []
+    errors: [],
+    orderedPackIds: [],
+    validatedPackIds: [],
+    runtimeRefCount: 0,
+    expectedRuntimeRefCount: 0
   };
   if (!fs.existsSync(packRoot)) {
-    result.modules.themePacks = "off";
+    result.modules.themePacks = "blocked";
+    result.errors.push(`themePacks:pack root missing: ${packRoot}`);
     return result;
   }
-  const entries = fs.readdirSync(packRoot, { withFileTypes: true })
+  const packSet = loadPublicThemePackSet(packRoot, result.errors);
+  if (!packSet) {
+    result.modules.themePacks = "blocked";
+    return result;
+  }
+  result.orderedPackIds = [...packSet.orderedPackIds];
+  result.expectedRuntimeRefCount = packSet.exactCount * (packSet.requiredAssetKeys.length + packSet.requiredIconMapKeys.length);
+  const discoveredPackIds = fs.readdirSync(packRoot, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && THEME_PACK_ID_RE.test(entry.name))
-    .sort((left, right) => left.name.localeCompare(right.name))
-    .slice(0, THEME_PACK_HOT_SWAP_LIMIT);
-  for (const entry of entries) {
-    const packDir = path.join(packRoot, entry.name);
+    .filter((entry) => existsFile(path.join(packRoot, entry.name, "pack.json")))
+    .map((entry) => entry.name)
+    .sort();
+  const expectedSortedIds = [...packSet.orderedPackIds].sort();
+  if (JSON.stringify(discoveredPackIds) !== JSON.stringify(expectedSortedIds)) {
+    result.errors.push(`themePacks:manifest ids must match the canonical set: expected=${expectedSortedIds.join(",")} actual=${discoveredPackIds.join(",")}`);
+  }
+  for (const packId of packSet.orderedPackIds) {
+    const packDir = path.join(packRoot, packId);
     const manifestPath = path.join(packDir, "pack.json");
     if (!fs.existsSync(manifestPath)) {
+      result.errors.push(`themePacks:${packId} manifest is missing`);
       continue;
     }
-    const manifest = readJson(manifestPath);
+    let manifest;
+    try {
+      manifest = readJson(manifestPath);
+    } catch (error) {
+      result.errors.push(`themePacks:${packId} manifest JSON is invalid: ${String(error && error.message ? error.message : error)}`);
+      continue;
+    }
     const assets = manifest.assets && typeof manifest.assets === "object" ? manifest.assets : {};
+    const iconMap = manifest.iconMap && typeof manifest.iconMap === "object" ? manifest.iconMap : {};
     const interaction = manifest.interaction && typeof manifest.interaction === "object" ? manifest.interaction : {};
-    if (manifest.schemaVersion !== 1 || manifest.id !== entry.name || manifest.status !== "asset-ready-unmounted") {
-      result.errors.push(`themePacks:${entry.name} manifest is not asset-ready`);
+    if (manifest.schemaVersion !== 1 || manifest.id !== packId || manifest.status !== "asset-ready-unmounted") {
+      result.errors.push(`themePacks:${packId} manifest is not asset-ready`);
       continue;
     }
     if (interaction.activation !== "manual-click-only" || interaction.preload !== false || interaction.idlePlaybackDom !== false) {
-      result.errors.push(`themePacks:${entry.name} interaction must stay manual and idle-free`);
+      result.errors.push(`themePacks:${packId} interaction must stay manual and idle-free`);
       continue;
     }
-    for (const [role, relativePath] of Object.entries({
-      background: assets.background,
-      heroCharacter: assets.heroCharacter,
-      interactionMascot: assets.interactionMascot,
-      interactionTrigger: assets.interactionTrigger,
-      interactionSprite: assets.interactionSprite
-    })) {
+    let packValid = true;
+    for (const role of packSet.requiredAssetKeys) {
+      const relativePath = assets[role];
       try {
-        const assetPath = resolveThemePackAsset(packDir, relativePath, `themePacks.${entry.name}.${role}`);
+        const assetPath = resolveThemePackAsset(packDir, relativePath, `themePacks.${packId}.${role}`);
         if (!existsFile(assetPath)) {
-          result.errors.push(`themePacks:${entry.name}:${role} missing file: ${assetPath}`);
+          result.errors.push(`themePacks:${packId}:${role} missing file: ${assetPath}`);
+          packValid = false;
           continue;
         }
         const bytes = fileSize(assetPath);
         result.assets.push({
           module: "themePacks",
-          role: `${entry.name}:${role}`,
+          role: `${packId}:${role}`,
           path: assetPath,
           bytes
         });
         result.payloadBytes += bytes;
+        result.runtimeRefCount += 1;
       } catch (error) {
         result.errors.push(String(error && error.message ? error.message : error));
+        packValid = false;
       }
     }
+    for (const role of packSet.requiredIconMapKeys) {
+      try {
+        const iconPath = resolveThemePackAsset(packDir, iconMap[role], `themePacks.${packId}.iconMap.${role}`);
+        if (!existsFile(iconPath)) {
+          result.errors.push(`themePacks:${packId}:iconMap.${role} missing file: ${iconPath}`);
+          packValid = false;
+          continue;
+        }
+        result.runtimeRefCount += 1;
+      } catch (error) {
+        result.errors.push(String(error && error.message ? error.message : error));
+        packValid = false;
+      }
+    }
+    if (packValid) {
+      result.validatedPackIds.push(packId);
+    }
   }
-  result.modules.themePacks = entries.length > 1 ? "hot-swap-ready" : "single-pack";
+  const exactSetReady = result.errors.length === 0
+    && result.validatedPackIds.length === packSet.exactCount
+    && result.runtimeRefCount === result.expectedRuntimeRefCount;
+  result.modules.themePacks = exactSetReady ? "hot-swap-ready" : "blocked";
   return result;
 }
 
@@ -354,6 +437,7 @@ function buildMatrix(stateDir, assetsDir) {
   const hotSwapPlan = collectThemePackHotSwapPlan(absoluteAssetsDir);
   Object.assign(activePlan.modules, hotSwapPlan.modules);
   activePlan.assets.push(...hotSwapPlan.assets);
+  activePlan.payloadBytes += hotSwapPlan.payloadBytes;
   activePlan.errors.push(...hotSwapPlan.errors);
   const budgets = manifest.budgets || {};
   const cssBytes = fileSize(cssPath);
@@ -428,9 +512,9 @@ function buildMatrix(stateDir, assetsDir) {
     ),
     matrixRow(
       "theme-packs-extension",
-      "developer theme packs are hot-swap candidates with manual playback only",
+      "the canonical ordered three-pack set is complete, runtime-referenced, and manual-playback-only",
       activePlan.modules.themePacks === "hot-swap-ready" && hotSwapPlan.errors.length === 0 ? "passed" : "blocked",
-      `state=${activePlan.modules.themePacks || "off"} assets=${hotSwapPlan.assets.length} payloadBytes=${hotSwapPlan.payloadBytes}`
+      `state=${activePlan.modules.themePacks || "off"} ids=${hotSwapPlan.validatedPackIds.join(",")} refs=${hotSwapPlan.runtimeRefCount}/${hotSwapPlan.expectedRuntimeRefCount} payloadBytes=${hotSwapPlan.payloadBytes}`
     ),
     matrixRow(
       "retained-source-assets",
@@ -461,7 +545,13 @@ function buildMatrix(stateDir, assetsDir) {
     plans: {
       defaultTheme: defaultPlan,
       activeTheme: activePlan,
-      tableFlipEnabled: enabledTablePlan
+      tableFlipEnabled: enabledTablePlan,
+      publicThemePackSet: {
+        orderedPackIds: hotSwapPlan.orderedPackIds,
+        validatedPackIds: hotSwapPlan.validatedPackIds,
+        runtimeRefCount: hotSwapPlan.runtimeRefCount,
+        expectedRuntimeRefCount: hotSwapPlan.expectedRuntimeRefCount
+      }
     },
     retainedSourceAssets: retainedSourceAssets.entries,
     archiveCandidates,

@@ -450,6 +450,17 @@
       "eventPolicy": "shared layout observer plus top-right preflight trigger; no second full-page observer"
     },
     {
+      "id": "surfaceRegistry",
+      "kind": "dom-boundary-registry",
+      "boundaryProfile": "nativeBoundary",
+      "activation": "renderer-module-registry",
+      "payloadKeys": [
+        "surfaceRegistrySource"
+      ],
+      "loadPolicy": "main-runtime-core",
+      "eventPolicy": "bounded native boundary scans on install, route, and light phases; no MutationObserver; no fixed geometry identity"
+    },
+    {
       "id": "sourcePreviewQuarantine",
       "kind": "dom-class",
       "boundaryProfile": "nativeQuarantine",
@@ -474,12 +485,12 @@
       "id": "themePacks",
       "kind": "developer-extension",
       "boundaryProfile": "themeAsset",
-      "activation": "theme-packs/*/pack.json with at least two asset-ready-unmounted packs",
+      "activation": "theme-packs/public-pack-set.json with exactly three ordered asset-ready-unmounted packs",
       "payloadKeys": [
         "themePackDataUrls"
       ],
       "loadPolicy": "manifest-plus-file-url-candidates",
-      "eventPolicy": "right HUD transparent bay plus dropdown selector switches CSS variables and file-url asset references; no base64 candidate payload, no polling, no daemon, and no idle playback DOM"
+      "eventPolicy": "one compact cycle control follows the canonical three-pack order and switches CSS variables plus validated runtime asset references; no polling, no daemon, and no idle playback DOM"
     },
     {
       "id": "workspacePickers",
@@ -552,7 +563,7 @@
     },
     {
       "scenario": "theme-packs-extension",
-      "expected": "developer theme packs expose at least two hot-swap candidates through a transparent bay/dropdown without changing the native frame or preloading playback DOM"
+      "expected": "the canonical three public packs and all 63 manifest runtime references validate before the compact cycle control is enabled; the native frame stays unchanged and playback DOM is never preloaded"
     }
   ]
 }

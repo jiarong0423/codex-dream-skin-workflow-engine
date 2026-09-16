@@ -4,7 +4,8 @@ set -euo pipefail
 APP_TITLE="Chainsaw Duel Injector"
 STATE_DIR="$HOME/Library/Application Support/DreamSkinForge"
 INSTALLED_PROJECT_ROOT="$STATE_DIR/chainsaw-project"
-FALLBACK_PROJECT_ROOT="$HOME/Documents/skin"
+CANONICAL_PROJECT_ROOT="$HOME/Developer/skin"
+LEGACY_PROJECT_ROOT="$HOME/Documents/skin"
 PORT="${CIT_PRIVATE_DUEL_PORT:-9341}"
 WAIT_MS="${CIT_PRIVATE_DUEL_WAIT_MS:-8000}"
 RUN_GATE="${CIT_PRIVATE_DUEL_GATE:-true}"
@@ -39,32 +40,56 @@ alert() {
 }
 
 resolve_project_root() {
-  if [ -n "${DREAM_SKIN_PROJECT_ROOT:-}" ]; then
-    printf '%s\n' "$DREAM_SKIN_PROJECT_ROOT"
-    return 0
-  fi
-
+  local launcher_source="${BASH_SOURCE[0]}"
   local executable_dir
-  executable_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
-
   local bundled_root
-  bundled_root="$(cd "$executable_dir/../../../../.." >/dev/null 2>&1 && pwd || true)"
-  if [ -x "$bundled_root/macos/scripts/chainsaw-duel-one-click-injector.sh" ]; then
-    printf '%s\n' "$bundled_root"
-    return 0
-  fi
+  local candidate
+  local resolved_candidate
+  local -a candidates=()
 
-  if [ -x "$INSTALLED_PROJECT_ROOT/macos/scripts/chainsaw-duel-one-click-injector.sh" ]; then
-    printf '%s\n' "$INSTALLED_PROJECT_ROOT"
-    return 0
-  fi
+  while [ -h "$launcher_source" ]; do
+    executable_dir="$(cd -P "$(dirname "$launcher_source")" >/dev/null 2>&1 && pwd)"
+    launcher_source="$(readlink "$launcher_source")"
+    case "$launcher_source" in
+      /*) ;;
+      *) launcher_source="$executable_dir/$launcher_source" ;;
+    esac
+  done
 
-  printf '%s\n' "$FALLBACK_PROJECT_ROOT"
+  executable_dir="$(cd -P "$(dirname "$launcher_source")" >/dev/null 2>&1 && pwd)"
+  bundled_root="$(cd -P "$executable_dir/../../../../.." >/dev/null 2>&1 && pwd || true)"
+
+  if [ -n "${DREAM_SKIN_PROJECT_ROOT:-}" ]; then
+    candidates+=("$DREAM_SKIN_PROJECT_ROOT")
+  fi
+  candidates+=(
+    "$bundled_root"
+    "$INSTALLED_PROJECT_ROOT"
+    "$CANONICAL_PROJECT_ROOT"
+    "$LEGACY_PROJECT_ROOT"
+  )
+
+  for candidate in "${candidates[@]}"; do
+    [ -n "$candidate" ] || continue
+    if [ -x "$candidate/macos/scripts/chainsaw-duel-one-click-injector.sh" ]; then
+      resolved_candidate="$(cd -P "$candidate" >/dev/null 2>&1 && pwd)"
+      printf '%s\n' "$resolved_candidate"
+      return 0
+    fi
+  done
+
+  printf '[Chainsaw Duel Injector][error] no usable project root found; checked candidates:\n' >&2
+  printf '  %s\n' "${candidates[@]}" >&2
+  return 1
 }
 
 log "desktop app started"
 
-PROJECT_ROOT="$(resolve_project_root)"
+if ! PROJECT_ROOT="$(resolve_project_root)"; then
+  log "unable to resolve project root"
+  alert "找不到 Chainsaw Duel 注入器。請確認專案、已安裝 runtime 或 DREAM_SKIN_PROJECT_ROOT。Log: ${LOG_FILE}"
+  exit 1
+fi
 INJECTOR="$PROJECT_ROOT/macos/scripts/chainsaw-duel-one-click-injector.sh"
 
 if [ ! -x "$INJECTOR" ]; then

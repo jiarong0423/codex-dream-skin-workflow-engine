@@ -326,9 +326,39 @@ Official references:
 - [OpenAI Build Week Official Rules](https://openai.devpost.com/rules)
 - [OpenAI Build Week FAQ](https://openai.devpost.com/details/faqs)
 
+## Three Public Hot-Swap Packs
+
+The public runtime exposes exactly three packs in the order declared by
+`theme-packs/public-pack-set.json`. The loader, module matrix, and public package
+fail closed if any manifest or runtime-referenced asset is missing; they do not
+silently fall back to a two-pack release.
+
+| Order | Pack ID | Scene | Manual interaction |
+|---|---|---|---|
+| 1 | `knife-shield-dog` | Knife Shield Dog: Castle City Guard | `forward-slash` |
+| 2 | `orbital-stargazer-black-cat` | Black Cat: Orbital Stargazer | `roll-and-groom` |
+| 3 | `orange-mecha-cat` | Orange Mecha Cat: Cyber Ruins | `table-flip` |
+
+List the packs first, then use the read-only plan before activation. `activate`
+updates only the local Dream Skin Forge active-theme state and creates a backup;
+it does not launch, restart, or inject Codex.
+
+```bash
+node theme-packs/scripts/activate-pack.mjs list --format text
+node theme-packs/scripts/activate-pack.mjs plan --pack knife-shield-dog --format json
+node theme-packs/scripts/activate-pack.mjs activate --pack knife-shield-dog --format json
+```
+
+After the next one-shot apply, the compact left-side cycle control follows the
+order above. No animation playback DOM is preloaded while idle.
+
 ## Quick Test For Judges
 
 Run from the repository root:
+
+`install.sh` places the managed engine at `~/.codex/dream-skin-forge`, runtime
+state at `~/Library/Application Support/DreamSkinForge`, and
+`install-launcher.sh` installs `~/Applications/Dream Skin Forge.app`.
 
 ```bash
 bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --runtime
@@ -339,7 +369,7 @@ bash macos/scripts/restore.sh --port 9341
 ```
 
 If Codex is not already running with the local CDP port, launch the installed
-`Codex Dream Skin.app` launcher after `install-launcher.sh`. The launcher uses
+`Dream Skin Forge.app` launcher after `install-launcher.sh`. The launcher uses
 one-shot application and does not leave a resident injector daemon.
 
 ## Demo Materials

@@ -251,8 +251,8 @@ bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --submiss
 - 不修改 `app.asar` 或官方 `.app`
 - 不自動改寫 API Key、Base URL 或模型供應商設定
 - CDP 僅綁定 `127.0.0.1`
-- 主題資料放在 `~/Library/Application Support/CodexInterfaceTheme`
-- 安裝後引擎放在 `~/.codex/codex-interface-theme`
+- 主題資料放在 `~/Library/Application Support/DreamSkinForge`
+- 安裝後引擎放在 `~/.codex/dream-skin-forge`
 
 ## 快速使用
 
@@ -268,57 +268,77 @@ macos/tests/run-tests.sh
 macos/scripts/install.sh
 ```
 
-安裝固定啟動器到 `~/Applications/Codex Dream Skin.app`：
+安裝固定啟動器到 `~/Applications/Dream Skin Forge.app`：
 
 ```bash
 macos/scripts/install-launcher.sh
 ```
 
-之後從 Finder / Spotlight 開啟 `Codex Dream Skin`。啟動器會在 Codex 尚未開啟時，用主題引擎啟動 Codex 並套用 active theme；如果 Codex 已經開著但沒有 debug port，它只會提示，不會強制關閉目前視窗。
+之後從 Finder / Spotlight 開啟 `Dream Skin Forge`。啟動器會在 Codex 尚未開啟時，用主題引擎啟動 Codex 並套用 active theme；如果 Codex 已經開著但沒有 debug port，它只會提示，不會強制關閉目前視窗。
 
 手動啟動 Codex 並套用主題。此工具直接執行官方 bundle executable 以保留 CDP 啟動參數，不修改官方 app：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/start.sh
+~/.codex/dream-skin-forge/scripts/start.sh
 ```
 
 如果 Codex 已經開著，先正常關閉 Codex，或明確要求重啟：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/start.sh --restart
+~/.codex/dream-skin-forge/scripts/start.sh --restart
 ```
 
 如果官方 app 沒有在 20 秒內回應 graceful quit，才使用：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/start.sh --restart --force-quit
+~/.codex/dream-skin-forge/scripts/start.sh --restart --force-quit
 ```
 
 切換模式或套用自己的背景圖：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/customize.sh --mode sidebar-art
-~/.codex/codex-interface-theme/scripts/customize.sh --image "/absolute/path/to/background.png" --name "My Theme" --safe-area sides --task-mode ambient
-~/.codex/codex-interface-theme/scripts/start.sh --restart
+~/.codex/dream-skin-forge/scripts/customize.sh --mode sidebar-art
+~/.codex/dream-skin-forge/scripts/customize.sh --image "/absolute/path/to/background.png" --name "My Theme" --safe-area sides --task-mode ambient
+~/.codex/dream-skin-forge/scripts/start.sh --restart
 ```
 
 驗證目前 renderer 是否有主題標記：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/verify.sh
+~/.codex/dream-skin-forge/scripts/verify.sh
 ```
 
 不重啟移除目前 renderer 裡的主題層：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/restore.sh --port 9341
+~/.codex/dream-skin-forge/scripts/restore.sh --port 9341
 ```
 
 若要同時關閉帶 CDP 的 Codex session，使用：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/restore.sh --quit
+~/.codex/dream-skin-forge/scripts/restore.sh --quit
 ```
+
+## 三個公開熱抽換版本
+
+公開 runtime 固定依 `theme-packs/public-pack-set.json` 的順序提供三個版本；缺少任一 manifest 或其中任何 runtime 素材時，loader、module matrix 與公開打包都會直接失敗，不會退化成兩個版本繼續執行。
+
+| 順序 | Pack ID | 場景 | 手動互動 |
+|---|---|---|---|
+| 1 | `knife-shield-dog` | Knife Shield Dog: Castle City Guard | `forward-slash` |
+| 2 | `orbital-stargazer-black-cat` | Black Cat: Orbital Stargazer | `roll-and-groom` |
+| 3 | `orange-mecha-cat` | Orange Mecha Cat: Cyber Ruins | `table-flip` |
+
+先列出版本，再用唯讀 plan 檢查將要寫入的 active theme。`activate` 只會更新本機 Dream Skin Forge 的 active theme 並建立備份，不會啟動、重啟或注入 Codex：
+
+```bash
+node theme-packs/scripts/activate-pack.mjs list --format text
+node theme-packs/scripts/activate-pack.mjs plan --pack knife-shield-dog --format json
+node theme-packs/scripts/activate-pack.mjs activate --pack knife-shield-dog --format json
+```
+
+下一次 one-shot apply 後，左側 compact cycle control 會依上表順序熱抽換三包；idle 狀態不預載動畫 DOM。
 
 ## 評審快速測試
 
@@ -332,7 +352,7 @@ bash macos/scripts/verify.sh --port 9341
 bash macos/scripts/restore.sh --port 9341
 ```
 
-若 Codex 尚未以本機 CDP port 啟動，才使用已安裝的 `Codex Dream Skin.app` 啟動器。不要為套主題直接修改官方 bundle，也不要在已有可用 renderer 時重啟。
+若 Codex 尚未以本機 CDP port 啟動，才使用已安裝的 `Dream Skin Forge.app` 啟動器。不要為套主題直接修改官方 bundle，也不要在已有可用 renderer 時重啟。
 
 ## 設計原則
 
@@ -404,7 +424,7 @@ bash macos/scripts/restore.sh --port 9341
 若要準備 sidebar navigation 的 runtime 測試設定，只開第一個模組：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/customize.sh \
+~/.codex/dream-skin-forge/scripts/customize.sh \
   --icon-buttons-enabled true \
   --icon-buttons-apply-mode module \
   --icon-buttons-sidebar-navigation-enabled true
@@ -413,7 +433,7 @@ bash macos/scripts/restore.sh --port 9341
 關回預設：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/customize.sh \
+~/.codex/dream-skin-forge/scripts/customize.sh \
   --icon-buttons-enabled false \
   --icon-buttons-apply-mode opt-in \
   --icon-buttons-sidebar-navigation-enabled false
@@ -424,7 +444,7 @@ bash macos/scripts/restore.sh --port 9341
 第二個測試替換模組是 titlebar navigation，只處理左上可見的返回/前進按鈕。它使用貓尾方向符號和黑金機甲小控制件樣式，預設關閉：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/customize.sh \
+~/.codex/dream-skin-forge/scripts/customize.sh \
   --icon-buttons-enabled true \
   --icon-buttons-apply-mode module \
   --icon-buttons-sidebar-navigation-enabled true \
@@ -438,7 +458,7 @@ bash macos/scripts/restore.sh --port 9341
 composer controls 是輸入區的 icon replacement 模組，只替換輸入區內可見的 `run`、`stop`、`send` 控制，不碰打字框底色、模型選單、聽寫或附件選單。送出/停止按鈕會因狀態改變 label；runtime 只在 composer 範圍內使用右側小按鈕 fallback，不會掃到工作區或右側 panel：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/customize.sh \
+~/.codex/dream-skin-forge/scripts/customize.sh \
   --icon-buttons-enabled true \
   --icon-buttons-apply-mode module \
   --icon-buttons-sidebar-navigation-enabled true \
@@ -457,7 +477,7 @@ projectPanelRows 是右側 project/resource panel 內的資料列模組。它必
 可調整的範例：
 
 ```bash
-~/.codex/codex-interface-theme/scripts/customize.sh \
+~/.codex/dream-skin-forge/scripts/customize.sh \
   --mode sidebar-art \
   --sidebar-accent '#00d5ff' \
   --header-accent '#ffb000' \

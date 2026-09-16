@@ -24,8 +24,28 @@ bash -n "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge
 bash -n "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector"
 bash -n "$ROOT_DIR/launcher/Dream Skin Forge.command"
 bash -n "$ROOT_DIR/launcher/Chainsaw Duel Injector.command"
+bash -n "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh"
 plutil -lint "$ROOT_DIR/launcher/Dream Skin Forge.app/Contents/Info.plist" >/dev/null
 plutil -lint "$ROOT_DIR/launcher/Chainsaw Duel Injector.app/Contents/Info.plist" >/dev/null
+
+"$PYTHON_PATH" - "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh" <<'PY'
+import pathlib
+import sys
+
+gate = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+tests_index = gate.find("bash macos/tests/run-tests.sh")
+boundary_index = gate.find("node macos/scripts/module-boundary-gate.mjs")
+matrix_index = gate.find("node macos/scripts/module-matrix.mjs")
+if min(tests_index, boundary_index, matrix_index) < 0 or not (tests_index < boundary_index < matrix_index):
+    raise SystemExit("workflow gate must run tests, module-boundary-gate, then module matrix")
+boundary_block = gate[boundary_index:matrix_index]
+if "if ! node macos/scripts/module-boundary-gate.mjs" not in gate or "exit 1" not in boundary_block:
+    raise SystemExit("workflow gate must fail closed when module-boundary-gate fails")
+if '--state-dir "$HOME/Library/Application Support/DreamSkinForge"' not in gate:
+    raise SystemExit("workflow gate must read the canonical DreamSkinForge state directory")
+if "CodexInterfaceTheme" in gate:
+    raise SystemExit("workflow gate must not restore the retired CodexInterfaceTheme state path")
+PY
 
 grep -Fq 'Post-Revision Layer Scan Rule' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must require post-revision layer scans"
 grep -Fq 'docs/KNOWN_BLACK_RANGE_LEDGER.json' "$PROJECT_ROOT/.agents/skills/codex-dream-skin-workflow/SKILL.md" || cit_die "workflow skill must route black surfaces through the known black ledger"
@@ -75,6 +95,82 @@ grep -q 'codesign --force --deep --sign - "$TARGET_APP"' "$ROOT_DIR/scripts/inst
 grep -q 'xattr -dr com.apple.quarantine "$TARGET_APP" "$TARGET_COMMAND" "$RUNTIME_ROOT"' "$ROOT_DIR/scripts/install-chainsaw-launcher.sh"
 grep -q 'start.sh" --no-launch --once' "$ROOT_DIR/launcher/Dream Skin Forge.command"
 grep -q 'start.sh" --once --port' "$ROOT_DIR/launcher/Dream Skin Forge.command"
+"$PYTHON_PATH" - "$PROJECT_ROOT" <<'PY'
+import pathlib
+import re
+import sys
+
+project = pathlib.Path(sys.argv[1])
+chainsaw_launchers = [
+    project / "macos/launcher/Chainsaw Duel Injector.command",
+    project / "macos/launcher/Chainsaw Duel Injector.app/Contents/MacOS/chainsaw-duel-injector",
+]
+for launcher in chainsaw_launchers:
+    text = launcher.read_text(encoding="utf-8")
+    for token in [
+        'INSTALLED_PROJECT_ROOT="$STATE_DIR/chainsaw-project"',
+        'CANONICAL_PROJECT_ROOT="$HOME/Developer/skin"',
+        'LEGACY_PROJECT_ROOT="$HOME/Documents/skin"',
+        'DREAM_SKIN_PROJECT_ROOT',
+        'cd -P',
+        'no usable project root found; checked candidates:',
+    ]:
+        if token not in text:
+            raise SystemExit(f"{launcher.name} missing resolver contract: {token}")
+    match = re.search(r"resolve_project_root\(\) \{(?P<body>.*?)\n\}", text, re.S)
+    if not match:
+        raise SystemExit(f"{launcher.name} missing resolve_project_root")
+    body = match.group("body")
+    ordered = [
+        'candidates+=("$DREAM_SKIN_PROJECT_ROOT")',
+        '"$source_project_root"' if launcher.suffix == ".command" else '"$bundled_root"',
+        '"$INSTALLED_PROJECT_ROOT"',
+        '"$CANONICAL_PROJECT_ROOT"',
+        '"$LEGACY_PROJECT_ROOT"',
+    ]
+    positions = [body.find(token) for token in ordered]
+    if min(positions) < 0 or positions != sorted(positions):
+        raise SystemExit(f"{launcher.name} resolver precedence is not override > source/bundle > installed > canonical > legacy: {positions}")
+    source_token = 'source_project_root="$(cd -P "$launcher_dir/../.."' if launcher.suffix == ".command" else 'bundled_root="$(cd -P "$executable_dir/../../../../.."'
+    if source_token not in body:
+        raise SystemExit(f"{launcher.name} must resolve its physical source/bundle root before installed fallbacks")
+
+dream_launchers = [
+    project / "macos/launcher/Dream Skin Forge.command",
+    project / "macos/launcher/Dream Skin Forge.app/Contents/MacOS/dream-skin-forge-launcher",
+]
+for launcher in dream_launchers:
+    text = launcher.read_text(encoding="utf-8")
+    for token in [
+        'ENGINE_DIR="${CIT_ENGINE_DIR:-$HOME/.codex/dream-skin-forge}"',
+        'ENGINE_DIR="$(cd -P "$ENGINE_DIR"',
+        'INJECTOR_PATH="$ENGINE_DIR/scripts/injector.mjs"',
+        '-v injector="$INJECTOR_PATH"',
+        'index($0, injector)',
+        '/--daemon/',
+        '$(field_index + 1) == port',
+    ]:
+        if token not in text:
+            raise SystemExit(f"{launcher.name} missing custom-engine daemon matching contract: {token}")
+
+for readme_name in ["README.md", "README.en.md"]:
+    text = (project / readme_name).read_text(encoding="utf-8")
+    for token in [
+        "~/.codex/dream-skin-forge",
+        "~/Library/Application Support/DreamSkinForge",
+        "~/Applications/Dream Skin Forge.app",
+        "/Applications/ChatGPT.app",
+    ]:
+        if token not in text:
+            raise SystemExit(f"{readme_name} missing current path: {token}")
+    for stale in [
+        "~/.codex/codex-interface-theme",
+        "~/Library/Application Support/CodexInterfaceTheme",
+        "~/Applications/Codex Dream Skin.app",
+    ]:
+        if stale in text:
+            raise SystemExit(f"{readme_name} retains stale path: {stale}")
+PY
 grep -q 'chainsaw duel one-click injector' "$ROOT_DIR/scripts/chainsaw-duel-one-click-injector.sh" || cit_die "Chainsaw duel one-click injector must identify itself"
 grep -q 'Pinned revision loop wrapper' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must identify itself"
 grep -q 'docs/PINNED_REVISION_LOOP_STANDARD.md' "$ROOT_DIR/scripts/revision-loop-one-click.sh" || cit_die "revision loop wrapper must point to the pinned standard"
@@ -104,6 +200,13 @@ fi
 grep -q 'codex-interface-theme-right-hud' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must install the right HUD element"
 grep -q '#codex-interface-theme-right-hud' "$ROOT_DIR/assets/theme.css" || cit_die "theme.css must style the right HUD element"
 grep -q '"subtractive module aggregation"' "$ROOT_DIR/assets/runtime-modules.json" || cit_die "runtime module manifest must document subtractive module aggregation"
+grep -q 'surfaceRegistrySource' "$ROOT_DIR/scripts/injector.mjs" || cit_die "injector must package the native surface registry source"
+grep -q 'surface-registry.js' "$ROOT_DIR/scripts/injector.mjs" || cit_die "injector must read the native surface registry asset"
+grep -q 'payload.surfaceRegistrySource' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must consume the packaged native surface registry source"
+grep -q 'function installSurfaceRegistry' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must install the native surface registry through an owned module"
+grep -q 'function tickSurfaceRegistry' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must maintain the native surface registry through its API"
+grep -q 'function cleanupSurfaceRegistry' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must clean the native surface registry through its API"
+grep -q 'id: "surfaceRegistry"' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer runtime modules must register surfaceRegistry"
 grep -q 'applyRuntimeDefaults' "$ROOT_DIR/scripts/injector.mjs" || cit_die "injector must normalize active themes through shared runtime defaults"
 grep -q 'TABLE_FLIP_CAT_DEFAULTS' "$ROOT_DIR/scripts/theme-store.mjs" || cit_die "theme-store must share table flip cat runtime defaults"
 grep -q -- '--cit-table-flip-cat-image' "$ROOT_DIR/assets/theme.css" || cit_die "theme.css must expose the table flip cat image variable"
@@ -240,7 +343,7 @@ grep -q 'projectPanelChromeCollidesWithLargeRightColumn' "$ROOT_DIR/assets/rende
 grep -q 'triggerProjectPanelChromePreflight' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "renderer must preflight project panel chrome from the top-right trigger"
 grep -q 'markProjectPanelChromePreflightPending' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "right panel preflight must preserve existing project panel chrome during pending state"
 grep -q 'maxProjectPanelWidth' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "project panel detection must accept the wider official panel shell"
-grep -q 'runFirstProjectPanelChromeFrame' "$ROOT_DIR/assets/renderer-inject.js" || cit_die "right panel transient shell must be checked on animation frames"
+sed -n '/function triggerProjectPanelChromePreflight/,/^  }/p' "$ROOT_DIR/assets/renderer-inject.js" | grep -q 'scheduleDeferredFrame' || cit_die "right panel transient shell must be checked through tracked animation frames"
 if grep -q 'suppressProjectPanelChromeForRightMajorPanel("pending")' "$ROOT_DIR/assets/renderer-inject.js"; then
   cit_die "right panel pending preflight must not remove project panel chrome"
 fi
@@ -579,8 +682,1121 @@ fi
 "$NODE_PATH" --check "$ROOT_DIR/scripts/theme-store.mjs"
 "$NODE_PATH" --check "$ROOT_DIR/scripts/theme-runtime-defaults.mjs"
 "$NODE_PATH" --check "$ROOT_DIR/scripts/module-matrix.mjs"
+"$NODE_PATH" --check "$ROOT_DIR/scripts/module-boundary-gate.mjs"
 "$NODE_PATH" --check "$ROOT_DIR/scripts/performance-probe.mjs"
 "$NODE_PATH" --check "$ROOT_DIR/assets/renderer-inject.js"
+
+"$NODE_PATH" - "$ROOT_DIR/scripts/injector.mjs" <<'NODE'
+const fs = require("node:fs");
+const vm = require("node:vm");
+
+const injectorPath = process.argv[2];
+const source = fs.readFileSync(injectorPath, "utf8");
+const start = source.indexOf("async function commandRemove(");
+const end = source.indexOf("\nasync function commandVerify(", start);
+if (start < 0 || end < 0) {
+  throw new Error("unable to isolate commandRemove from injector.mjs");
+}
+const commandRemoveSource = source.slice(start, end);
+
+async function runScenario(targets, daemon = { requested: false, paused: true }) {
+  const removedStateFiles = [];
+  const printed = [];
+  const context = {
+    requestDaemonPause: async () => daemon.requested,
+    waitForDaemonPause: async () => daemon.paused,
+    appendLog: () => {},
+    listTargets: async () => targets,
+    isInjectableTarget: () => true,
+    removeFromTarget: async (target) => {
+      if (target.failure) {
+        throw new Error(target.failure);
+      }
+      return target.result;
+    },
+    removeFileIfExists: (filePath) => removedStateFiles.push(filePath),
+    console: { log: (value) => printed.push(String(value)) },
+    process: { pid: 99999 }
+  };
+  const commandRemove = vm.runInNewContext(`${commandRemoveSource}\ncommandRemove`, context, { filename: injectorPath });
+  let error = null;
+  try {
+    await commandRemove(9341, { session: "session.json", pause: "pause.json" });
+  } catch (caught) {
+    error = caught;
+  }
+  return { error, printed, removedStateFiles };
+}
+
+(async () => {
+  const allPass = await runScenario([
+    { id: "one", title: "one", url: "app://one", result: { ok: true, removed: true } },
+    { id: "two", title: "two", url: "app://two", result: { ok: true, removed: true } }
+  ]);
+  if (allPass.error) {
+    throw new Error(`all-pass restore must succeed: ${allPass.error.message}`);
+  }
+  if (allPass.removedStateFiles.join(",") !== "session.json,pause.json") {
+    throw new Error(`all-pass restore must clear session and pause state: ${allPass.removedStateFiles.join(",")}`);
+  }
+  const allPassReport = JSON.parse(allPass.printed.at(-1) || "{}");
+  if (allPassReport.ok !== true || allPassReport.targets?.length !== 2) {
+    throw new Error("all-pass restore must report ok=true for every target");
+  }
+
+  const daemonPauseUnconfirmed = await runScenario([
+    { id: "one", title: "one", url: "app://one", result: { ok: true, removed: true } },
+    { id: "two", title: "two", url: "app://two", result: { ok: true, removed: true } }
+  ], { requested: true, paused: false });
+  if (!daemonPauseUnconfirmed.error) {
+    throw new Error("direct restore must fail when a live daemon pause cannot be confirmed");
+  }
+  if (daemonPauseUnconfirmed.removedStateFiles.length !== 0) {
+    throw new Error("unconfirmed daemon pause must preserve session and pause retry state");
+  }
+
+  const daemonPauseConfirmed = await runScenario([
+    { id: "one", title: "one", url: "app://one", result: { ok: true, removed: true } },
+    { id: "two", title: "two", url: "app://two", result: { ok: true, removed: true } }
+  ], { requested: true, paused: true });
+  if (daemonPauseConfirmed.error) {
+    throw new Error(`confirmed daemon pause plus successful restore must succeed: ${daemonPauseConfirmed.error.message}`);
+  }
+  if (daemonPauseConfirmed.removedStateFiles.join(",") !== "session.json,pause.json") {
+    throw new Error("confirmed daemon pause plus successful restore must clear session and pause state");
+  }
+
+  const mixed = await runScenario([
+    { id: "one", title: "one", url: "app://one", result: { ok: true, removed: true } },
+    { id: "two", title: "two", url: "app://two", result: { ok: false, removed: false, error: "residue" } }
+  ]);
+  if (!mixed.error || !/restore failed for 1 of 2 target\(s\)/.test(mixed.error.message)) {
+    throw new Error("mixed restore must throw a nonzero aggregate failure");
+  }
+  if (mixed.removedStateFiles.length !== 0) {
+    throw new Error("mixed restore must preserve session and pause retry state");
+  }
+
+  const allFail = await runScenario([
+    { id: "one", title: "one", url: "app://one", failure: "cdp failure" },
+    { id: "two", title: "two", url: "app://two", result: { ok: false, removed: false, error: "residue" } }
+  ]);
+  if (!allFail.error || !/restore failed for 2 of 2 target\(s\)/.test(allFail.error.message)) {
+    throw new Error("failed restore must throw a nonzero aggregate failure");
+  }
+  if (allFail.removedStateFiles.length !== 0) {
+    throw new Error("failed restore must preserve session and pause retry state");
+  }
+})().catch((error) => {
+  console.error(error && error.stack ? error.stack : error);
+  process.exitCode = 1;
+});
+NODE
+
+"$NODE_PATH" - "$ROOT_DIR/scripts/injector.mjs" <<'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+
+const injectorPath = process.argv[2];
+const source = fs.readFileSync(injectorPath, "utf8");
+const packIds = [
+  "knife-shield-dog",
+  "orbital-stargazer-black-cat",
+  "orange-mecha-cat"
+];
+const payloadSchema = "renderer-safe-theme-packs-data-20260723";
+
+function extractFunction(name) {
+  const plainStart = source.indexOf(`function ${name}(`);
+  const asyncStart = source.indexOf(`async function ${name}(`);
+  const start = asyncStart >= 0 && (plainStart < 0 || asyncStart < plainStart) ? asyncStart : plainStart;
+  if (start < 0) throw new Error(`unable to isolate ${name} from injector.mjs`);
+  const signatureEnd = source.indexOf(") {", start);
+  if (signatureEnd < 0) throw new Error(`unable to find ${name} body`);
+  const bodyStart = signatureEnd + 2;
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+  for (let index = bodyStart; index < source.length; index += 1) {
+    const char = source[index];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === quote) quote = "";
+      continue;
+    }
+    if (char === '"' || char === "'" || char === "`") {
+      quote = char;
+      continue;
+    }
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, index + 1);
+    }
+  }
+  throw new Error(`unterminated function ${name}`);
+}
+
+function makePack(id) {
+  return {
+    id,
+    payloadSchema,
+    backgroundDataUrl: "data:image/png;base64,AA==",
+    characterDataUrl: "data:image/png;base64,AA=="
+  };
+}
+
+function makePayload(packCount = 3) {
+  const themePackDataUrls = packIds.slice(0, packCount).map(makePack);
+  return {
+    revision: "revision-1",
+    assetGroups: { themePacks: { themePackDataUrls } },
+    assetGroupHashes: { themePacks: "theme-pack-hash" }
+  };
+}
+
+const applyScenarios = new Map();
+class ApplyCdpSession {
+  constructor(url) {
+    this.scenario = applyScenarios.get(url);
+    if (!this.scenario) throw new Error(`missing apply scenario: ${url}`);
+  }
+  async open() {}
+  async send(method, params = {}) {
+    if (method === "Runtime.enable" || method === "Page.enable" || method === "Page.addScriptToEvaluateOnNewDocument") return {};
+    if (method !== "Runtime.evaluate") throw new Error(`unexpected apply method: ${method}`);
+    if (params.expression === "ASSET_EXPRESSION") {
+      this.scenario.assetEvaluations += 1;
+      return { result: { value: { ok: true } } };
+    }
+    if (params.expression === "CORE_EXPRESSION") {
+      this.scenario.coreEvaluations += 1;
+      return this.scenario.coreResponse;
+    }
+    throw new Error(`unexpected apply expression: ${params.expression}`);
+  }
+  close() {}
+}
+
+const applyContext = {
+  Buffer,
+  CdpSession: ApplyCdpSession,
+  THEME_PACK_IDS: packIds,
+  THEME_PACK_PAYLOAD_SCHEMA: payloadSchema,
+  readTargetAssetGroupHashes: async (session) => session.scenario.cachedHashes,
+  readTargetThemeState: async (session) => session.scenario.themeState,
+  buildAssetGroupExpression: () => "ASSET_EXPRESSION",
+  buildCoreExpression: () => "CORE_EXPRESSION"
+};
+const applyToTarget = vm.runInNewContext(
+  `${extractFunction("expectedHotSwapPackCount")}\n${extractFunction("applyToTarget")}\napplyToTarget`,
+  applyContext,
+  { filename: injectorPath }
+);
+
+async function runApplyScenario(name, {
+  coreResponse = { result: { value: { ok: true } } },
+  cachedHashes = { __persistent: "v2", themePacks: "theme-pack-hash" },
+  themeState = { active: false },
+  packCount = 3
+} = {}) {
+  const scenario = { coreResponse, cachedHashes, themeState, coreEvaluations: 0, assetEvaluations: 0 };
+  const url = `ws://${name}`;
+  applyScenarios.set(url, scenario);
+  let value = null;
+  let error = null;
+  try {
+    value = await applyToTarget({ webSocketDebuggerUrl: url, url: `app://${name}` }, makePayload(packCount));
+  } catch (caught) {
+    error = caught;
+  }
+  return { value, error, scenario };
+}
+
+async function requireApplyFailure(label, coreResponse) {
+  const result = await runApplyScenario(label.replace(/\s+/g, "-"), { coreResponse });
+  if (!result.error) throw new Error(`${label} renderer result must fail closed`);
+}
+
+const readHashesContext = {
+  TARGET_ASSET_CACHE: "__CODEX_INTERFACE_THEME_ASSET_GROUPS__",
+  TARGET_ASSET_INDEX: "codex-interface-theme:asset-groups:v2:index",
+  TARGET_ASSET_GROUP_PREFIX: "codex-interface-theme:asset-groups:v2:",
+  THEME_PACK_IDS: packIds,
+  THEME_PACK_PAYLOAD_SCHEMA: payloadSchema
+};
+const readTargetAssetGroupHashes = vm.runInNewContext(
+  `${extractFunction("readTargetAssetGroupHashes")}\nreadTargetAssetGroupHashes`,
+  readHashesContext,
+  { filename: injectorPath }
+);
+
+async function corruptCacheHashes() {
+  const indexKey = "codex-interface-theme:asset-groups:v2:index";
+  const groupKey = "codex-interface-theme:asset-groups:v2:themePacks";
+  const storage = new Map([
+    [indexKey, JSON.stringify({ themePacks: "theme-pack-hash" })],
+    [groupKey, JSON.stringify({
+      hash: "theme-pack-hash",
+      payload: { themePackDataUrls: packIds.slice(0, 2).map(makePack) }
+    })]
+  ]);
+  const browser = {
+    window: {
+      __CODEX_INTERFACE_THEME_ASSET_GROUPS__: {
+        themePacks: { hash: "theme-pack-hash" }
+      }
+    },
+    localStorage: {
+      getItem: (key) => storage.get(key) || null
+    }
+  };
+  const session = {
+    async send(method, params) {
+      if (method !== "Runtime.evaluate") throw new Error(`unexpected cache method: ${method}`);
+      return { result: { value: vm.runInNewContext(params.expression, browser) } };
+    }
+  };
+  return readTargetAssetGroupHashes(session);
+}
+
+const applyOnceSource = extractFunction("applyOnce");
+const mainSource = extractFunction("main");
+
+async function runTopLevelScenario(name, targets) {
+  const sessionWrites = [];
+  const printed = [];
+  const context = {
+    DEFAULT_WAIT_MS: 20000,
+    ENGINE_ROOT: "/test/engine",
+    process: { env: {}, pid: 4242 },
+    path,
+    parseArgs: () => ({ once: true, port: 9341, "state-dir": "/tmp/test-state" }),
+    requireOption: (options, key) => options[key],
+    statePaths: () => ({
+      stateDir: "/tmp/test-state",
+      themesDir: "/tmp/test-state/themes",
+      logsDir: "/tmp/test-state/logs",
+      runDir: "/tmp/test-state/run",
+      activeTheme: "/tmp/test-state/themes/active.json",
+      session: "/tmp/test-state/run/session.json",
+      pause: "/tmp/test-state/run/pause.json"
+    }),
+    mkdirp: () => {},
+    inferPort: () => 9341,
+    waitForCdp: async () => {},
+    waitForInjectableTargets: async () => {},
+    buildPayload: () => makePayload(),
+    listTargets: async () => targets,
+    isInjectableTarget: () => true,
+    withTargetContext: (payload) => payload,
+    applyToTarget: async (target) => {
+      if (target.failure) throw new Error(target.failure);
+      return target.result;
+    },
+    pruneNonAppThemeResidue: async () => [],
+    writeJsonAtomic: (filePath, value) => sessionWrites.push({ filePath, value }),
+    console: {
+      log: (value) => printed.push(String(value)),
+      error: () => {}
+    }
+  };
+  const main = vm.runInNewContext(`${applyOnceSource}\n${mainSource}\nmain`, context, { filename: injectorPath });
+  let error = null;
+  try {
+    await main();
+  } catch (caught) {
+    error = caught;
+  }
+  const topLevelOk = printed.some((entry) => {
+    try { return JSON.parse(entry).ok === true; } catch (_) { return false; }
+  });
+  return { name, error, sessionWrites, printed, topLevelOk };
+}
+
+(async () => {
+  await requireApplyFailure("literal false", { result: { value: false } });
+  await requireApplyFailure("missing result", {});
+  await requireApplyFailure("missing value", { result: {} });
+  await requireApplyFailure("null value", { result: { value: null } });
+  await requireApplyFailure("renderer ok false", { result: { value: { ok: false, error: "renderer rejected" } } });
+  await requireApplyFailure("runtime exception", { exceptionDetails: { text: "renderer exception" } });
+
+  const proven = await runApplyScenario("proven-success");
+  if (proven.error || proven.value?.ok !== true) {
+    throw new Error(`renderer value.ok=true must succeed: ${proven.error?.message || JSON.stringify(proven.value)}`);
+  }
+
+  const exactReady = await runApplyScenario("exact-three-ready", {
+    themeState: {
+      active: true,
+      hasMarker: true,
+      revision: "revision-1",
+      hotSwapPacks: 3,
+      hasHotSwapBay: true,
+      hasHotSwapCycleButton: true
+    }
+  });
+  if (exactReady.error || exactReady.value?.skippedCore !== true || exactReady.scenario.coreEvaluations !== 0) {
+    throw new Error("exact-three cycle-button readiness must allow a core skip");
+  }
+
+  const legacySelectOnly = await runApplyScenario("legacy-select-only", {
+    themeState: {
+      active: true,
+      hasMarker: true,
+      revision: "revision-1",
+      hotSwapPacks: 3,
+      hasHotSwapBay: true,
+      hasHotSwapCycleButton: false,
+      hasHotSwapSelect: true
+    }
+  });
+  if (legacySelectOnly.error || legacySelectOnly.value?.skippedCore === true || legacySelectOnly.scenario.coreEvaluations !== 1) {
+    throw new Error("legacy pack-select must not satisfy skip-core readiness");
+  }
+
+  const renderedTwo = await runApplyScenario("rendered-two", {
+    themeState: {
+      active: true,
+      hasMarker: true,
+      revision: "revision-1",
+      hotSwapPacks: 2,
+      hasHotSwapBay: true,
+      hasHotSwapCycleButton: true
+    }
+  });
+  if (renderedTwo.error || renderedTwo.value?.skippedCore === true || renderedTwo.scenario.coreEvaluations !== 1) {
+    throw new Error("renderer state with only two packs must not satisfy skip-core readiness");
+  }
+
+  const twoPackPayload = await runApplyScenario("payload-two", { packCount: 2 });
+  if (!twoPackPayload.error) {
+    throw new Error("injector payload with only two packs must fail closed");
+  }
+
+  const corruptedHashes = await corruptCacheHashes();
+  if (corruptedHashes.themePacks !== "") {
+    throw new Error(`two-pack persistent cache must invalidate the matching index hash: ${JSON.stringify(corruptedHashes)}`);
+  }
+  const corruptCacheApply = await runApplyScenario("corrupt-cache", {
+    cachedHashes: corruptedHashes,
+    themeState: { active: false }
+  });
+  if (corruptCacheApply.error || !corruptCacheApply.value?.assetGroupsTransferred?.includes("themePacks") ||
+      corruptCacheApply.scenario.assetEvaluations !== 1) {
+    throw new Error("corrupt two-pack cache must resend the canonical three-pack asset group");
+  }
+
+  const allSuccess = await runTopLevelScenario("all-success", [
+    { id: "one", result: { ok: true } },
+    { id: "two", result: { ok: true } }
+  ]);
+  if (allSuccess.error || !allSuccess.topLevelOk || allSuccess.sessionWrites.length !== 1) {
+    throw new Error(`all targets with value.ok=true must report top-level success and write one session: ${JSON.stringify({
+      error: allSuccess.error && allSuccess.error.message,
+      topLevelOk: allSuccess.topLevelOk,
+      sessionWrites: allSuccess.sessionWrites,
+      printed: allSuccess.printed
+    })}`);
+  }
+
+  for (const failed of [
+    await runTopLevelScenario("mixed-values", [
+      { id: "one", result: { ok: true } },
+      { id: "two", result: { ok: false, error: "renderer rejected" } }
+    ]),
+    await runTopLevelScenario("mixed-exception", [
+      { id: "one", result: { ok: true } },
+      { id: "two", failure: "renderer exception" }
+    ]),
+    await runTopLevelScenario("all-failed", [
+      { id: "one", result: { ok: false } },
+      { id: "two", failure: "renderer exception" }
+    ])
+  ]) {
+    if (!failed.error || failed.topLevelOk || failed.sessionWrites.length !== 0) {
+      throw new Error(`${failed.name} must fail without top-level ok=true or a success session write`);
+    }
+  }
+
+  const themeStateSource = extractFunction("readTargetThemeState");
+  if (!themeStateSource.includes(".codex-interface-theme-pack-cycle-button") ||
+      themeStateSource.includes(".codex-interface-theme-pack-select")) {
+    throw new Error("skip-core readiness must use only the pack-cycle-button selector");
+  }
+})().catch((error) => {
+  console.error(error && error.stack ? error.stack : error);
+  process.exitCode = 1;
+});
+NODE
+
+"$NODE_PATH" - "$ROOT_DIR/scripts/injector.mjs" <<'NODE'
+const fs = require("node:fs");
+const vm = require("node:vm");
+
+const injectorPath = process.argv[2];
+const source = fs.readFileSync(injectorPath, "utf8");
+const removeStart = source.indexOf("async function removeFromTarget(");
+const removeEnd = source.indexOf("\n\nasync function readTargetResidueState(", removeStart);
+if (removeStart < 0 || removeEnd < 0) {
+  throw new Error("unable to isolate removeFromTarget from injector.mjs");
+}
+const removeFromTargetSource = source.slice(removeStart, removeEnd);
+const browserContexts = new Map();
+
+function createStyle(initial = {}) {
+  const values = new Map(Object.entries(initial));
+  return {
+    removeProperty(name) { values.delete(name); },
+    getPropertyValue(name) { return values.get(name) || ""; },
+    setProperty(name, value) { values.set(name, String(value)); },
+    [Symbol.iterator]: function* iterateStyleNames() { yield* values.keys(); }
+  };
+}
+
+function createNode({ id = "", classes = [], attributes = {}, style = {}, stickyClass = false } = {}) {
+  const classNames = new Set(classes);
+  const attrs = new Map(Object.entries(attributes));
+  if (id) attrs.set("id", id);
+  const node = {
+    id,
+    removed: false,
+    stickyClass,
+    style: createStyle(style),
+    classList: {
+      add(name) { classNames.add(name); },
+      remove(name) { if (!node.stickyClass) classNames.delete(name); },
+      contains(name) { return classNames.has(name); },
+      [Symbol.iterator]: function* iterateClasses() { yield* classNames; }
+    },
+    get attributes() { return Array.from(attrs.keys()).map((name) => ({ name })); },
+    getAttribute(name) { return attrs.has(name) ? attrs.get(name) : null; },
+    setAttribute(name, value) {
+      attrs.set(name, String(value));
+      if (name === "id") node.id = String(value);
+    },
+    removeAttribute(name) {
+      attrs.delete(name);
+      if (name === "id") node.id = "";
+    },
+    hasAttribute(name) { return attrs.has(name); },
+    remove() { node.removed = true; }
+  };
+  return node;
+}
+
+function createBrowser({ stickyResidue = false } = {}) {
+  const root = createNode({
+    attributes: {
+      "data-codex-interface-theme": "active",
+      "data-cit-transient-shells": "1",
+      "data-cit-side-glyph-guard": "native-side-gutter"
+    },
+    style: { "--cit-accent": "#f60" }
+  });
+  const body = createNode({
+    attributes: { "data-cit-inline-background": "true" },
+    style: { "background-image": "url(data:image/png;base64,AA==)" }
+  });
+  const nativeIcon = createNode({
+    attributes: {
+      "data-cit-native-icon-hidden": "true",
+      "data-cit-native-icon-style": "display:block"
+    },
+    style: { display: "none" }
+  });
+  const ownedStyle = createNode({ id: "codex-interface-theme-style" });
+  const themedNative = createNode({ classes: ["codex-interface-theme-transient-shell"], stickyClass: stickyResidue });
+  const glyph = createNode({ classes: ["cit-button-glyph"] });
+  const nodes = [root, body, nativeIcon, ownedStyle, themedNative, glyph];
+
+  function matches(node, selector) {
+    if (node.removed) return false;
+    if (selector === "*") return true;
+    if (selector === "[data-cit-native-icon-hidden]") return node.hasAttribute("data-cit-native-icon-hidden");
+    if (selector === '[id^="codex-interface-theme-"]') return node.id.startsWith("codex-interface-theme-");
+    if (selector === '.cit-button-glyph') return node.classList.contains("cit-button-glyph");
+    if (selector === '.codex-interface-theme-pack-bay') return node.classList.contains("codex-interface-theme-pack-bay");
+    if (selector === '.codex-interface-theme-pack-switcher') return node.classList.contains("codex-interface-theme-pack-switcher");
+    if (selector === '[class*="codex-interface-theme-"]') {
+      return Array.from(node.classList).some((name) => name.includes("codex-interface-theme-"));
+    }
+    throw new Error(`unsupported test selector: ${selector}`);
+  }
+
+  const document = {
+    documentElement: root,
+    body,
+    querySelectorAll(selector) {
+      const selectors = selector.split(",").map((part) => part.trim());
+      return nodes.filter((node) => selectors.some((part) => matches(node, part)));
+    }
+  };
+  const cleanupCalls = [];
+  const window = {
+    __CODEX_INTERFACE_THEME_CHARACTER_RETREAT_CLEANUP__: () => cleanupCalls.push("character"),
+    __CODEX_INTERFACE_THEME_PROJECT_PANEL_CHROME_CLEANUP__: () => cleanupCalls.push("project"),
+    __CODEX_INTERFACE_THEME_SURFACE_REGISTRY__: { cleanup: () => cleanupCalls.push("registry") },
+    __CODEX_INTERFACE_THEME_ROUTE_WATCH__: 91,
+    __CODEX_INTERFACE_THEME_APPLY__: () => {},
+    __CODEX_INTERFACE_THEME_MAINTENANCE_TICK__: () => {},
+    clearInterval: (handle) => cleanupCalls.push(`interval:${handle}`)
+  };
+  return { context: { window, document }, root, body, nativeIcon, cleanupCalls };
+}
+
+class CdpSession {
+  constructor(url) { this.browser = browserContexts.get(url); }
+  async open() {}
+  async send(method, params) {
+    if (method === "Runtime.enable") return {};
+    if (method !== "Runtime.evaluate") throw new Error(`unexpected CDP method: ${method}`);
+    try {
+      const value = vm.runInNewContext(params.expression, this.browser.context);
+      return { result: { value } };
+    } catch (error) {
+      return { exceptionDetails: { text: error.message } };
+    }
+  }
+  close() {}
+}
+
+const removeFromTarget = vm.runInNewContext(`${removeFromTargetSource}\nremoveFromTarget`, { CdpSession }, { filename: injectorPath });
+
+(async () => {
+  const cleanBrowser = createBrowser();
+  browserContexts.set("ws://clean", cleanBrowser);
+  const clean = await removeFromTarget({ webSocketDebuggerUrl: "ws://clean" });
+  if (clean.ok !== true || clean.removed !== true || clean.fallback !== true) {
+    throw new Error(`fallback must report success only after complete cleanup: ${JSON.stringify(clean)}`);
+  }
+  if (clean.residue.ids.length || clean.residue.classes || clean.residue.dataAttributes.length ||
+      clean.residue.rootAttribute || clean.residue.rootVariables.length || clean.residue.globals.length ||
+      clean.residue.bodyInlineBackground) {
+    throw new Error(`successful fallback must prove zero residue: ${JSON.stringify(clean.residue)}`);
+  }
+  if (cleanBrowser.nativeIcon.getAttribute("style") !== "display:block" ||
+      cleanBrowser.nativeIcon.hasAttribute("data-cit-native-icon-hidden") ||
+      cleanBrowser.nativeIcon.hasAttribute("data-cit-native-icon-style")) {
+    throw new Error("fallback must restore the native icon style and remove ownership markers");
+  }
+  for (const expected of ["character", "project", "registry", "interval:91"]) {
+    if (!cleanBrowser.cleanupCalls.includes(expected)) {
+      throw new Error(`fallback did not run cleanup boundary: ${expected}`);
+    }
+  }
+
+  const residueBrowser = createBrowser({ stickyResidue: true });
+  browserContexts.set("ws://residue", residueBrowser);
+  const residue = await removeFromTarget({ webSocketDebuggerUrl: "ws://residue" });
+  if (residue.ok !== false || residue.removed !== false || residue.fallback !== true) {
+    throw new Error(`fallback must fail closed when cleanup residue remains: ${JSON.stringify(residue)}`);
+  }
+  if (!residue.residue || residue.residue.classes < 1) {
+    throw new Error("fallback failure must report the remaining residue");
+  }
+})().catch((error) => {
+  console.error(error && error.stack ? error.stack : error);
+  process.exitCode = 1;
+});
+NODE
+
+"$NODE_PATH" - "$ROOT_DIR/assets/renderer-inject.js" <<'NODE'
+const fs = require("node:fs");
+const vm = require("node:vm");
+
+const rendererPath = process.argv[2];
+const source = fs.readFileSync(rendererPath, "utf8");
+
+if (!source.includes("  const doc = document;")) {
+  throw new Error("unable to instrument renderer bootstrap boundary");
+}
+const bootstrapProbeSource = source.replace(
+  "  const doc = document;",
+  '  throw new Error("__BOOTSTRAP_PROCEEDED__");'
+);
+const rendererPackIds = [
+  "knife-shield-dog",
+  "orbital-stargazer-black-cat",
+  "orange-mecha-cat"
+];
+
+function rendererPayload(packCount = 3) {
+  return {
+    revision: "test-revision",
+    themePackDataUrls: rendererPackIds.slice(0, packCount).map((id) => ({
+      id,
+      payloadSchema: "renderer-safe-theme-packs-data-20260723",
+      backgroundDataUrl: "data:image/png;base64,AA==",
+      characterDataUrl: "data:image/png;base64,AA=="
+    }))
+  };
+}
+
+function probeBootstrap(previousRemove, packCount = 3) {
+  const clearedIntervals = [];
+  const createdIntervals = [];
+  const previousWatcher = { id: "old-route-watch" };
+  const probeWindow = {
+    __CODEX_INTERFACE_THEME_ROUTE_WATCH__: previousWatcher,
+    clearInterval: (handle) => clearedIntervals.push(handle),
+    setInterval: (callback, delay) => {
+      createdIntervals.push({ callback, delay });
+      return { id: "new-route-watch" };
+    }
+  };
+  if (previousRemove !== undefined) {
+    probeWindow.__CODEX_INTERFACE_THEME_REMOVE__ = previousRemove;
+  }
+  let result = null;
+  let error = null;
+  try {
+    result = vm.runInNewContext(
+      `${bootstrapProbeSource}(${JSON.stringify(rendererPayload(packCount))})`,
+      { window: probeWindow },
+      { filename: rendererPath }
+    );
+  } catch (caught) {
+    error = caught;
+  }
+  return { result, error, probeWindow, previousWatcher, previousRemove, clearedIntervals, createdIntervals };
+}
+
+function assertBootstrapStopped(probe, label) {
+  if (probe.error) {
+    throw new Error(`${label} must return a fail-closed result before bootstrap: ${probe.error.message}`);
+  }
+  if (!probe.result || probe.result.ok !== false || probe.result.removed !== false) {
+    throw new Error(`${label} must return ok=false and removed=false`);
+  }
+  if (probe.clearedIntervals.length !== 1 || probe.clearedIntervals[0] !== probe.previousWatcher) {
+    throw new Error(`${label} must clear the pre-existing route watcher before aborting`);
+  }
+  if (Object.prototype.hasOwnProperty.call(probe.probeWindow, "__CODEX_INTERFACE_THEME_ROUTE_WATCH__")) {
+    throw new Error(`${label} must delete the pre-existing route watcher global before aborting`);
+  }
+  if (probe.createdIntervals.length !== 0) {
+    throw new Error(`${label} must not create a replacement route interval`);
+  }
+  if (Object.prototype.hasOwnProperty.call(probe.probeWindow, "__CODEX_INTERFACE_THEME_APPLY__")) {
+    throw new Error(`${label} must not publish a new apply callback`);
+  }
+  if (probe.probeWindow.__CODEX_INTERFACE_THEME_REMOVE__ !== probe.previousRemove) {
+    throw new Error(`${label} must not replace the previous remove callback`);
+  }
+}
+
+assertBootstrapStopped(
+  probeBootstrap(() => ({ ok: false, removed: false, errors: ["old cleanup incomplete"] })),
+  "incomplete previous cleanup"
+);
+assertBootstrapStopped(
+  probeBootstrap(() => { throw new Error("previous cleanup failed"); }),
+  "throwing previous cleanup"
+);
+
+for (const [label, previousRemove] of [
+  ["absent previous cleanup", undefined],
+  ["successful previous cleanup", () => ({ ok: true, removed: true })]
+]) {
+  const probe = probeBootstrap(previousRemove);
+  if (!probe.error || probe.error.message !== "__BOOTSTRAP_PROCEEDED__") {
+    throw new Error(`${label} must be allowed to proceed into a new renderer bootstrap`);
+  }
+  if (probe.clearedIntervals.length !== 1 || probe.clearedIntervals[0] !== probe.previousWatcher) {
+    throw new Error(`${label} must clear the pre-existing route watcher before proceeding`);
+  }
+}
+
+const twoPackRenderer = probeBootstrap(undefined, 2);
+if (twoPackRenderer.error || !twoPackRenderer.result ||
+    twoPackRenderer.result.ok !== false || twoPackRenderer.result.removed !== false) {
+  throw new Error("renderer must fail closed before bootstrap when only two public packs are provided");
+}
+if (twoPackRenderer.createdIntervals.length !== 0 ||
+    Object.prototype.hasOwnProperty.call(twoPackRenderer.probeWindow, "__CODEX_INTERFACE_THEME_APPLY__")) {
+  throw new Error("invalid two-pack renderer payload must not create runtime state");
+}
+
+const removeStart = source.indexOf("function removeTheme()");
+const removeEnd = source.indexOf("\n\n  function reapplyTheme(", removeStart);
+if (removeStart < 0 || removeEnd < 0) {
+  throw new Error("unable to isolate removeTheme from renderer-inject.js");
+}
+const removeThemeSource = source.slice(removeStart, removeEnd);
+const lifecycle = vm.runInNewContext(`(() => {
+  const STYLE_ID = "style";
+  const BACKGROUND_STYLE_ID = "background-style";
+  const BACKDROP_ID = "backdrop";
+  const RIGHT_HUD_ID = "right-hud";
+  const CHARACTER_ID = "character";
+  const MARKER_ID = "marker";
+  const BADGE_ID = "badge";
+  const ROOT_ATTR = "data-codex-interface-theme";
+  const deferredTimeouts = new Set([11]);
+  const deferredFrames = new Set([22]);
+  let disposed = false;
+  let removing = false;
+  let routeWatchInterval = 33;
+  let tableFlipCatTimer = 44;
+  let failCleanup = true;
+  const root = {
+    dataset: {},
+    style: { removeProperty() {} },
+    removeAttribute() {}
+  };
+  const window = {
+    clearTimeout() {},
+    cancelAnimationFrame() {},
+    clearInterval() {},
+    __CODEX_INTERFACE_THEME_ROUTE_WATCH__: routeWatchInterval,
+    __CODEX_INTERFACE_THEME_MAINTENANCE_TICK__: () => {}
+  };
+  function cleanupStep(errors, action) {
+    try { action(); } catch (error) { errors.push(String(error && error.message || error)); }
+  }
+  function cancelDeferredWork() {
+    deferredTimeouts.forEach(function(handle) { window.clearTimeout(handle); });
+    deferredFrames.forEach(function(handle) { window.cancelAnimationFrame(handle); });
+    deferredTimeouts.clear();
+    deferredFrames.clear();
+  }
+  function cleanupRuntimeModules() {}
+  function removeElementById() {}
+  function clearBodyInlineBackground() {}
+  function cleanupButtonGlyphs() {
+    if (failCleanup) {
+      failCleanup = false;
+      throw new Error("injected cleanup failure");
+    }
+  }
+  function cleanupProjectPanels() {}
+  function clearComposerFrames() {}
+  function removeThemeClass() {}
+  function removeRootDataset() {}
+  function removeRootVariables() {}
+  function reapplyTheme() {}
+  ${removeThemeSource}
+  window.__CODEX_INTERFACE_THEME_REMOVE__ = removeTheme;
+  window.__CODEX_INTERFACE_THEME_APPLY__ = reapplyTheme;
+  return {
+    removeTheme,
+    window,
+    state: () => ({ disposed, removing })
+  };
+})()`, {}, { filename: rendererPath });
+
+const firstRemoval = lifecycle.removeTheme();
+if (firstRemoval.ok !== false || firstRemoval.removed !== false || !firstRemoval.errors?.includes("injected cleanup failure")) {
+  throw new Error("cleanup exception must return an explicit retryable failure");
+}
+if (lifecycle.state().disposed !== false) {
+  throw new Error("cleanup exception must not mark renderer disposed");
+}
+if (lifecycle.window.__CODEX_INTERFACE_THEME_REMOVE__ !== lifecycle.removeTheme) {
+  throw new Error("cleanup exception must preserve the current remove callback for retry");
+}
+const secondRemoval = lifecycle.removeTheme();
+if (secondRemoval.ok !== true || secondRemoval.removed !== true) {
+  throw new Error("second cleanup must complete after a retryable cleanup exception");
+}
+if (lifecycle.state().disposed !== true || lifecycle.state().removing !== false) {
+  throw new Error("successful retry must finish the renderer lifecycle");
+}
+if (Object.prototype.hasOwnProperty.call(lifecycle.window, "__CODEX_INTERFACE_THEME_REMOVE__") ||
+    Object.prototype.hasOwnProperty.call(lifecycle.window, "__CODEX_INTERFACE_THEME_APPLY__")) {
+  throw new Error("successful retry must clear renderer global callbacks");
+}
+NODE
+
+"$PYTHON_PATH" - "$ROOT_DIR" <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+root = pathlib.Path(sys.argv[1])
+injector = (root / "scripts/injector.mjs").read_text(encoding="utf-8")
+renderer = (root / "assets/renderer-inject.js").read_text(encoding="utf-8")
+manifest = json.loads((root / "assets/runtime-modules.json").read_text(encoding="utf-8"))
+
+if injector.count("surfaceRegistrySource") < 3:
+    raise SystemExit("surfaceRegistrySource must participate in read, revision, and core packaging")
+payload_start = injector.find("function buildPayload")
+payload_end = injector.find("function hasExternalWebviewTarget", payload_start)
+payload_block = injector[payload_start:payload_end]
+for token in [
+    'fs.readFileSync(path.join(ASSETS_DIR, "surface-registry.js"), "utf8")',
+    "const revision = sha256Text(JSON.stringify({",
+    "surfaceRegistrySource,",
+    "core: { css, theme, revision, surfaceRegistrySource }",
+]:
+    if token not in payload_block:
+        raise SystemExit(f"buildPayload must bind surfaceRegistrySource into revision and core: {token}")
+
+required_renderer_tokens = [
+    "let disposed = false",
+    "const deferredTimeouts = new Set()",
+    "const deferredFrames = new Set()",
+    "function scheduleDeferredTimeout",
+    "function cancelDeferredTimeout",
+    "function scheduleDeferredFrame",
+    "function cancelDeferredWork",
+    "function reapplyTheme",
+    "disposed = true",
+    "cancelDeferredWork()",
+    "window.__CODEX_INTERFACE_THEME_REMOVE__ === removeTheme",
+    "window.__CODEX_INTERFACE_THEME_APPLY__ === reapplyTheme",
+]
+for token in required_renderer_tokens:
+    if token not in renderer:
+        raise SystemExit(f"renderer lifecycle contract missing: {token}")
+if renderer.count("window.setTimeout(") != 1:
+    raise SystemExit("all renderer deferred timeouts must route through scheduleDeferredTimeout")
+if renderer.count("window.requestAnimationFrame(") != 1:
+    raise SystemExit("all renderer deferred frames must route through scheduleDeferredFrame")
+if re.search(r"(?<![\w.])setTimeout\(", renderer):
+    raise SystemExit("renderer must not create untracked global timeouts")
+if re.search(r"(?<![\w.])requestAnimationFrame\(", renderer):
+    raise SystemExit("renderer must not create untracked global animation frames")
+
+for module_id in ["surfaceRegistry"]:
+    pattern = re.compile(r'\{\s*id:\s*"' + re.escape(module_id) + r'"(?P<body>.*?)(?=\n\s*\},?\n\s*\{\s*id:|\n\s*\}\s*\];)', re.S)
+    match = pattern.search(renderer)
+    if not match:
+        raise SystemExit(f"renderer runtime module missing: {module_id}")
+    if "cleanup:" not in match.group("body"):
+        raise SystemExit(f"renderer runtime module must clean its residue: {module_id}")
+
+remove_start = renderer.find("function removeTheme()")
+remove_end = renderer.find("function reapplyTheme(", remove_start)
+if remove_start < 0 or remove_end < 0:
+    raise SystemExit("renderer must expose a bounded removeTheme lifecycle")
+remove_block = renderer[remove_start:remove_end]
+for token in [
+    "cleanupStep(cleanupErrors, cancelDeferredWork)",
+    "cleanupRuntimeModules(cleanupErrors)",
+    "cleanupButtonGlyphs, cleanupProjectPanels, clearComposerFrames",
+    '"composer-surface"',
+    '"composer-native-fade"',
+    '"composer-dock"',
+    '"composer-native-floor"',
+    '"chat-bubble"',
+    '"chat-card"',
+    "window.__CODEX_INTERFACE_THEME_REMOVE__ === removeTheme",
+    "window.__CODEX_INTERFACE_THEME_APPLY__ === reapplyTheme",
+]:
+    if token not in remove_block:
+        raise SystemExit(f"removeTheme must clean deferred/global/marker residue: {token}")
+
+written_datasets = set(re.findall(r"root\.dataset\.(cit[A-Za-z0-9_]+)\s*=", renderer))
+written_datasets.update(
+    "cit" + "".join(part[:1].upper() + part[1:] for part in name.split("-")[2:])
+    for name in re.findall(r'root\.setAttribute\("(data-cit-[^"]+)"', renderer)
+)
+cleaned_datasets = set(re.findall(r"delete\s+root\.dataset\.(cit[A-Za-z0-9_]+)", renderer))
+for call in re.findall(r"removeRootDataset\(\[(.*?)\]\)", renderer, re.S):
+    cleaned_datasets.update(re.findall(r'"(cit[A-Za-z0-9_]+)"', call))
+dataset_cleanup_start = renderer.find("function removeRootDataset()")
+dataset_cleanup_end = renderer.find("\n\n  function ", dataset_cleanup_start + 1)
+dataset_cleanup_block = renderer[dataset_cleanup_start:dataset_cleanup_end]
+if (
+    dataset_cleanup_start >= 0
+    and "Object.keys(root.dataset)" in dataset_cleanup_block
+    and 'name.indexOf("cit") === 0' in dataset_cleanup_block
+    and "cleanupStep(cleanupErrors, removeRootDataset)" in remove_block
+):
+    cleaned_datasets.update(written_datasets)
+missing_datasets = sorted(written_datasets - cleaned_datasets)
+if missing_datasets:
+    raise SystemExit(f"renderer root dataset cleanup is not symmetric: {missing_datasets}")
+for required_dataset in ["citTransientShells", "citSideGlyphGuard", "citHotSwapBay"]:
+    if required_dataset not in written_datasets or required_dataset not in cleaned_datasets:
+        raise SystemExit(f"renderer lifecycle must write and clean {required_dataset}")
+
+written_theme_classes = set()
+for args in re.findall(r"classList\.add\(([^)]*)\)", renderer):
+    written_theme_classes.update(
+        class_name
+        for class_name in re.findall(r'"([^"]+)"', args)
+        if class_name.startswith("codex-interface-theme-") and not class_name.endswith("-")
+    )
+cleaned_theme_classes = set()
+for args in re.findall(r"classList\.remove\(([^)]*)\)", renderer):
+    cleaned_theme_classes.update(
+        class_name
+        for class_name in re.findall(r'"([^"]+)"', args)
+        if class_name.startswith("codex-interface-theme-")
+    )
+cleaned_theme_classes.update(
+    "codex-interface-theme-" + token
+    for token in re.findall(r'"([a-z][A-Za-z0-9-]+)"', remove_block)
+)
+for tokens in re.findall(r"\[(.*?)\]\.forEach\(removeThemeClass\)", renderer, re.S):
+    cleaned_theme_classes.update(
+        "codex-interface-theme-" + token
+        for token in re.findall(r'"([a-z][A-Za-z0-9-]+)"', tokens)
+    )
+missing_theme_classes = sorted(written_theme_classes - cleaned_theme_classes)
+if missing_theme_classes:
+    raise SystemExit(f"renderer theme class cleanup is not symmetric: {missing_theme_classes}")
+
+surface_module = next((item for item in manifest.get("modules", []) if item.get("id") == "surfaceRegistry"), None)
+if not surface_module:
+    raise SystemExit("runtime manifest must declare surfaceRegistry")
+if surface_module.get("kind") != "dom-boundary-registry":
+    raise SystemExit("surfaceRegistry manifest kind must be dom-boundary-registry")
+if surface_module.get("boundaryProfile") != "nativeBoundary":
+    raise SystemExit("surfaceRegistry manifest must use nativeBoundary")
+if surface_module.get("payloadKeys") != ["surfaceRegistrySource"]:
+    raise SystemExit("surfaceRegistry manifest must declare only surfaceRegistrySource payload")
+event_policy = str(surface_module.get("eventPolicy", ""))
+if "MutationObserver" in event_policy and "no MutationObserver" not in event_policy:
+    raise SystemExit("surfaceRegistry manifest must forbid a full-page MutationObserver")
+if "fixed geometry" in event_policy and "no fixed geometry" not in event_policy:
+    raise SystemExit("surfaceRegistry manifest must forbid fixed geometry identity")
+PY
+
+"$NODE_PATH" - "$PROJECT_ROOT" "$ROOT_DIR/scripts/injector.mjs" <<'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+const { fileURLToPath, pathToFileURL } = require("node:url");
+const vm = require("node:vm");
+
+const projectRoot = process.argv[2];
+const injectorPath = process.argv[3];
+const source = fs.readFileSync(injectorPath, "utf8");
+const expectedPackIds = [
+  "knife-shield-dog",
+  "orbital-stargazer-black-cat",
+  "orange-mecha-cat"
+];
+const packSetPath = path.join(projectRoot, "theme-packs", "public-pack-set.json");
+const packSet = JSON.parse(fs.readFileSync(packSetPath, "utf8"));
+if (packSet.schemaVersion !== 1 || packSet.contract !== "public-hot-swap-pack-set" || packSet.exactCount !== 3) {
+  throw new Error("canonical public pack set schema/contract/exactCount is invalid");
+}
+if (JSON.stringify(packSet.orderedPackIds) !== JSON.stringify(expectedPackIds)) {
+  throw new Error(`canonical public pack order is invalid: ${JSON.stringify(packSet.orderedPackIds)}`);
+}
+
+function extractFunction(name) {
+  const start = source.indexOf(`function ${name}(`);
+  if (start < 0) throw new Error(`missing injector function: ${name}`);
+  const signatureEnd = source.indexOf(") {", start);
+  if (signatureEnd < 0) throw new Error(`missing injector function body: ${name}`);
+  const bodyStart = signatureEnd + 2;
+  let depth = 0;
+  let quote = "";
+  let escaped = false;
+  for (let index = bodyStart; index < source.length; index += 1) {
+    const char = source[index];
+    if (quote) {
+      if (escaped) escaped = false;
+      else if (char === "\\") escaped = true;
+      else if (char === quote) quote = "";
+      continue;
+    }
+    if (char === '"' || char === "'" || char === "`") {
+      quote = char;
+      continue;
+    }
+    if (char === "{") depth += 1;
+    if (char === "}") {
+      depth -= 1;
+      if (depth === 0) return source.slice(start, index + 1);
+    }
+  }
+  throw new Error(`unterminated injector function: ${name}`);
+}
+
+const discoverySource = [
+  "inferMimeFromPath",
+  "resolveThemePackAsset",
+  "readThemePackAssetDataUrl",
+  "readThemePackDataUrls"
+].map(extractFunction).join("\n");
+const context = {
+  fs,
+  path,
+  fileURLToPath,
+  pathToFileURL,
+  THEME_PACKS_DIR: path.join(projectRoot, "theme-packs"),
+  THEME_PACK_ID_RE: /^[a-z0-9][a-z0-9-]{1,80}$/,
+  THEME_PACK_HOT_SWAP_LIMIT: 3,
+  THEME_PACK_PAYLOAD_SCHEMA: "renderer-safe-theme-packs-data-20260723",
+  readJson: (filePath) => JSON.parse(fs.readFileSync(filePath, "utf8"))
+};
+const readThemePackDataUrls = vm.runInNewContext(
+  `${discoverySource}\nreadThemePackDataUrls`,
+  context,
+  { filename: injectorPath }
+);
+const discovered = readThemePackDataUrls({}, {});
+const discoveredIds = discovered.map((pack) => pack.id);
+if (JSON.stringify(discoveredIds) !== JSON.stringify(expectedPackIds)) {
+  throw new Error(`public runtime must discover exactly the three approved packs: ${JSON.stringify(discoveredIds)}`);
+}
+
+for (const packId of expectedPackIds) {
+  const packDir = path.join(projectRoot, "theme-packs", packId);
+  const manifestPath = path.join(packDir, "pack.json");
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  if (manifest.schemaVersion !== 1 || manifest.id !== packId || manifest.status !== "asset-ready-unmounted") {
+    throw new Error(`${packId} manifest identity/status is invalid`);
+  }
+  const interaction = manifest.interaction || {};
+  if (interaction.activation !== "manual-click-only" || interaction.preload !== false || interaction.idlePlaybackDom !== false) {
+    throw new Error(`${packId} interaction contract must remain manual and idle-free`);
+  }
+  const assetEntries = Object.entries({ ...(manifest.assets || {}), ...(manifest.iconMap || {}) });
+  if (assetEntries.length === 0) throw new Error(`${packId} manifest has no assets`);
+  for (const [role, relativePath] of assetEntries) {
+    const value = String(relativePath || "");
+    if (!value || path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]+/).includes("..")) {
+      throw new Error(`${packId} ${role} path is unsafe: ${value}`);
+    }
+    const absolutePath = path.resolve(packDir, value);
+    if (!absolutePath.startsWith(`${path.resolve(packDir)}${path.sep}`)) {
+      throw new Error(`${packId} ${role} escapes the pack root`);
+    }
+    const stat = fs.statSync(absolutePath);
+    if (!stat.isFile() || stat.size <= 0) {
+      throw new Error(`${packId} ${role} asset is missing or empty: ${absolutePath}`);
+    }
+  }
+}
+
+const publicManifest = JSON.parse(fs.readFileSync(path.join(projectRoot, "submission", "public-package-manifest.json"), "utf8"));
+const publicSources = Array.isArray(publicManifest.sourceInclude) ? publicManifest.sourceInclude : [];
+const expectedPublicPackPaths = [
+  "theme-packs/public-pack-set.json",
+  ...expectedPackIds.flatMap((packId) => [
+    `theme-packs/${packId}/pack.json`,
+    `theme-packs/${packId}/runtime`
+  ])
+];
+for (const requiredPath of expectedPublicPackPaths) {
+  if (!publicSources.includes(requiredPath)) {
+    throw new Error(`public package manifest is missing canonical pack path: ${requiredPath}`);
+  }
+}
+const declaredPublicPackPaths = publicSources.filter((relativePath) =>
+  expectedPackIds.some((packId) => relativePath.startsWith(`theme-packs/${packId}/`))
+);
+if (JSON.stringify(declaredPublicPackPaths.sort()) !== JSON.stringify(expectedPublicPackPaths.slice(1).sort())) {
+  throw new Error(`public package manifest must contain only pack.json and runtime for each public pack: ${JSON.stringify(declaredPublicPackPaths)}`);
+}
+const forbiddenPublicPackPaths = publicSources.filter((relativePath) =>
+  relativePath.startsWith("theme-packs/") && /\/(sources|preview|previews)(?:\/|$)/.test(relativePath)
+);
+if (forbiddenPublicPackPaths.length) {
+  throw new Error(`public package manifest must exclude pack sources/previews: ${JSON.stringify(forbiddenPublicPackPaths)}`);
+}
+NODE
 
 "$NODE_PATH" "$ROOT_DIR/scripts/theme-store.mjs" init \
   --state-dir "/tmp/codex-interface-theme-test-state" \
@@ -675,6 +1891,78 @@ grep -q '\.webp"' "/tmp/codex-interface-theme-webp-test.json" || cit_die "theme-
   --state-dir "/tmp/codex-interface-theme-test-state" \
   --assets-dir "$ROOT_DIR/assets" \
   --format json >"/tmp/codex-interface-theme-module-matrix-test.json"
+
+HOTSWAP_FIXTURE_ROOT="$(mktemp -d "${TMPDIR:-/tmp}/dream-skin-hotswap-fixtures.XXXXXX")"
+cleanup_hotswap_fixtures() {
+  if [[ -n "${HOTSWAP_FIXTURE_ROOT:-}" && -d "$HOTSWAP_FIXTURE_ROOT" ]]; then
+    rm -rf -- "$HOTSWAP_FIXTURE_ROOT"
+  fi
+}
+trap cleanup_hotswap_fixtures EXIT
+
+create_hotswap_matrix_fixture() {
+  local fixture_root="$1"
+  local mode="$2"
+  local pack_id
+  mkdir -p "$fixture_root/macos" "$fixture_root/theme-packs"
+  ln -s "$ROOT_DIR/assets" "$fixture_root/macos/assets"
+  if [[ "$mode" != "missing-pack-set" ]]; then
+    cp "$PROJECT_ROOT/theme-packs/public-pack-set.json" "$fixture_root/theme-packs/public-pack-set.json"
+  fi
+  for pack_id in knife-shield-dog orbital-stargazer-black-cat orange-mecha-cat; do
+    mkdir -p "$fixture_root/theme-packs/$pack_id"
+    if [[ "$mode" != "missing-manifest" || "$pack_id" != "orbital-stargazer-black-cat" ]]; then
+      cp "$PROJECT_ROOT/theme-packs/$pack_id/pack.json" "$fixture_root/theme-packs/$pack_id/pack.json"
+    fi
+    if [[ "$mode" = "missing-ref" && "$pack_id" = "knife-shield-dog" ]]; then
+      cp -R "$PROJECT_ROOT/theme-packs/$pack_id/runtime" "$fixture_root/theme-packs/$pack_id/runtime"
+      rm "$fixture_root/theme-packs/$pack_id/runtime/icons/search.svg"
+    else
+      ln -s "$PROJECT_ROOT/theme-packs/$pack_id/runtime" "$fixture_root/theme-packs/$pack_id/runtime"
+    fi
+  done
+  if [[ "$mode" = "extra-manifest" ]]; then
+    mkdir -p "$fixture_root/theme-packs/fourth-public-pack"
+    cp "$PROJECT_ROOT/theme-packs/knife-shield-dog/pack.json" "$fixture_root/theme-packs/fourth-public-pack/pack.json"
+  fi
+}
+
+assert_hotswap_matrix_fixture_fails() {
+  local label="$1"
+  local fixture_root="$2"
+  local expected_error="$3"
+  local report_path="$fixture_root/report.json"
+  if "$NODE_PATH" "$ROOT_DIR/scripts/module-matrix.mjs" \
+    --state-dir "/tmp/codex-interface-theme-test-state" \
+    --assets-dir "$fixture_root/macos/assets" \
+    --format json >"$report_path"; then
+    cit_die "module matrix must fail closed for $label"
+  fi
+  grep -Fq "$expected_error" "$report_path" || cit_die "module matrix $label failure must report: $expected_error"
+}
+
+for fixture_mode in missing-pack-set missing-manifest missing-ref extra-manifest; do
+  create_hotswap_matrix_fixture "$HOTSWAP_FIXTURE_ROOT/$fixture_mode" "$fixture_mode"
+done
+assert_hotswap_matrix_fixture_fails \
+  "missing public pack set" \
+  "$HOTSWAP_FIXTURE_ROOT/missing-pack-set" \
+  "themePacks:public pack set missing"
+assert_hotswap_matrix_fixture_fails \
+  "missing canonical manifest" \
+  "$HOTSWAP_FIXTURE_ROOT/missing-manifest" \
+  "themePacks:orbital-stargazer-black-cat manifest is missing"
+assert_hotswap_matrix_fixture_fails \
+  "missing runtime reference" \
+  "$HOTSWAP_FIXTURE_ROOT/missing-ref" \
+  "themePacks:knife-shield-dog:iconMap.search missing file"
+assert_hotswap_matrix_fixture_fails \
+  "extra fourth manifest" \
+  "$HOTSWAP_FIXTURE_ROOT/extra-manifest" \
+  "themePacks:manifest ids must match the canonical set"
+
+cleanup_hotswap_fixtures
+trap - EXIT
 
 "$PYTHON_PATH" - "$ROOT_DIR" <<'PY'
 import json
@@ -982,8 +2270,56 @@ if module_matrix["plans"]["tableFlipEnabled"]["modules"]["tableFlipCatLoad"] != 
     raise SystemExit("module matrix must confirm explicit table flip enablement uses click-time static-cache loading")
 if module_matrix["plans"]["activeTheme"]["modules"].get("themePacks") != "hot-swap-ready":
     raise SystemExit("module matrix must confirm developer theme packs are hot-swap ready")
-if module_matrix["plans"]["activeTheme"]["payloadBytes"] <= 0:
-    raise SystemExit("module matrix must report a positive active payload size")
+expected_pack_order = [
+    "knife-shield-dog",
+    "orbital-stargazer-black-cat",
+    "orange-mecha-cat",
+]
+expected_pack_ids = set(expected_pack_order)
+expected_pack_roles = {
+    "background",
+    "heroCharacter",
+    "interactionMascot",
+    "interactionPoster",
+    "interactionTrigger",
+    "interactionSprite",
+}
+public_pack_plan = module_matrix["plans"].get("publicThemePackSet", {})
+if public_pack_plan.get("orderedPackIds") != expected_pack_order:
+    raise SystemExit(f"module matrix canonical pack order is wrong: {public_pack_plan.get('orderedPackIds')}")
+if public_pack_plan.get("validatedPackIds") != expected_pack_order:
+    raise SystemExit(f"module matrix must validate all three canonical packs: {public_pack_plan.get('validatedPackIds')}")
+if public_pack_plan.get("runtimeRefCount") != 63 or public_pack_plan.get("expectedRuntimeRefCount") != 63:
+    raise SystemExit(f"module matrix must prove all 63/63 public runtime references: {public_pack_plan}")
+matrix_pack_roles = {}
+for asset in module_matrix["plans"]["activeTheme"]["assets"]:
+    if asset.get("module") != "themePacks":
+        continue
+    pack_id, separator, role = str(asset.get("role", "")).partition(":")
+    if not separator:
+        raise SystemExit(f"module matrix theme pack role is malformed: {asset.get('role')}")
+    matrix_pack_roles.setdefault(pack_id, set()).add(role)
+if set(matrix_pack_roles) != expected_pack_ids:
+    raise SystemExit(f"module matrix must validate exactly the three approved packs: {sorted(matrix_pack_roles)}")
+for pack_id in sorted(expected_pack_ids):
+    if matrix_pack_roles[pack_id] != expected_pack_roles:
+        raise SystemExit(
+            f"module matrix pack assets are incomplete for {pack_id}: {sorted(matrix_pack_roles[pack_id])}"
+        )
+active_plan = module_matrix["plans"]["activeTheme"]
+theme_pack_payload_bytes = sum(
+    int(asset.get("bytes", 0))
+    for asset in active_plan["assets"]
+    if asset.get("module") == "themePacks"
+)
+all_active_asset_bytes = sum(int(asset.get("bytes", 0)) for asset in active_plan["assets"])
+if theme_pack_payload_bytes <= 0:
+    raise SystemExit("module matrix must include canonical pack bytes in the active payload")
+if active_plan["payloadBytes"] != all_active_asset_bytes or active_plan["payloadBytes"] < theme_pack_payload_bytes:
+    raise SystemExit(
+        f"module matrix active payload must include pack bytes: active={active_plan['payloadBytes']} "
+        f"assets={all_active_asset_bytes} packs={theme_pack_payload_bytes}"
+    )
 if len(module_matrix["retainedSourceAssets"]) != 10:
     raise SystemExit("module matrix must classify the ten retained source assets")
 for archive_candidate in module_matrix["archiveCandidates"]:

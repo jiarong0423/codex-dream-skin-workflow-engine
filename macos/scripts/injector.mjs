@@ -12,7 +12,6 @@ const ASSETS_DIR = path.join(ENGINE_ROOT, "assets");
 const PROJECT_ROOT = path.resolve(ENGINE_ROOT, "..");
 const THEME_PACKS_DIR = path.join(PROJECT_ROOT, "theme-packs");
 const THEME_PACK_ID_RE = /^[a-z0-9][a-z0-9-]{1,80}$/;
-const THEME_PACK_HOT_SWAP_LIMIT = 3;
 const DEFAULT_WAIT_MS = 20000;
 const APPLY_INTERVAL_MS = 1500;
 const TARGET_ASSET_CACHE = "__CODEX_INTERFACE_THEME_ASSET_GROUPS__";
@@ -20,6 +19,7 @@ const LEGACY_TARGET_ASSET_STORAGE = "codex-interface-theme:asset-groups:v1";
 const TARGET_ASSET_INDEX = "codex-interface-theme:asset-groups:v2:index";
 const TARGET_ASSET_GROUP_PREFIX = "codex-interface-theme:asset-groups:v2:";
 const THEME_PACK_PAYLOAD_SCHEMA = "renderer-safe-theme-packs-data-20260723";
+const THEME_PACK_IDS = Object.freeze(["knife-shield-dog", "orbital-stargazer-black-cat", "orange-mecha-cat"]);
 
 function usage() {
   return `Usage:
@@ -380,29 +380,62 @@ function readThemePackAssetDataUrl(packDir, relativePath, fieldName, maxBytes) {
 
 function readThemePackDataUrls(activeTheme, activeAssets = {}) {
   if (!fs.existsSync(THEME_PACKS_DIR)) {
-    return [];
+    throw new Error(`theme pack root is missing: ${THEME_PACKS_DIR}`);
+  }
+  const packSetPath = path.join(THEME_PACKS_DIR, "public-pack-set.json");
+  if (!fs.existsSync(packSetPath)) {
+    throw new Error(`public theme pack set is missing: ${packSetPath}`);
+  }
+  const packSetSource = readJson(packSetPath);
+  const orderedPackIds = Array.isArray(packSetSource.orderedPackIds) ? packSetSource.orderedPackIds.map(String) : [];
+  const requiredAssetKeys = Array.isArray(packSetSource.requiredAssetKeys) ? packSetSource.requiredAssetKeys.map(String) : [];
+  const requiredIconMapKeys = Array.isArray(packSetSource.requiredIconMapKeys) ? packSetSource.requiredIconMapKeys.map(String) : [];
+  if (packSetSource.schemaVersion !== 1 || packSetSource.contract !== "public-hot-swap-pack-set") {
+    throw new Error("public theme pack set contract is invalid");
+  }
+  if (packSetSource.exactCount !== 3 || orderedPackIds.length !== packSetSource.exactCount) {
+    throw new Error(`public theme pack set must declare exactly 3 packs, got ${orderedPackIds.length}`);
+  }
+  const canonicalPackIds = ["knife-shield-dog", "orbital-stargazer-black-cat", "orange-mecha-cat"];
+  if (orderedPackIds.some((packId, index) => packId !== canonicalPackIds[index])) {
+    throw new Error(`public theme pack order must be ${canonicalPackIds.join(",")}`);
+  }
+  if (new Set(orderedPackIds).size !== orderedPackIds.length || orderedPackIds.some((packId) => !THEME_PACK_ID_RE.test(packId))) {
+    throw new Error("public theme pack set contains duplicate or invalid pack ids");
+  }
+  if (requiredAssetKeys.length !== 6 || new Set(requiredAssetKeys).size !== requiredAssetKeys.length) {
+    throw new Error("public theme pack set must declare exactly 6 unique asset keys");
+  }
+  if (requiredIconMapKeys.length !== 15 || new Set(requiredIconMapKeys).size !== requiredIconMapKeys.length) {
+    throw new Error("public theme pack set must declare exactly 15 unique icon map keys");
   }
   const activePackId = String(activeTheme && activeTheme.themePack && activeTheme.themePack.id || "");
-  const entries = fs.readdirSync(THEME_PACKS_DIR, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && THEME_PACK_ID_RE.test(entry.name))
-    .sort((left, right) => left.name.localeCompare(right.name))
-    .slice(0, THEME_PACK_HOT_SWAP_LIMIT);
   const packs = [];
-  for (const entry of entries) {
-    const packDir = path.join(THEME_PACKS_DIR, entry.name);
+  for (const packId of orderedPackIds) {
+    const packDir = path.join(THEME_PACKS_DIR, packId);
+    if (!fs.existsSync(packDir) || !fs.statSync(packDir).isDirectory()) {
+      throw new Error(`required public theme pack directory is missing: ${packId}`);
+    }
     const manifestPath = path.join(packDir, "pack.json");
     if (!fs.existsSync(manifestPath)) {
-      continue;
+      throw new Error(`required public theme pack manifest is missing: ${packId}`);
     }
     const manifest = readJson(manifestPath);
-    if (manifest.schemaVersion !== 1 || manifest.id !== entry.name || manifest.status !== "asset-ready-unmounted") {
-      continue;
+    if (manifest.schemaVersion !== 1 || manifest.id !== packId || manifest.status !== "asset-ready-unmounted") {
+      throw new Error(`required public theme pack manifest is invalid: ${packId}`);
     }
     const assets = manifest.assets && typeof manifest.assets === "object" ? manifest.assets : {};
     const palette = manifest.palette && typeof manifest.palette === "object" ? manifest.palette : {};
     const interaction = manifest.interaction && typeof manifest.interaction === "object" ? manifest.interaction : {};
     if (interaction.activation !== "manual-click-only" || interaction.preload !== false || interaction.idlePlaybackDom !== false) {
-      continue;
+      throw new Error(`required public theme pack interaction contract is invalid: ${packId}`);
+    }
+    const iconMap = manifest.iconMap && typeof manifest.iconMap === "object" ? manifest.iconMap : {};
+    for (const assetKey of requiredAssetKeys) {
+      resolveThemePackAsset(packDir, assets[assetKey], `${manifest.id} asset ${assetKey}`, 16 * 1024 * 1024);
+    }
+    for (const iconKey of requiredIconMapKeys) {
+      resolveThemePackAsset(packDir, iconMap[iconKey], `${manifest.id} icon ${iconKey}`, 512 * 1024);
     }
     const isActivePack = manifest.id === activePackId;
     packs.push({
@@ -433,6 +466,9 @@ function readThemePackDataUrls(activeTheme, activeAssets = {}) {
         ? String(activeAssets.tableFlipCatDataUrl || "")
         : readThemePackAssetDataUrl(packDir, assets.interactionPoster, `${manifest.id} interaction poster`, 2 * 1024 * 1024)
     });
+  }
+  if (packs.length !== orderedPackIds.length) {
+    throw new Error(`public theme pack payload must contain exactly ${orderedPackIds.length} packs`);
   }
   return packs;
 }
@@ -535,6 +571,7 @@ function normalizeTheme(theme) {
 function buildPayload(paths) {
   const css = fs.readFileSync(path.join(ASSETS_DIR, "theme.css"), "utf8");
   const renderer = fs.readFileSync(path.join(ASSETS_DIR, "renderer-inject.js"), "utf8");
+  const surfaceRegistrySource = fs.readFileSync(path.join(ASSETS_DIR, "surface-registry.js"), "utf8");
   const fallbackTheme = readJson(path.join(ASSETS_DIR, "theme.json"));
   const activeTheme = fs.existsSync(paths.activeTheme) ? readJson(paths.activeTheme) : fallbackTheme;
   const theme = normalizeTheme(activeTheme);
@@ -564,6 +601,7 @@ function buildPayload(paths) {
   const revision = sha256Text(JSON.stringify({
     css,
     renderer,
+    surfaceRegistrySource,
     theme,
     assetGroupHashes
   })).slice(0, 16);
@@ -571,7 +609,7 @@ function buildPayload(paths) {
   return {
     css,
     renderer,
-    core: { css, theme, revision },
+    core: { css, theme, revision, surfaceRegistrySource },
     assetGroups,
     assetGroupHashes,
     theme,
@@ -681,13 +719,15 @@ async function readTargetAssetGroupHashes(session) {
         const packs = storedThemePacks && storedThemePacks.payload && Array.isArray(storedThemePacks.payload.themePackDataUrls)
           ? storedThemePacks.payload.themePackDataUrls
           : [];
-        const unsafePack = packs.length > 0 && packs.some((pack) => (
+        const expectedPackIds = ${JSON.stringify(THEME_PACK_IDS)};
+        const unsafePack = packs.length !== expectedPackIds.length || packs.some((pack, index) => (
           !pack ||
+          pack.id !== expectedPackIds[index] ||
           pack.payloadSchema !== ${JSON.stringify(THEME_PACK_PAYLOAD_SCHEMA)} ||
           !String(pack.backgroundDataUrl || "").startsWith("data:image/") ||
           !String(pack.characterDataUrl || "").startsWith("data:image/")
         ));
-        if (packs.length === 0 || unsafePack) { hashes.themePacks = ""; }
+        if (unsafePack) { hashes.themePacks = ""; }
       } catch (_) {
         hashes.themePacks = "";
       }
@@ -706,14 +746,14 @@ async function readTargetThemeState(session) {
       const marker = document.getElementById("codex-interface-theme-marker");
       const rightHud = document.getElementById("codex-interface-theme-right-hud");
       const hotSwapBay = document.querySelector("body > .codex-interface-theme-pack-bay") || (rightHud ? rightHud.querySelector(".codex-interface-theme-pack-bay") : null);
-      const hotSwapSelect = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-select") : null;
+      const hotSwapCycleButton = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-cycle-button") : null;
       return {
         active: root.getAttribute("data-codex-interface-theme") === "active",
         revision: marker ? marker.getAttribute("data-revision") || "" : "",
         hasMarker: Boolean(marker),
         hotSwapPacks: Number(root.getAttribute("data-cit-hot-swap-packs") || "0"),
         hasHotSwapBay: Boolean(hotSwapBay),
-        hasHotSwapSelect: Boolean(hotSwapSelect)
+        hasHotSwapCycleButton: Boolean(hotSwapCycleButton)
       };
     })();`,
     awaitPromise: false,
@@ -727,13 +767,16 @@ function expectedHotSwapPackCount(payload) {
     ? payload.assetGroups.themePacks
     : {};
   const packs = Array.isArray(group.themePackDataUrls) ? group.themePackDataUrls : [];
-  return packs.filter((pack) => (
+  const valid = packs.length === THEME_PACK_IDS.length && packs.every((pack, index) => (
     pack &&
     typeof pack === "object" &&
-    String(pack.id || "") &&
+    pack.id === THEME_PACK_IDS[index] &&
+    pack.payloadSchema === THEME_PACK_PAYLOAD_SCHEMA &&
     String(pack.backgroundDataUrl || "").startsWith("data:image/") &&
     String(pack.characterDataUrl || "").startsWith("data:image/")
-  )).length;
+  ));
+  if (!valid) throw new Error("theme pack payload must contain the three fixed packs in canonical order");
+  return packs.length;
 }
 
 async function applyToTarget(target, payload) {
@@ -753,7 +796,7 @@ async function applyToTarget(target, payload) {
     const hotSwapStateReady = expectedHotSwapPacks < 2 || (
       themeState.hotSwapPacks === expectedHotSwapPacks &&
       themeState.hasHotSwapBay === true &&
-      themeState.hasHotSwapSelect === true
+      themeState.hasHotSwapCycleButton === true
     );
     let assetExpressionBytes = 0;
     if (groupsToSend.length > 0 || staleGroupIds.length > 0) {
@@ -798,7 +841,14 @@ async function applyToTarget(target, payload) {
       returnByValue: true,
       userGesture: false
     });
-    const value = result.result && result.result.value ? result.result.value : { ok: true };
+    if (result.exceptionDetails) {
+      throw new Error(result.exceptionDetails.text || "runtime apply evaluation failed");
+    }
+    const value = result && result.result ? result.result.value : null;
+    if (!value || typeof value !== "object" || value.ok !== true) {
+      const detail = value && typeof value === "object" && value.error ? `: ${String(value.error)}` : "";
+      throw new Error(`runtime apply did not prove success${detail}`);
+    }
     return {
       ...value,
       assetGroupsChanged: changedGroupIds,
@@ -824,21 +874,88 @@ async function removeFromTarget(target) {
         if (typeof window.__CODEX_INTERFACE_THEME_REMOVE__ === "function") {
           return window.__CODEX_INTERFACE_THEME_REMOVE__();
         }
-        const style = document.getElementById("codex-interface-theme-style");
-        if (style) {
-          style.remove();
-        }
-        const marker = document.getElementById("codex-interface-theme-marker");
-        if (marker) {
-          marker.remove();
-        }
-        document.documentElement.removeAttribute("data-codex-interface-theme");
-        return { ok: true, removed: true, fallback: true };
+        const errors = [];
+        const attempt = (action) => {
+          try { action(); } catch (error) { errors.push(String(error && error.message || error)); }
+        };
+        const root = document.documentElement;
+        const cleanupGlobals = [
+          "__CODEX_INTERFACE_THEME_CHARACTER_RETREAT_CLEANUP__",
+          "__CODEX_INTERFACE_THEME_PROJECT_PANEL_CHROME_CLEANUP__"
+        ];
+        cleanupGlobals.forEach((name) => attempt(() => {
+          if (typeof window[name] === "function") window[name]();
+        }));
+        attempt(() => {
+          const registry = window.__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__;
+          if (registry && typeof registry.cleanup === "function") registry.cleanup();
+        });
+        attempt(() => {
+          const watch = window.__CODEX_INTERFACE_THEME_ROUTE_WATCH__;
+          if (watch !== undefined && watch !== null) window.clearInterval(watch);
+        });
+        attempt(() => {
+          document.querySelectorAll('[data-cit-native-icon-hidden]').forEach((node) => {
+            const originalStyle = node.getAttribute("data-cit-native-icon-style");
+            if (originalStyle) node.setAttribute("style", originalStyle);
+            else node.removeAttribute("style");
+            node.removeAttribute("data-cit-native-icon-style");
+            node.removeAttribute("data-cit-native-icon-hidden");
+          });
+        });
+        attempt(() => document.querySelectorAll('.cit-button-glyph,.codex-interface-theme-pack-bay,.codex-interface-theme-pack-switcher,[id^="codex-interface-theme-"]').forEach((node) => node.remove()));
+        attempt(() => document.querySelectorAll("*").forEach((node) => {
+          Array.from(node.classList || []).forEach((name) => {
+            if (name.indexOf("codex-interface-theme-") === 0 || name === "cit-button-glyph") node.classList.remove(name);
+          });
+          Array.from(node.attributes || []).forEach((attribute) => {
+            if (attribute.name.indexOf("data-cit-") === 0) node.removeAttribute(attribute.name);
+          });
+        }));
+        attempt(() => {
+          root.removeAttribute("data-codex-interface-theme");
+          Array.from(root.style).forEach((name) => {
+            if (name.indexOf("--cit-") === 0) root.style.removeProperty(name);
+          });
+        });
+        attempt(() => {
+          if (!document.body) return;
+          ["background", "background-image", "background-size", "background-position", "background-repeat", "background-attachment"].forEach((name) => document.body.style.removeProperty(name));
+          document.body.removeAttribute("data-cit-inline-background");
+        });
+        const ownedGlobals = [
+          "__CODEX_INTERFACE_THEME_APPLY__",
+          "__CODEX_INTERFACE_THEME_REMOVE__",
+          "__CODEX_INTERFACE_THEME_MAINTENANCE_TICK__",
+          "__CODEX_INTERFACE_THEME_ROUTE_WATCH__",
+          "__CODEX_INTERFACE_THEME_SURFACE_REGISTRY__",
+          ...cleanupGlobals
+        ];
+        ownedGlobals.forEach((name) => attempt(() => { delete window[name]; }));
+        const residue = {
+          ids: Array.from(document.querySelectorAll('[id^="codex-interface-theme-"]')).map((node) => node.id),
+          classes: document.querySelectorAll('[class*="codex-interface-theme-"],.cit-button-glyph').length,
+          dataAttributes: [],
+          rootAttribute: root.hasAttribute("data-codex-interface-theme"),
+          rootVariables: Array.from(root.style).filter((name) => name.indexOf("--cit-") === 0),
+          globals: ownedGlobals.filter((name) => Object.prototype.hasOwnProperty.call(window, name)),
+          bodyInlineBackground: Boolean(document.body && (document.body.hasAttribute("data-cit-inline-background") || String(document.body.style.getPropertyValue("background-image") || "").includes("data:image/")))
+        };
+        document.querySelectorAll("*").forEach((node) => Array.from(node.attributes || []).forEach((attribute) => {
+          if (attribute.name.indexOf("data-cit-") === 0 && residue.dataAttributes.length < 20) residue.dataAttributes.push(attribute.name);
+        }));
+        const clean = errors.length === 0 && residue.ids.length === 0 && residue.classes === 0 && residue.dataAttributes.length === 0 && !residue.rootAttribute && residue.rootVariables.length === 0 && residue.globals.length === 0 && !residue.bodyInlineBackground;
+        return { ok: clean, removed: clean, fallback: true, errors, residue };
       })();`,
       awaitPromise: false,
       returnByValue: true
     });
-    return result.result && result.result.value ? result.result.value : { ok: true, removed: true };
+    if (result.exceptionDetails) {
+      return { ok: false, removed: false, error: result.exceptionDetails.text || "restore evaluation failed" };
+    }
+    return result.result && result.result.value && typeof result.result.value === "object"
+      ? result.result.value
+      : { ok: false, removed: false, error: "restore result was missing" };
   } finally {
     session.close();
   }
@@ -1018,8 +1135,8 @@ async function verifyTarget(target, screenshotPath, simulateTableFlip = false, h
         const tableFlipTriggerStyle = tableFlipTrigger ? getComputedStyle(tableFlipTrigger) : null;
         const hotSwapBay = document.querySelector("body > .codex-interface-theme-pack-bay") || (rightHud ? rightHud.querySelector(".codex-interface-theme-pack-bay") : null);
         const hotSwapSwitcher = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-switcher") : null;
-        const hotSwapSelect = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-select") : null;
-        const hotSwapButtons = hotSwapSwitcher ? Array.from(hotSwapSwitcher.querySelectorAll(".codex-interface-theme-pack-button")) : [];
+        const hotSwapCycleButton = hotSwapBay ? hotSwapBay.querySelector(".codex-interface-theme-pack-cycle-button") : null;
+        const hotSwapButtons = hotSwapSwitcher ? Array.from(hotSwapSwitcher.querySelectorAll(".codex-interface-theme-pack-cycle-button")) : [];
         const character = document.getElementById("codex-interface-theme-character");
         const characterStyle = character ? getComputedStyle(character) : null;
         const playbackOnly = ${simulateTableFlip ? "true" : "false"};
@@ -1233,9 +1350,8 @@ async function verifyTarget(target, screenshotPath, simulateTableFlip = false, h
           activeThemePack: root.getAttribute("data-cit-active-theme-pack") || "",
           hasHotSwapBay: Boolean(hotSwapBay),
           hasHotSwapSwitcher: Boolean(hotSwapSwitcher),
-          hasHotSwapSelect: Boolean(hotSwapSelect),
-          hotSwapSelectValue: hotSwapSelect ? hotSwapSelect.value : "",
-          hotSwapSelectOptions: hotSwapSelect ? Array.from(hotSwapSelect.options).map((option) => ({ value: option.value, text: option.textContent || "" })) : [],
+          hasHotSwapCycleButton: Boolean(hotSwapCycleButton),
+          hotSwapCycleNextPack: hotSwapCycleButton ? hotSwapCycleButton.getAttribute("data-cit-next-pack") || "" : "",
           hotSwapButtonCount: String(hotSwapButtons.length),
           hotSwapButtonIds: hotSwapButtons.map((button) => button.getAttribute("data-cit-pack-id") || ""),
           tableFlipCatMode: root.getAttribute("data-cit-table-flip-cat-mode") || "",
@@ -1458,17 +1574,17 @@ async function applyOnce(port, paths, waitMs = 0) {
   for (const target of targets) {
     try {
       const result = await applyToTarget(target, contextualPayload);
-      results.push({ id: target.id, title: target.title, url: target.url, ok: true, result });
+      results.push({ id: target.id, title: target.title, url: target.url, ok: Boolean(result && result.ok === true), result });
     } catch (error) {
       results.push({ id: target.id, title: target.title, url: target.url, ok: false, error: error.message });
     }
   }
-  const okCount = results.filter((item) => item.ok).length;
-  if (okCount === 0) {
-    throw new Error(`failed to inject all ${results.length} target(s): ${JSON.stringify(results)}`);
+  const failed = results.filter((item) => item.ok !== true || !item.result || item.result.ok !== true);
+  if (failed.length > 0) {
+    throw new Error(`failed to inject ${failed.length} of ${results.length} target(s): ${JSON.stringify(results)}`);
   }
   const prunedTargets = await pruneNonAppThemeResidue(allTargets);
-  return { revision: contextualPayload.revision, targets: results, prunedTargets };
+  return { ok: true, revision: contextualPayload.revision, targets: results, prunedTargets };
 }
 
 async function runDaemon(port, paths, waitMs) {
@@ -1502,12 +1618,7 @@ async function runDaemon(port, paths, waitMs) {
     try {
       if (fs.existsSync(paths.pause)) {
         appendLog(paths, "pause requested; removing theme and stopping daemon");
-        try {
-          await commandRemove(port, paths, { fromDaemon: true });
-        } finally {
-          removeFileIfExists(paths.pause);
-          removeFileIfExists(paths.session);
-        }
+        await commandRemove(port, paths, { fromDaemon: true });
         return;
       }
       const result = await applyOnce(port, paths);
@@ -1645,14 +1756,16 @@ async function requestDaemonPause(paths) {
 }
 
 async function commandRemove(port, paths, options = {}) {
+  let daemonWasRunning = false;
+  let daemonPauseConfirmed = true;
   if (!options.fromDaemon) {
-    const daemonWasRunning = await requestDaemonPause(paths);
+    daemonWasRunning = await requestDaemonPause(paths);
     if (daemonWasRunning) {
-      const stopped = await waitForDaemonPause(paths, 3500);
-      if (stopped) {
+      daemonPauseConfirmed = await waitForDaemonPause(paths, 3500);
+      if (daemonPauseConfirmed) {
         appendLog(paths, "daemon stopped after restore pause request");
       } else {
-        appendLog(paths, "daemon did not stop before direct restore; continuing direct removal");
+        appendLog(paths, "daemon did not stop before direct restore; state cleanup remains blocked");
       }
     }
   }
@@ -1670,14 +1783,22 @@ async function commandRemove(port, paths, options = {}) {
       results.push({ id: target.id, title: target.title, url: target.url, ok: false, error: error.message });
     }
   }
+  const restored = results.every((item) => item.ok === true && item.result && item.result.ok === true && item.result.removed === true);
+  const durable = restored && daemonPauseConfirmed;
+  const output = { ok: durable, targets: results, daemon: { runningAtRequest: daemonWasRunning, pauseConfirmed: daemonPauseConfirmed } };
+  appendLog(paths, `restore ${durable ? "completed" : "failed"} on ${results.length} target(s)`);
+  if (!options.fromDaemon) {
+    console.log(JSON.stringify(output, null, 2));
+  }
+  if (!restored) {
+    throw new Error(`restore failed for ${results.filter((item) => !(item.ok === true && item.result && item.result.ok === true && item.result.removed === true)).length} of ${results.length} target(s)`);
+  }
+  if (!daemonPauseConfirmed) {
+    throw new Error("restore not durable because daemon pause was not confirmed");
+  }
   removeFileIfExists(paths.session);
-  if (!options.fromDaemon) {
-    removeFileIfExists(paths.pause);
-  }
-  appendLog(paths, `restore attempted on ${results.length} target(s)`);
-  if (!options.fromDaemon) {
-    console.log(JSON.stringify({ ok: results.some((item) => item.ok), targets: results }, null, 2));
-  }
+  removeFileIfExists(paths.pause);
+  return output;
 }
 
 async function commandVerify(port, paths, screenshotPath, options = {}) {
@@ -1739,6 +1860,9 @@ async function main() {
     if (options.once) {
       await waitForCdp(port, waitMs);
       const result = await applyOnce(port, paths, waitMs);
+      const applied = result && result.ok === true && Array.isArray(result.targets) && result.targets.length > 0
+        && result.targets.every((item) => item.ok === true && item.result && item.result.ok === true);
+      if (!applied) throw new Error("apply result did not prove success for every target");
       writeJsonAtomic(paths.session, {
         port,
         pid: process.pid,
@@ -1747,7 +1871,7 @@ async function main() {
         revision: result.revision,
         engineRoot: ENGINE_ROOT
       });
-      console.log(JSON.stringify({ ok: true, ...result }, null, 2));
+      console.log(JSON.stringify({ ...result, ok: true }, null, 2));
       return;
     }
     await runDaemon(port, paths, waitMs);

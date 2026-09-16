@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "contract": "public-hot-swap-pack-set",
+  "exactCount": 3,
+  "orderedPackIds": [
+    "knife-shield-dog",
+    "orbital-stargazer-black-cat",
+    "orange-mecha-cat"
+  ],
+  "requiredAssetKeys": [
+    "background",
+    "heroCharacter",
+    "interactionMascot",
+    "interactionPoster",
+    "interactionSprite",
+    "interactionTrigger"
+  ],
+  "requiredIconMapKeys": [
+    "search",
+    "newTask",
+    "back",
+    "forward",
+    "stop",
+    "settings",
+    "project",
+    "send",
+    "tagTask",
+    "files",
+    "thread",
+    "clean",
+    "run",
+    "spark",
+    "package"
+  ]
+}

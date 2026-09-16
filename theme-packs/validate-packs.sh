@@ -3,6 +3,23 @@ set -uo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 FAILURES=0
+VALIDATION_MODE="full"
+VALIDATION_TEMP_BASE="${TMPDIR:-/tmp}/codex-dream-skin-pack-state-$$"
+
+if [ "${1:-}" = "--runtime-only" ]; then
+  VALIDATION_MODE="runtime-only"
+  shift
+fi
+if [ "$#" -ne 0 ]; then
+  printf 'Usage: %s [--runtime-only]\n' "$0" >&2
+  exit 2
+fi
+
+cleanup_validation_temp() {
+  rm -rf "$VALIDATION_TEMP_BASE" "$VALIDATION_TEMP_BASE-plan.json" "$VALIDATION_TEMP_BASE-activate.json"
+}
+
+trap cleanup_validation_temp EXIT
 
 pass() {
   printf 'PASS %s\n' "$1"
@@ -86,6 +103,54 @@ validate_manifest_paths() {
     fi
     assert_file "$pack_dir/$relative_path" "manifest asset $relative_path"
   done < <(jq -r '.assets[]?, .iconMap[]?' "$manifest")
+}
+
+validate_public_pack_set() {
+  local pack_set="$ROOT_DIR/public-pack-set.json"
+  local expected_ids='["knife-shield-dog","orbital-stargazer-black-cat","orange-mecha-cat"]'
+  local manifest_count
+  local total_refs=0
+  local pack_id
+
+  assert_file "$pack_set" "canonical public theme pack set"
+  if ! jq empty "$pack_set" >/dev/null 2>&1; then
+    fail "canonical public theme pack set JSON invalid"
+    return
+  fi
+  assert_equal "$(jq -r '.schemaVersion' "$pack_set")" "1" "public pack set schema"
+  assert_equal "$(jq -r '.contract' "$pack_set")" "public-hot-swap-pack-set" "public pack set contract"
+  assert_equal "$(jq -r '.exactCount' "$pack_set")" "3" "public pack set exact count"
+  assert_equal "$(jq -c '.orderedPackIds' "$pack_set")" "$expected_ids" "public pack set ordered ids"
+  assert_equal "$(jq -r '.requiredAssetKeys | length' "$pack_set")" "6" "public pack set asset key count"
+  assert_equal "$(jq -r '.requiredIconMapKeys | length' "$pack_set")" "15" "public pack set icon key count"
+
+  manifest_count="$(find "$ROOT_DIR" -mindepth 2 -maxdepth 2 -type f -name pack.json | wc -l | tr -d ' ')"
+  assert_equal "$manifest_count" "3" "public pack manifest count"
+
+  while IFS= read -r pack_id; do
+    local manifest="$ROOT_DIR/$pack_id/pack.json"
+    local expected_asset_keys
+    local expected_icon_keys
+    local actual_asset_keys
+    local actual_icon_keys
+    local pack_refs
+    assert_file "$manifest" "canonical manifest $pack_id"
+    if [ ! -f "$manifest" ] || ! jq empty "$manifest" >/dev/null 2>&1; then
+      fail "canonical manifest invalid: $pack_id"
+      continue
+    fi
+    expected_asset_keys="$(jq -c '.requiredAssetKeys | sort' "$pack_set")"
+    expected_icon_keys="$(jq -c '.requiredIconMapKeys | sort' "$pack_set")"
+    actual_asset_keys="$(jq -c '.assets | keys | sort' "$manifest")"
+    actual_icon_keys="$(jq -c '.iconMap | keys | sort' "$manifest")"
+    assert_equal "$actual_asset_keys" "$expected_asset_keys" "$pack_id exact asset keys"
+    assert_equal "$actual_icon_keys" "$expected_icon_keys" "$pack_id exact icon map keys"
+    pack_refs="$(jq -r '[(.assets[]?), (.iconMap[]?)] | length' "$manifest")"
+    assert_equal "$pack_refs" "21" "$pack_id runtime reference count"
+    total_refs=$((total_refs + pack_refs))
+  done < <(jq -r '.orderedPackIds[]' "$pack_set")
+
+  assert_equal "$total_refs" "63" "public pack runtime reference total"
 }
 
 validate_icons() {
@@ -183,10 +248,12 @@ validate_pack_contract() {
     "$(jq -r '.mountContracts.interaction.budgetBytes' "$manifest")" \
     "$pack_id interaction sprite"
 
-  if [ -x "$pack_dir/build-assets.sh" ]; then
-    pass "$pack_id build script executable"
-  else
-    fail "$pack_id build script is not executable"
+  if [ "$VALIDATION_MODE" = "full" ]; then
+    if [ -x "$pack_dir/build-assets.sh" ]; then
+      pass "$pack_id build script executable"
+    else
+      fail "$pack_id build script is not executable"
+    fi
   fi
 }
 
@@ -244,7 +311,7 @@ validate_hot_swap_preview() {
 
 validate_pack_activation_cli() {
   local script="$ROOT_DIR/scripts/activate-pack.mjs"
-  local temp_state="/tmp/codex-dream-skin-pack-state-$$"
+  local temp_state="$VALIDATION_TEMP_BASE"
   local project_root
   project_root="$(cd "$ROOT_DIR/.." && pwd)"
 
@@ -321,27 +388,31 @@ for command_name in jq magick xmllint rg node; do
   require_command "$command_name"
 done
 
-validate_expected_sources \
-  "$ROOT_DIR/knife-shield-dog" \
-  "animation-forward-slash-sheet-chroma.png" \
-  "background-castle-left-city-right.png" \
-  "hero-mecha-dog-chroma.png" \
-  "mascot-chubby-dog-chroma.png"
+validate_public_pack_set
 
-validate_expected_sources \
-  "$ROOT_DIR/orbital-stargazer-black-cat" \
-  "animation-groom-sheet-chroma.png" \
-  "animation-roll-sheet-chroma.png" \
-  "background-capsule-left-observatory-right.png" \
-  "hero-astronaut-black-cat-chroma.png" \
-  "mascot-black-cat-chroma.png"
+if [ "$VALIDATION_MODE" = "full" ]; then
+  validate_expected_sources \
+    "$ROOT_DIR/knife-shield-dog" \
+    "animation-forward-slash-sheet-chroma.png" \
+    "background-castle-left-city-right.png" \
+    "hero-mecha-dog-chroma.png" \
+    "mascot-chubby-dog-chroma.png"
 
-validate_expected_sources \
-  "$ROOT_DIR/orange-mecha-cat" \
-  "background-cyberpunk-contrast-city.png" \
-  "hero-mecha-cat-chroma.png" \
-  "mascot-orange-hacker-cat-chroma.png" \
-  "table-flip-cat-left.webp"
+  validate_expected_sources \
+    "$ROOT_DIR/orbital-stargazer-black-cat" \
+    "animation-groom-sheet-chroma.png" \
+    "animation-roll-sheet-chroma.png" \
+    "background-capsule-left-observatory-right.png" \
+    "hero-astronaut-black-cat-chroma.png" \
+    "mascot-black-cat-chroma.png"
+
+  validate_expected_sources \
+    "$ROOT_DIR/orange-mecha-cat" \
+    "background-cyberpunk-contrast-city.png" \
+    "hero-mecha-cat-chroma.png" \
+    "mascot-orange-hacker-cat-chroma.png" \
+    "table-flip-cat-left.webp"
+fi
 
 validate_pack_contract \
   "$ROOT_DIR/knife-shield-dog" \
@@ -373,7 +444,9 @@ validate_pack_contract \
   "table-flip-*.png" \
   "angry"
 
-validate_hot_swap_preview
+if [ "$VALIDATION_MODE" = "full" ]; then
+  validate_hot_swap_preview
+fi
 validate_pack_activation_cli
 
 if find "$ROOT_DIR" \

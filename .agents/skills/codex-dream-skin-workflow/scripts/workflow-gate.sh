@@ -48,6 +48,7 @@ required_files=(
   "macos/assets/theme.css"
   "macos/assets/renderer-inject.js"
   "macos/scripts/injector.mjs"
+  "macos/scripts/module-boundary-gate.mjs"
   "macos/scripts/install.sh"
   "macos/scripts/verify.sh"
   "macos/scripts/restore.sh"
@@ -77,9 +78,17 @@ done
 printf '%s\n' '[dream-skin-workflow] running runtime tests'
 bash macos/tests/run-tests.sh
 
+printf '%s\n' '[dream-skin-workflow] running module boundary gate'
+if ! node macos/scripts/module-boundary-gate.mjs \
+  --manifest macos/assets/runtime-modules.json \
+  --format text; then
+  printf '%s\n' '[dream-skin-workflow] module boundary gate failed' >&2
+  exit 1
+fi
+
 printf '%s\n' '[dream-skin-workflow] running module matrix'
 node macos/scripts/module-matrix.mjs \
-  --state-dir "$HOME/Library/Application Support/CodexInterfaceTheme" \
+  --state-dir "$HOME/Library/Application Support/DreamSkinForge" \
   --assets-dir macos/assets \
   --format text
 

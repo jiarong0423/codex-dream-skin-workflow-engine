@@ -18,6 +18,29 @@ installer. Judges can unzip it and follow the setup and test path below.
 bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --runtime
 ```
 
+## Three Public Hot-Swap Packs
+
+The package contains the exact ordered set declared by
+`theme-packs/public-pack-set.json`:
+
+1. `knife-shield-dog` — Knife Shield Dog: Castle City Guard
+2. `orbital-stargazer-black-cat` — Black Cat: Orbital Stargazer
+3. `orange-mecha-cat` — Orange Mecha Cat: Cyber Ruins
+
+Each packaged theme includes its manifest and runtime directory. The package
+builder rejects a missing pack, an unexpected pack manifest, or any missing
+asset/icon reference. Inspect and select a pack with the bundled CLI:
+
+```bash
+node theme-packs/scripts/activate-pack.mjs list --format text
+node theme-packs/scripts/activate-pack.mjs plan --pack knife-shield-dog --format json
+node theme-packs/scripts/activate-pack.mjs activate --pack knife-shield-dog --format json
+```
+
+`plan` is read-only. `activate` updates only local active-theme state, creates a
+backup, and does not launch, restart, or inject Codex. The next one-shot apply
+installs the selected pack and exposes the compact three-pack cycle control.
+
 ## Media
 
 - Public demo: https://youtu.be/5viFZCJ57TQ
@@ -27,11 +50,12 @@ bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --runtime
 
 ## Asset Scope
 
-The bundle keeps original generated source art, chroma and cutout intermediates,
-and display-sized runtime variants so provenance and the asset pipeline remain
-auditable. `runtime-modules.json` classifies source-only assets separately; they
-are never loaded into the active runtime payload unless a theme explicitly
-selects a runtime variant.
+The bundle keeps the allowlisted original generated source art, chroma and
+cutout intermediates for the primary sample theme, plus display-sized runtime
+variants. The three hot-swap packs intentionally ship only `pack.json` and
+their runtime directories; their larger working sources and previews remain
+outside the judge bundle. `runtime-modules.json` classifies source-only assets
+separately so they never enter the active runtime payload.
 
 ## Privacy Boundary
 

@@ -85,6 +85,11 @@
       "note": "Agent command allowlist"
     },
     {
+      "path": "package-runner-allowlist.md",
+      "classification": "public-export",
+      "note": "Project command and package-runner approval boundary"
+    },
+    {
       "path": "competition-manifest.json",
       "classification": "public-export",
       "note": "Build Week submission manifest"

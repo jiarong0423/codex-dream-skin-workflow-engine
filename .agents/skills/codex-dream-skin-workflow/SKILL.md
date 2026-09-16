@@ -49,10 +49,10 @@ Move through these states in order. Re-enter at the earliest state invalidated b
 3. `SPEC`: express colors, assets, placement, activation, and load policy in structured theme or module data.
 4. `ASSET`: generate or edit source art, remove backgrounds when needed, create display-sized runtime variants, and retain sources.
 5. `MODULE`: change one ownership boundary at a time: CSS surface, renderer behavior, injector payload, launcher, or verification.
-6. `STATIC_GATE`: run syntax checks, `macos/tests/run-tests.sh`, and the module matrix before live application.
+6. `STATIC_GATE`: run the approved syntax, test, and module-matrix checks from `package-runner-allowlist.md` before live application.
 7. `APPLY_ONCE`: prefer the existing CDP renderer and one-shot application; do not restart or start a daemon without a demonstrated lifecycle need.
 8. `VISUAL_GATE`: verify computed state, interaction, screenshot geometry, readability, collision retreat, animation lifecycle, and absence of black-shell contamination.
-9. `DECIDE`: accept and install only when gates pass; otherwise revert the smallest changed module and return to `SPEC` or `MODULE`.
+9. `DECIDE`: accept and activate only when gates pass; otherwise revert the smallest changed module and return to `SPEC` or `MODULE`.
 10. `PACKAGE`: synchronize the installed engine, compare hashes, preserve setup and restore instructions, and update the canonical log.
 11. `SUBMIT`: complete repository, public demo video, project description, category, feedback session ID, supported platform, and judge test path.
 
@@ -85,28 +85,9 @@ After every visual, theme-pack, renderer, injector, launcher, or runtime module 
 12. If only protected native surfaces remain, do not report them as missing theme assets; apply a protected-surface luminance budget or owner-scoped material tuning.
 13. Record the evidence directory, candidate counts, protected/controlled/unmarked status, direct cause, root cause, fix, validation commands, and exact next resume point in `docs/PROJECT_LOG.md`.
 
-## Required Commands
+## Approved Execution Boundary
 
-Run the integrated runtime gate from the project root:
-
-```bash
-bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --runtime
-```
-
-Run the strict submission gate only when preparing the final Devpost entry:
-
-```bash
-bash .agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh --submission
-```
-
-For live verification, use the existing project scripts. Apply once before considering daemon mode:
-
-```bash
-bash macos/scripts/start.sh --no-launch --once --visual --port 9341 --wait-ms 8000
-bash macos/scripts/verify.sh --port 9341
-```
-
-Use `macos/scripts/restore.sh --port 9341` for reversible removal. Do not modify the official app bundle, `app.asar`, signatures, authentication, API keys, or model settings.
+Read `package-runner-allowlist.md` before executing any project command. Only the exact allowlisted commands may run, and every live UI action requires explicit operator approval for the current task. Use the documented reversible removal entrypoint after an approved live check. Do not modify the official app bundle, `app.asar`, signatures, authentication, API keys, or model settings.
 
 ## Acceptance Contract
 
@@ -128,7 +109,7 @@ Require all applicable checks:
 
 ## Closeout
 
-After code, asset, install, or submission work:
+After code, asset, activation, or submission work:
 
 1. Complete every correctness-affecting item now.
 2. Put broader decisions in `PRIORITY_INDEX` with owner, next action, and risk.

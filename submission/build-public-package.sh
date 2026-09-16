@@ -10,6 +10,15 @@ PACKAGE_ROOT="$STAGE_ROOT/$PACKAGE_NAME"
 EXPORT_DIR="$SCRIPT_DIR/exports"
 ZIP_PATH="$EXPORT_DIR/$PACKAGE_NAME.zip"
 MAX_ZIP_BYTES=$((35 * 1024 * 1024))
+VALIDATION_HOME=""
+
+cleanup_validation_home() {
+  if [[ -n "$VALIDATION_HOME" && -d "$VALIDATION_HOME" ]]; then
+    rm -rf "$VALIDATION_HOME"
+  fi
+}
+
+trap cleanup_validation_home EXIT
 
 NODE_BIN="${NODE_BIN:-}"
 if [[ -z "$NODE_BIN" ]]; then
@@ -101,6 +110,106 @@ if rg -n -I --hidden --glob '!**/build-public-package.sh' "$scan_pattern" "$PACK
   printf 'error: public-package privacy scan found a forbidden value\n' >&2
   exit 1
 fi
+
+printf '%s\n' '[dream-skin-package] validating canonical three-pack runtime set'
+"$NODE_BIN" - "$PACKAGE_ROOT" <<'NODE'
+const fs = require("fs");
+const path = require("path");
+
+const packageRoot = path.resolve(process.argv[2]);
+const packRoot = path.join(packageRoot, "theme-packs");
+const packSetPath = path.join(packRoot, "public-pack-set.json");
+const expectedPackIds = [
+  "knife-shield-dog",
+  "orbital-stargazer-black-cat",
+  "orange-mecha-cat"
+];
+
+function fail(message) {
+  throw new Error(message);
+}
+
+function readJson(filePath) {
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function assertPlainFileInside(rootDir, relativePath, label) {
+  const value = String(relativePath || "").trim();
+  if (!value || path.isAbsolute(value) || value.includes("\0") || value.split(/[\\/]+/).includes("..")) {
+    fail(`${label} path is unsafe: ${value}`);
+  }
+  const absoluteRoot = path.resolve(rootDir);
+  const absolutePath = path.resolve(absoluteRoot, value);
+  if (!absolutePath.startsWith(`${absoluteRoot}${path.sep}`)) {
+    fail(`${label} escapes pack root: ${value}`);
+  }
+  const stat = fs.lstatSync(absolutePath);
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.size <= 0) {
+    fail(`${label} is not a non-empty plain file: ${value}`);
+  }
+}
+
+const packSet = readJson(packSetPath);
+if (packSet.schemaVersion !== 1 || packSet.contract !== "public-hot-swap-pack-set" || packSet.exactCount !== 3) {
+  fail("public pack set contract is invalid");
+}
+if (JSON.stringify(packSet.orderedPackIds) !== JSON.stringify(expectedPackIds)) {
+  fail(`public pack ids are not the required ordered set: ${JSON.stringify(packSet.orderedPackIds)}`);
+}
+if (!Array.isArray(packSet.requiredAssetKeys) || packSet.requiredAssetKeys.length !== 6) {
+  fail("public pack set must declare exactly 6 asset keys");
+}
+if (!Array.isArray(packSet.requiredIconMapKeys) || packSet.requiredIconMapKeys.length !== 15) {
+  fail("public pack set must declare exactly 15 icon map keys");
+}
+
+const discoveredPackIds = fs.readdirSync(packRoot, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(packRoot, entry.name, "pack.json")))
+  .map((entry) => entry.name)
+  .sort();
+if (JSON.stringify(discoveredPackIds) !== JSON.stringify([...expectedPackIds].sort())) {
+  fail(`staged pack manifests do not match the canonical set: ${discoveredPackIds.join(",")}`);
+}
+
+let runtimeRefCount = 0;
+for (const packId of expectedPackIds) {
+  const packDir = path.join(packRoot, packId);
+  const manifest = readJson(path.join(packDir, "pack.json"));
+  if (manifest.schemaVersion !== 1 || manifest.id !== packId || manifest.status !== "asset-ready-unmounted") {
+    fail(`invalid staged pack manifest: ${packId}`);
+  }
+  const assetKeys = Object.keys(manifest.assets || {}).sort();
+  const iconKeys = Object.keys(manifest.iconMap || {}).sort();
+  if (JSON.stringify(assetKeys) !== JSON.stringify([...packSet.requiredAssetKeys].sort())) {
+    fail(`staged pack asset keys do not match the canonical set: ${packId}`);
+  }
+  if (JSON.stringify(iconKeys) !== JSON.stringify([...packSet.requiredIconMapKeys].sort())) {
+    fail(`staged pack icon keys do not match the canonical set: ${packId}`);
+  }
+  for (const assetKey of packSet.requiredAssetKeys) {
+    assertPlainFileInside(packDir, manifest.assets[assetKey], `${packId} asset ${assetKey}`);
+    runtimeRefCount += 1;
+  }
+  for (const iconKey of packSet.requiredIconMapKeys) {
+    assertPlainFileInside(packDir, manifest.iconMap[iconKey], `${packId} icon ${iconKey}`);
+    runtimeRefCount += 1;
+  }
+}
+if (runtimeRefCount !== 63) {
+  fail(`staged public pack runtime reference count must be 63, got ${runtimeRefCount}`);
+}
+process.stdout.write(`[dream-skin-package] packs=${expectedPackIds.join(",")} runtimeRefs=${runtimeRefCount}\n`);
+NODE
+
+printf '%s\n' '[dream-skin-package] running staged runtime-only pack validator'
+(cd "$PACKAGE_ROOT" && bash theme-packs/validate-packs.sh --runtime-only)
+
+VALIDATION_HOME="$(mktemp -d "${TMPDIR:-/tmp}/dream-skin-public-package-home.XXXXXX")"
+printf '%s\n' '[dream-skin-package] running staged runtime and judge-path gate in isolated HOME'
+HOME="$VALIDATION_HOME" bash \
+  "$PACKAGE_ROOT/.agents/skills/codex-dream-skin-workflow/scripts/workflow-gate.sh" \
+  --submission \
+  --project-root "$PACKAGE_ROOT"
 
 (
   cd "$PACKAGE_ROOT"

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "classification": "public-export",
+  "owner": "codex-dream-skin-workflow-engine",
+  "reviewedAt": "2026-09-16",
+  "scope": {
+    "root": ".",
+    "allowlistSource": "submission/public-package-manifest.json",
+    "generatedFileIndex": "PACKAGE_CONTENTS.sha256"
+  },
+  "policy": {
+    "defaultClassification": "excluded",
+    "includedClassification": "public-export-allowed",
+    "inclusionRule": "A staged path is allowed only when the package builder copies it from publicEntryPoints, sourceInclude, or an approved bundleExtra in the repository allowlist source.",
+    "integrityRule": "PACKAGE_CONTENTS.sha256 enumerates every staged file except itself and binds the final package."
+  },
+  "excludedClasses": [
+    "active-runtime-state",
+    "archive",
+    "credentials",
+    "local-logs",
+    "private-source-art",
+    "scratch",
+    "theme-pack-preview"
+  ]
+}
