@@ -4,6 +4,39 @@ English judge copy: [README.en.md](README.en.md)
 
 本專案是給 macOS Codex 桌面端使用的本機介面主題工具。它透過 `127.0.0.1` 上的 Chromium DevTools Protocol 注入 CSS 與輕量 DOM 狀態，不修改官方 `/Applications/ChatGPT.app`、`app.asar`、簽名或使用者登入資料。
 
+## 這不只是一個桌面換皮工具
+
+技術主體是對兩件事的**偵測、實踐與靜態存取**：
+
+1. **頁面資料層的 CDP 注入** — 透過 `127.0.0.1` 的 Chromium DevTools Protocol 完成一次性注入，不修改應用程式本體、不碰簽名、不動使用者登入資料，且保留完整還原路徑。
+2. **DOM 擁有權辨識** — 判斷每個效果該掛在哪個原生節點，並在不改變 hitbox、不覆蓋文字、不讓 transient panel 穿透的條件下完成替換，而不是往上疊一層遮罩。
+
+兩者都有**不連線的靜態存取路徑**。`macos/scripts/static-black-layer-index.mjs`、`static-interactive-black-layer-index.mjs`、`static-color-baseline-compare.mjs` 只讀 `theme.css`、`renderer-inject.js`、`surface-registry.js`、`runtime-modules.json` 等原始碼，就能盤點圖層擁有者與色彩基準；不需要開 CDP、不需要啟動應用程式、不需要截圖。
+
+## 自我檢測、自我修復的工作流
+
+`docs/PINNED_REVISION_LOOP_STANDARD.md` 定義的迴圈是可重入的：
+
+```text
+ORIENT -> CDP_CHECK -> SCAN_QUEUE -> LAYER_CLASSIFY -> 決策
+  決策：保護原生 / 替換擁有者 / 合併選擇器 / 重掃精確路由
+  -> STATIC_GATE（語法、測試、workflow gate、diff check）
+  -> 預算檢查（超標先壓縮，不先套用）
+  -> APPLY_ONCE（一次性注入，不留常駐程序）
+  -> VERIFY（live DOM 掃描、截圖、路由狀態、像素稽核）
+```
+
+驗證不通過時回到「替換擁有者」再跑一輪；CDP 中斷則記錄 blocker，不做任何 live 宣稱；截圖與路由對不上時強制重掃，不接受過期證據。`macos/scripts/revision-loop-one-click.sh` 是這個迴圈的單一入口。這個迴圈是文件化的決策流程，由人或 agent 依標準重跑，不是自動重試的常駐程式。
+
+## 可轉用的技術範圍
+
+這條路徑不限於換皮：
+
+- **網頁資料層偵測** — 同一套 CDP 附著加 DOM 擁有權辨識，可用來盤點一個頁面實際渲染出什麼、由哪個節點擁有、哪些是動態掛載、哪些是原生受保護區。
+- **數據層結構盤點（與爬蟲同類問題）** — `interface-field-inventory.mjs` 盤點介面欄位與動態邊界覆蓋率，`live-surface-audit.mjs` 透過 CDP 稽核現行 renderer 表面，`native-module-scan.mjs` 可持續取樣原生模組。爬蟲的「先辨識結構、再決定取什麼值」是同一類問題。
+
+界線要講清楚：本專案只在本機 loopback 對使用者自己的應用程式操作，target 另有 `chatgpt|codex` 白名單，不對任何外部站點發出請求，也不內建抓取或儲存第三方網站內容的功能。上述是技術路徑的可轉用性說明，不是本 repo 附帶的爬蟲工具。
+
 ## Codex Dream Skin Workflow Engine
 
 Codex Dream Skin 不是單一 CSS 皮膚，而是一套由 Codex 協助運作的主題工作流：把視覺需求轉為結構化 theme spec，處理並壓縮素材，依模組套用，驗證原生介面幾何與互動，最後可完整還原。

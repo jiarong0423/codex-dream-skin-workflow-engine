@@ -6,6 +6,65 @@ theme specification, optimizes assets, applies selected modules through local
 Chromium DevTools Protocol access, verifies geometry and interaction safety,
 and restores the native interface without patching the official app.
 
+## Not Only a Desktop Skin
+
+The technical subject is the detection, practice, and static inspection of two
+things:
+
+1. **Page data-layer CDP injection.** A one-shot attach over the Chromium
+   DevTools Protocol on `127.0.0.1` that never modifies the application bundle,
+   its signature, or the user session, and always keeps a full restore path.
+2. **DOM ownership identification.** Deciding which native node actually owns
+   each effect, then replacing that owner without changing hitboxes, covering
+   text, or letting transient panels bleed through, instead of stacking another
+   overlay on top.
+
+Both have an offline static path. `macos/scripts/static-black-layer-index.mjs`,
+`static-interactive-black-layer-index.mjs`, and
+`static-color-baseline-compare.mjs` read only source files such as `theme.css`,
+`renderer-inject.js`, `surface-registry.js`, and `runtime-modules.json` to index
+layer owners and colour baselines. No debug port, no running application, and no
+screenshot is required.
+
+## Self-checking, Self-repairing Loop
+
+`docs/PINNED_REVISION_LOOP_STANDARD.md` defines a re-entrant loop:
+
+```text
+ORIENT -> CDP_CHECK -> SCAN_QUEUE -> LAYER_CLASSIFY -> decision
+  decision: protect native / replace owner / consolidate selector / rescan route
+  -> STATIC_GATE (syntax, tests, workflow gate, diff check)
+  -> budget check (compress before applying when over budget)
+  -> APPLY_ONCE (one-shot injection, no resident daemon)
+  -> VERIFY (live DOM scan, screenshot, route state, pixel audit)
+```
+
+A failed verification returns to owner replacement for another pass. A lost
+debug port records a blocker instead of making any live claim. A screenshot that
+does not match the route forces a rescan rather than accepting stale evidence.
+`macos/scripts/revision-loop-one-click.sh` is the single entry point. The loop is
+a documented decision procedure re-run by a person or an agent, not a daemon
+that retries by itself.
+
+## Transferable Scope
+
+The same path is not limited to theming:
+
+- **Web page data-layer detection.** CDP attachment plus DOM ownership
+  identification can inventory what a page actually renders, which node owns it,
+  what is mounted dynamically, and which regions are natively protected.
+- **Data-layer structure inventory, the same class of problem as crawling.**
+  `interface-field-inventory.mjs` inventories interface fields and dynamic
+  boundary coverage, `live-surface-audit.mjs` audits the running renderer over
+  CDP, and `native-module-scan.mjs` samples native modules over time. Identify
+  the structure first, then decide what to read, is the shared problem.
+
+The boundary is explicit: this project operates only over local loopback against
+the user's own application, with an additional `chatgpt|codex` target allowlist.
+It sends no request to any external site and ships no capability to fetch or
+store third-party web content. The scope above describes where the technique
+transfers, not a crawler bundled with this repository.
+
 ## Build Week Positioning
 
 - Primary category: Developer Tools
