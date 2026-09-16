@@ -64,7 +64,9 @@ if [ "$NO_ENGINE_COPY" = "0" ]; then
   fi
   chmod +x "$CIT_ENGINE_DIR/scripts/"*.sh
   chmod +x "$CIT_ENGINE_DIR/scripts/"*.mjs
-  chmod +x "$CIT_ENGINE_DIR/tests/"*.sh
+  if [ -d "$CIT_ENGINE_DIR/tests" ]; then
+    find "$CIT_ENGINE_DIR/tests" -maxdepth 1 -name '*.sh' -type f -exec chmod +x {} \;
+  fi
 else
   cit_warn "skipped engine copy; using source tree directly"
 fi

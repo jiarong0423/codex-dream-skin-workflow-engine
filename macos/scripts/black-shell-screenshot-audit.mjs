@@ -371,6 +371,9 @@ function classifyCandidate(candidate, image) {
   if (candidate.area >= screenArea * 0.42) {
     return "screen-scale dark layer/background";
   }
+  if (candidate.sourceKind === "floating-dark-window") {
+    return candidate.width >= 220 && candidate.height <= 170 ? "floating dark popover/toast shell" : "floating dark shell";
+  }
   if (candidate.sourceKind === "smooth-dark-rectangle" && candidate.width >= image.width * 0.18 && candidate.height >= 42) {
     return "smooth darkened rectangle/panel";
   }
@@ -393,8 +396,9 @@ function scoreCandidate(candidate) {
   const blackScore = Math.min(1, candidate.strictBlackRatio);
   const rectangularity = Math.min(1, candidate.coveredPixelEstimate / Math.max(1, candidate.area));
   const smoothBonus = candidate.sourceKind === "smooth-dark-rectangle" ? 0.1 : 0;
+  const floatingBonus = candidate.sourceKind === "floating-dark-window" ? 0.22 : 0;
   const screenPenalty = candidate.classification === "screen-scale dark layer/background" ? 0.22 : 0;
-  const score = densityScore * 0.28 + darkScore * 0.24 + blackScore * 0.12 + rectangularity * 0.12 + Math.min(1, edge / 42) * 0.14 + smoothBonus - screenPenalty;
+  const score = densityScore * 0.28 + darkScore * 0.24 + blackScore * 0.12 + rectangularity * 0.12 + Math.min(1, edge / 42) * 0.14 + smoothBonus + floatingBonus - screenPenalty;
   return Math.round(Math.max(0, Math.min(1, score)) * 1000) / 1000;
 }
 
@@ -422,6 +426,14 @@ function dedupeCandidates(candidates) {
       const overlap = candidateOverlap(candidate, existing);
       const candidateIsScreen = candidate.classification === "screen-scale dark layer/background";
       const existingIsScreen = existing.classification === "screen-scale dark layer/background";
+      const bothFloating = candidate.sourceKind === "floating-dark-window" && existing.sourceKind === "floating-dark-window";
+      if (bothFloating && overlap >= 0.32) {
+        if (candidate.confidence > existing.confidence || (candidate.confidence === existing.confidence && candidate.area < existing.area)) {
+          kept[index] = candidate;
+        }
+        absorbed = true;
+        break;
+      }
       if (overlap >= 0.82 || (existingIsScreen && !candidateIsScreen && overlap >= 0.7)) {
         if (candidate.confidence > existing.confidence || (existingIsScreen && !candidateIsScreen)) {
           kept[index] = candidate;
@@ -499,6 +511,60 @@ function buildCandidatesFromComponents(image, components, options, sourceKind) {
   return candidates;
 }
 
+function scanFloatingDarkWindows(image, options) {
+  const candidates = [];
+  const widths = [180, 240, 320, 420, 560, 700].filter((width) => width < image.width * 0.92);
+  const heights = [48, 64, 84, 112, 144, 172].filter((height) => height < image.height * 0.62);
+  const stride = Math.max(options.step * 3, 12);
+  for (const height of heights) {
+    for (const width of widths) {
+      for (let top = 0; top + height <= image.height; top += stride) {
+        for (let left = 0; left + width <= image.width; left += stride) {
+          const right = left + width;
+          const bottom = top + height;
+          const inside = sampleRegion(image, left, top, right, bottom, options.step, options);
+          if (inside.samples < 12) {
+            continue;
+          }
+          if (inside.avgLuminance > options.grayThreshold + 4 || inside.darkRatio < 0.52) {
+            continue;
+          }
+          const ring = sampleRing(image, { left, top, right, bottom }, options.step, options);
+          const edgeContrast = ring.samples > 0 ? ring.avgLuminance - inside.avgLuminance : 0;
+          const verticalCenter = top + height / 2;
+          const centerBias = verticalCenter < image.height * 0.72 ? 0.06 : 0;
+          const shapeBias = width >= 220 && height <= 160 ? 0.08 : 0;
+          const lowContrastPenalty = edgeContrast < -18 ? 0.12 : 0;
+          const candidate = {
+            sourceKind: "floating-dark-window",
+            rect: { left, top, right, bottom, width, height },
+            area: width * height,
+            width,
+            height,
+            gridCells: Math.round(width * height / Math.max(1, options.step * options.step)),
+            coveredPixelEstimate: width * height,
+            density: 1,
+            avgLuminance: Math.round(inside.avgLuminance * 10) / 10,
+            avgChroma: Math.round(inside.avgChroma * 10) / 10,
+            darkRatio: Math.round(inside.darkRatio * 1000) / 1000,
+            strictBlackRatio: Math.round(inside.strictBlackRatio * 1000) / 1000,
+            outsideAvgLuminance: Math.round(ring.avgLuminance * 10) / 10,
+            edgeContrast: Math.round(edgeContrast * 10) / 10,
+            classification: "",
+            confidence: 0
+          };
+          candidate.classification = classifyCandidate(candidate, image);
+          candidate.confidence = Math.round(Math.max(0, Math.min(1, scoreCandidate(candidate) + centerBias + shapeBias - lowContrastPenalty)) * 1000) / 1000;
+          if (candidate.confidence >= 0.52) {
+            candidates.push(candidate);
+          }
+        }
+      }
+    }
+  }
+  return candidates;
+}
+
 function auditImage(imagePath, options) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "cit-black-shell-screenshot-"));
   try {
@@ -526,7 +592,8 @@ function auditImage(imagePath, options) {
     const smoothComponents = connectedComponents(smoothMask, gridWidth, gridHeight);
     const candidates = dedupeCandidates([
       ...buildCandidatesFromComponents(image, components, options, "absolute-dark"),
-      ...buildCandidatesFromComponents(image, smoothComponents, options, "smooth-dark-rectangle")
+      ...buildCandidatesFromComponents(image, smoothComponents, options, "smooth-dark-rectangle"),
+      ...scanFloatingDarkWindows(image, options)
     ]);
     candidates.sort((left, right) => {
       if (right.confidence !== left.confidence) {
@@ -553,6 +620,7 @@ function auditImage(imagePath, options) {
         screenScale: candidates.filter((candidate) => candidate.classification === "screen-scale dark layer/background").length,
         panels: candidates.filter((candidate) => candidate.classification === "large panel/backdrop shell").length,
         smoothPanels: candidates.filter((candidate) => candidate.classification === "smooth darkened rectangle/panel").length,
+        floating: candidates.filter((candidate) => candidate.classification.includes("floating dark")).length,
         rows: candidates.filter((candidate) => candidate.classification === "row/chip/input shell").length
       },
       candidates: candidates.slice(0, options.maxCandidates)

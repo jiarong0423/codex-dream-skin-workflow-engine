@@ -262,8 +262,8 @@ function normalizePalette(pack) {
     secondary: String(palette.secondary || "#eef2dc"),
     highlight: String(palette.alert || palette.warm || "#d87888"),
     warm: String(palette.warm || "#e6b55a"),
-    surface: String(palette.surface || "rgba(13, 17, 18, 0.64)"),
-    surfaceStrong: String(palette.surfaceStrong || "rgba(8, 11, 12, 0.84)"),
+    surface: String(palette.surface || "rgba(16, 32, 38, 0.46)"),
+    surfaceStrong: String(palette.surfaceStrong || "rgba(12, 24, 30, 0.58)"),
     text: String(palette.text || "#f2f4ea")
   };
 }
@@ -299,12 +299,12 @@ function mapPackToTheme(baseTheme, pack) {
   };
   next.modules.header = {
     accent: palette.warm,
-    surface: "rgba(8, 10, 12, 0.64)",
+    surface: "rgba(14, 26, 31, 0.34)",
     border: rgbaFromHex(palette.warm, 0.18)
   };
   next.modules.composer = {
     accent: palette.warm,
-    surface: "rgba(6, 8, 10, 0.58)",
+    surface: "rgba(12, 24, 30, 0.30)",
     border: rgbaFromHex(palette.accent, 0.22)
   };
   next.modules.popover = {

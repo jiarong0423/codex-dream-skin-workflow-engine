@@ -148,7 +148,7 @@ function resolveProjectPath(projectPath, label) {
 function scopedSurfaceRegistrySource(source) {
   const formalArtSelector = "#codex-interface-theme-backdrop,#codex-interface-theme-right-hud,#codex-interface-theme-character,#codex-interface-theme-badge,#codex-interface-theme-marker";
   const formalProtectedAncestorSelector = ".composer-surface-chrome,.codex-interface-theme-composer-surface,aside.app-shell-left-panel";
-  const privateProtectedAncestorSelector = ".composer-surface-chrome,.codex-interface-theme-composer-surface,.codex-interface-theme-composer-dock,.codex-interface-theme-composer-native-floor,.sticky.bottom-0 [class*=\"ComposerLayoutRoot\"],aside.app-shell-left-panel,.codex-interface-theme-project-panel,.codex-interface-theme-project-panel-frame";
+  const privateProtectedAncestorSelector = ".composer-surface-chrome,.codex-interface-theme-composer-surface,.codex-interface-theme-composer-dock,.codex-interface-theme-composer-native-floor,[class*=\"ComposerLayoutRoot\"],aside.app-shell-left-panel,.codex-interface-theme-project-panel,.codex-interface-theme-project-panel-frame";
   const privateArtSelector = [
     formalArtSelector,
     `#${ROOT_ID}`,
@@ -207,6 +207,7 @@ function loadPrivatePayload(packId) {
   const surfaceRegistrySource = scopedSurfaceRegistrySource(fs.readFileSync(path.join(PROJECT_ROOT, "macos", "assets", "surface-registry.js"), "utf8"));
   const blackShellCss = fs.readFileSync(path.join(PROJECT_ROOT, "macos", "assets", "theme-modules", "black-shell-transparency.css"), "utf8");
   const composerShellCss = fs.readFileSync(path.join(PROJECT_ROOT, "macos", "assets", "theme-modules", "composer-shell.css"), "utf8");
+  const workspaceGlassCss = fs.readFileSync(path.join(PROJECT_ROOT, "macos", "assets", "theme-modules", "workspace-glass.css"), "utf8");
 
   const background = readImageDataUrl(backgroundPath, "background", 500000);
   const upperActor = readImageDataUrl(upperActorPath, "upper actor", 180000);
@@ -235,7 +236,8 @@ function loadPrivatePayload(packId) {
     modules: {
       surfaceRegistrySource,
       blackShellCss,
-      composerShellCss
+      composerShellCss,
+      workspaceGlassCss
     },
     policy: {
       transparentInjection: true,
@@ -681,6 +683,30 @@ function privateDuelRuntime(payload, mode) {
           linear-gradient(180deg, rgba(5, 10, 13, 0.08), rgba(5, 10, 13, 0)) !important;
         transition: none !important;
       }
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0:has([class*="ComposerLayoutRoot"]),
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0:has(.codex-interface-theme-composer-surface),
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0[class*="mt-auto"][class*="shrink-0"] {
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+      }
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0[class*="mt-auto"][class*="shrink-0"]::before,
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0[class*="mt-auto"][class*="shrink-0"]::after,
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0:has([class*="ComposerLayoutRoot"])::before,
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0:has([class*="ComposerLayoutRoot"])::after,
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0:has(.codex-interface-theme-composer-surface)::before,
+      html[data-cit-private-chainsaw-only="true"] .thread-scroll-container .sticky.bottom-0:has(.codex-interface-theme-composer-surface)::after {
+        content: none !important;
+        display: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        opacity: 0 !important;
+        box-shadow: none !important;
+      }
       html[data-cit-private-chainsaw-only="true"] main :is([class*="bg-token-input-background"], [class*="bg-token-dropdown-background"]):not([role="dialog"]):not([role="menu"]):not([role="listbox"]):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([class*="ComposerTopMenuShell"] *):not([class*="ComposerTopMenuShell"] > *) {
         background-color: rgba(5, 10, 13, 0.16) !important;
         background-image: none !important;
@@ -690,21 +716,28 @@ function privateDuelRuntime(payload, mode) {
           0 0 0 1px rgba(255, 179, 83, 0.12) !important;
         transition: none !important;
       }
-      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋專案"], [placeholder*="搜尋已排程任務"], [placeholder*="搜尋外掛程式"], [placeholder*="Search projects"], [placeholder*="Search scheduled"], [placeholder*="Search plugins"])) :is([class*="bg-token-input-background"][class*="rounded-full"], [data-project-row-wrapper], [data-project-row], [role="listitem"], [class*="group/plugin-row"], [role="button"][class*="rounded-2xl"]) {
-        background-color: rgba(3, 9, 12, 0.14) !important;
+      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋"], [placeholder*="Search"])) .flex.h-full.min-h-0.flex-col.bg-surface {
+        background: rgba(22, 45, 58, 0.16) !important;
+        background-color: rgba(22, 45, 58, 0.16) !important;
+        background-image: none !important;
+        box-shadow: none !important;
+      }
+      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋"], [placeholder*="Search"])) :is([class*="bg-token-input-background"][class*="rounded-full"], [class*="bg-background-primary-soft"][class*="rounded-full"], [data-project-row-wrapper], [data-project-row], [role="listitem"], [class*="group/plugin-row"], [role="button"][class*="rounded-2xl"]) {
+        background-color: rgba(22, 45, 58, 0.20) !important;
         background-image: none !important;
         border-color: rgba(255, 255, 255, 0.060) !important;
         outline: 0 !important;
         box-shadow: none !important;
       }
-      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋專案"], [placeholder*="搜尋已排程任務"], [placeholder*="搜尋外掛程式"], [placeholder*="Search projects"], [placeholder*="Search scheduled"], [placeholder*="Search plugins"])) :is([class*="border-token-border"], [class*="border-token-border-light"], [class*="border-b"], [class*="border-t"]) {
+      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋"], [placeholder*="Search"])) :is([class*="border-token-border"], [class*="border-token-border-light"], [class*="border-b"], [class*="border-t"]) {
         border-color: transparent !important;
         box-shadow: none !important;
       }
-      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋專案"], [placeholder*="搜尋已排程任務"], [placeholder*="搜尋外掛程式"], [placeholder*="Search projects"], [placeholder*="Search scheduled"], [placeholder*="Search plugins"])) div[class*="bg-token-input-background"][class*="rounded-full"]:not(#cit-private-route-surface) {
-        background-color: rgba(3, 9, 12, 0.14) !important;
-        border-color: rgba(255, 255, 255, 0.060) !important;
-        box-shadow: none !important;
+      html[data-cit-private-chainsaw-only="true"] main:has(input:is([placeholder*="搜尋"], [placeholder*="Search"])) [class*="before:absolute"][class*="before:-inset-x-3"]::after {
+        content: none !important;
+        display: none !important;
+        background: none !important;
+        background-image: none !important;
       }
       html[data-cit-private-chainsaw-only="true"] main :is(
         [class*="bg-token-dropdown-background/50"][class*="rounded-lg"],
@@ -761,14 +794,11 @@ function privateDuelRuntime(payload, mode) {
         border-color: transparent !important;
         outline: 0 !important;
         box-shadow:
-          0 22px 80px rgba(0, 0, 0, 0.24),
-          inset 0 1px 0 rgba(255, 255, 255, 0.060) !important;
-        background:
-          radial-gradient(circle at 84% 15%, rgba(255, 121, 54, 0.10), transparent 34%),
-          radial-gradient(circle at 58% 64%, rgba(82, 204, 240, 0.13), transparent 42%),
-          rgba(6, 12, 18, 0.36) !important;
-        backdrop-filter: blur(18px) saturate(1.12) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(1.12) !important;
+          inset 0 1px 0 rgba(255, 255, 255, 0.075),
+          inset 0 0 0 1px rgba(126, 231, 246, 0.045) !important;
+        background: rgba(22, 45, 58, 0.52) !important;
+        backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
       }
       html[data-cit-private-chainsaw-only="true"] [role="tooltip"] {
         background:
@@ -782,21 +812,21 @@ function privateDuelRuntime(payload, mode) {
         backdrop-filter: blur(10px) saturate(1.08) !important;
         -webkit-backdrop-filter: blur(10px) saturate(1.08) !important;
       }
-      html[data-cit-private-chainsaw-only="true"] [class*="ComposerTopMenuShell"] > [class*="bg-token-dropdown-background"] {
-        background:
-          linear-gradient(112deg, rgba(2, 8, 11, 0.82), rgba(5, 14, 22, 0.72) 54%, rgba(18, 10, 12, 0.62)) !important;
-        background-color: rgba(3, 10, 13, 0.78) !important;
-        border-color: rgba(126, 231, 246, 0.34) !important;
+      html[data-cit-private-chainsaw-only="true"] [class*="ComposerTopMenuShell"] > [class*="bg-token-dropdown-background"],
+      html[data-cit-private-chainsaw-only="true"] [class*="ComposerTopMenuShell"] > [class*="bg-surface-elevated-secondary"] {
+        background: rgba(22, 45, 58, 0.52) !important;
+        background-color: rgba(22, 45, 58, 0.52) !important;
+        border-color: rgba(126, 231, 246, 0.26) !important;
         outline: 0 !important;
         box-shadow:
-          0 18px 54px rgba(0, 0, 0, 0.30),
-          inset 0 1px 0 rgba(255, 255, 255, 0.045),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.58) !important;
-        backdrop-filter: blur(10px) saturate(1.08) !important;
-        -webkit-backdrop-filter: blur(10px) saturate(1.08) !important;
+          inset 0 1px 0 rgba(255, 255, 255, 0.075),
+          inset 0 0 0 1px rgba(126, 231, 246, 0.045) !important;
+        backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
       }
       html[data-cit-private-chainsaw-only="true"] [class*="ComposerTopMenuShell"] :is(
         [class*="bg-token-dropdown-background"],
+        [class*="bg-surface-elevated-secondary"],
         [class*="bg-token-input-background"],
         [class*="border-token-border"],
         [class*="focus-visible:ring"],
@@ -811,16 +841,17 @@ function privateDuelRuntime(payload, mode) {
         box-shadow: none !important;
       }
       html[data-cit-private-chainsaw-only="true"] [class*="ComposerTopMenuShell"] .sticky {
-        background:
-          linear-gradient(90deg, rgba(2, 8, 11, 0.82), rgba(4, 15, 22, 0.56)) !important;
-        background-color: rgba(2, 8, 11, 0.78) !important;
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
         border: 0 !important;
         outline: 0 !important;
         box-shadow: none !important;
         color: rgba(213, 241, 244, 0.82) !important;
         text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55) !important;
       }
-      html[data-cit-private-chainsaw-only="true"] main [class*="ComposerTopMenuShell"] [class*="sticky"][class*="bg-token-dropdown-background"] {
+      html[data-cit-private-chainsaw-only="true"] main [class*="ComposerTopMenuShell"] [class*="sticky"][class*="bg-token-dropdown-background"],
+      html[data-cit-private-chainsaw-only="true"] main [class*="ComposerTopMenuShell"] [class*="sticky"][class*="bg-surface-elevated-secondary"] {
         border: 0 !important;
         outline: 0 !important;
         box-shadow: none !important;
@@ -832,11 +863,12 @@ function privateDuelRuntime(payload, mode) {
         button,
         a
       ):is(:hover, :focus-visible, [aria-selected="true"], [data-selected="true"], [data-highlighted], [data-state="checked"]) {
-        background:
-          linear-gradient(90deg, rgba(126, 231, 246, 0.14), rgba(255, 178, 82, 0.065)) !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
         border-color: transparent !important;
         outline: 0 !important;
-        box-shadow: inset 3px 0 0 rgba(126, 231, 246, 0.44) !important;
+        box-shadow: none !important;
         border-radius: 12px !important;
       }
       html[data-cit-private-chainsaw-only="true"] :is(
@@ -877,13 +909,12 @@ function privateDuelRuntime(payload, mode) {
         [data-radix-popper-content-wrapper] > *
       ) :is([cmdk-group-heading], [role="heading"], [class*="text-token-text-tertiary"]) {
         color: rgba(126, 231, 246, 0.86) !important;
-        background:
-          linear-gradient(90deg, rgba(2, 8, 11, 0.68), rgba(6, 15, 20, 0.48)) !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
         border: 0 !important;
         outline: 0 !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.026),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.42) !important;
+        box-shadow: none !important;
       }
       html[data-cit-private-chainsaw-only="true"] :is(
         [role="dialog"],
@@ -899,13 +930,12 @@ function privateDuelRuntime(payload, mode) {
         button,
         a
       ):is(:hover, :focus-visible, [aria-selected="true"], [data-selected="true"], [data-highlighted], [data-state="checked"]) {
-        background:
-          linear-gradient(90deg, rgba(126, 231, 246, 0.16), rgba(255, 178, 82, 0.080)) !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
         border: 0 !important;
         outline: 0 !important;
-        box-shadow:
-          inset 3px 0 0 rgba(126, 231, 246, 0.68),
-          inset 0 1px 0 rgba(255, 255, 255, 0.040) !important;
+        box-shadow: none !important;
         border-radius: 13px !important;
       }
       html[data-cit-private-chainsaw-only="true"] main [class*="before:bg-token-list-hover-background"]::before,
@@ -919,23 +949,18 @@ function privateDuelRuntime(payload, mode) {
       .codex-interface-theme-project-panel,
       .codex-interface-theme-project-panel-frame,
       [data-cit-black-shell="true"] {
-        background-color: rgba(5, 10, 13, 0.20) !important;
+        background-color: transparent !important;
         background-image: none !important;
         border-color: rgba(155, 230, 242, 0.13) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.04),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.025),
-          0 10px 24px rgba(0, 0, 0, 0.10) !important;
+        box-shadow: none !important;
         -webkit-backdrop-filter: none !important;
         backdrop-filter: none !important;
       }
       aside.app-shell-left-panel,
       .codex-interface-theme-project-panel,
       .codex-interface-theme-project-panel-frame {
-        background-color: rgba(5, 10, 13, 0.10) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.035),
-          inset 0 0 0 1px rgba(255, 255, 255, 0.018) !important;
+        background-color: transparent !important;
+        box-shadow: none !important;
       }
       aside.app-shell-left-panel :is(button, a, [role="button"], [tabindex]),
       .codex-interface-theme-project-panel :is(button, a, [role="button"], [tabindex]),
@@ -947,41 +972,58 @@ function privateDuelRuntime(payload, mode) {
       aside.app-shell-left-panel :is(button, a, [role="button"], [tabindex]):is(:hover, :focus-visible, [aria-current="page"], [aria-selected="true"], [data-state="open"]),
       .codex-interface-theme-project-panel :is(button, a, [role="button"], [tabindex]):is(:hover, :focus-visible, [aria-current="page"], [aria-selected="true"], [data-state="open"]),
       .codex-interface-theme-project-panel-frame :is(button, a, [role="button"], [tabindex]):is(:hover, :focus-visible, [aria-current="page"], [aria-selected="true"], [data-state="open"]) {
-        background-color: rgba(255, 255, 255, 0.055) !important;
-        box-shadow: inset 0 0 0 1px rgba(155, 230, 242, 0.10) !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+      }
+      html[data-cit-private-chainsaw-only="true"] .codex-interface-theme-project-panel-content header[class*="bg-surface-elevated-secondary"] {
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
+      }
+      html[data-cit-private-chainsaw-only="true"] .codex-interface-theme-project-panel-content header[class*="bg-surface-elevated-secondary"]::before {
+        content: none !important;
+        display: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        opacity: 0 !important;
+        box-shadow: none !important;
+      }
+      html[data-cit-private-chainsaw-only="true"] .codex-interface-theme-project-panel-content header[class*="bg-surface-elevated-secondary"]::after {
+        content: none !important;
+        display: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        opacity: 0 !important;
+        box-shadow: none !important;
       }
       html[data-cit-private-chainsaw-only="true"] main .group.flex.w-full.flex-col.items-end > [class*="bg-token-foreground/5"][class*="max-w-[77%]"] {
         position: relative !important;
         overflow: visible !important;
         background:
-          radial-gradient(circle at 84% 20%, rgba(255, 184, 88, 0.12), transparent 42%),
-          linear-gradient(145deg, rgba(119, 226, 244, 0.105), rgba(255, 255, 255, 0.024) 46%, rgba(0, 0, 0, 0.018)),
-          rgba(8, 22, 28, 0.155) !important;
+          linear-gradient(180deg, rgba(255, 255, 255, 0.050), transparent 34%),
+          linear-gradient(105deg, rgba(119, 226, 244, 0.075), rgba(27, 54, 70, 0.22) 52%, rgba(255, 184, 88, 0.040)),
+          rgba(24, 49, 60, 0.30) !important;
         border: 0 !important;
         outline: 0 !important;
         border-radius: 22px 22px 9px 22px !important;
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.070),
-          inset 0 -16px 30px rgba(5, 12, 16, 0.12),
-          0 8px 24px rgba(0, 0, 0, 0.115),
-          0 0 22px rgba(98, 214, 235, 0.070) !important;
-        backdrop-filter: blur(6px) saturate(1.08) !important;
-        -webkit-backdrop-filter: blur(6px) saturate(1.08) !important;
+          inset 0 0 0 1px rgba(119, 226, 244, 0.050) !important;
+        backdrop-filter: blur(12px) saturate(1.12) brightness(1.02) !important;
+        -webkit-backdrop-filter: blur(12px) saturate(1.12) brightness(1.02) !important;
         transition: none !important;
       }
       html[data-cit-private-chainsaw-only="true"] main .group.flex.w-full.flex-col.items-end > [class*="bg-token-foreground/5"][class*="max-w-[77%]"]::after {
-        content: "" !important;
-        position: absolute !important;
-        right: -3px !important;
-        bottom: 10px !important;
-        width: 11px !important;
-        height: 11px !important;
-        background:
-          linear-gradient(135deg, rgba(119, 226, 244, 0.050), rgba(8, 22, 28, 0.135)) !important;
-        border: 0 !important;
-        border-radius: 0 0 5px 0 !important;
-        transform: rotate(-35deg) skewX(-8deg) !important;
-        box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.08) !important;
+        content: none !important;
+        display: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        box-shadow: none !important;
         pointer-events: none !important;
       }
       html[data-cit-private-chainsaw-only="true"] main .group.flex.w-full.flex-col.items-end > [class*="bg-token-foreground/5"][class*="max-w-[77%]"] :is(p, li, span, div) {
@@ -995,6 +1037,26 @@ function privateDuelRuntime(payload, mode) {
           0 0 0 1px rgba(255, 179, 83, 0.14),
           0 12px 28px rgba(0, 0, 0, 0.16) !important;
         transition: none !important;
+      }
+      [class*="ComposerLayoutRoot"] {
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        border: 1.5px solid rgba(130, 230, 246, 0.46) !important;
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.055),
+          inset 0 1px 0 rgba(255, 255, 255, 0.075),
+          0 0 0 1px rgba(255, 179, 83, 0.12),
+          0 12px 28px rgba(0, 0, 0, 0.14) !important;
+        transition: none !important;
+      }
+      .thread-scroll-container [class*="bg-gradient-to-t"][class*="from-surface"][class*="via-surface"] {
+        display: none !important;
+        background: none !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
       }
       #\${ACTOR_LAYER_ID} .private-duel-actor {
         position: absolute;
@@ -1247,7 +1309,8 @@ function privateDuelRuntime(payload, mode) {
       }
       blackShellStyle.textContent = [
         String(payload.modules.blackShellCss || ""),
-        String(payload.modules.composerShellCss || "")
+        String(payload.modules.composerShellCss || ""),
+        String(payload.modules.workspaceGlassCss || "")
       ].join("\\n")
         .replaceAll('html[data-codex-interface-theme="active"]', 'html[data-cit-private-chainsaw-only="true"]');
       try {
@@ -1810,7 +1873,7 @@ function privateDuelRuntime(payload, mode) {
       if (!actorRects || !actorRects.length) {
         return false;
       }
-      const composerNodes = document.querySelectorAll(".composer-surface-chrome,.codex-interface-theme-composer-surface,.sticky.bottom-0 [class*='ComposerLayoutRoot']");
+      const composerNodes = document.querySelectorAll(".composer-surface-chrome,.codex-interface-theme-composer-surface,[class*='ComposerLayoutRoot']");
       for (const node of composerNodes) {
         if (!visibleElement(node)) {
           continue;

@@ -130,6 +130,7 @@ esac
 cit_assert_source_layout
 APP_PATH="$(cit_detect_app_or_die)"
 NODE_PATH="$(cit_node_for_app "$APP_PATH")"
+NODE_DIR="$(cd "$(dirname "$NODE_PATH")" >/dev/null 2>&1 && pwd)"
 PROJECT_ROOT="$(cd "$CIT_ROOT_DIR/.." >/dev/null 2>&1 && pwd)"
 PRIVATE_ROOT="$PROJECT_ROOT/theme-packs/private-packs"
 PRIVATE_PACK_DIR="$PRIVATE_ROOT/$PACK_ID"
@@ -156,7 +157,7 @@ cit_log "checking private injector payload budget"
 if [ "$RUN_GATE" = "true" ]; then
   [ -f "$WORKFLOW_GATE" ] || cit_die "missing workflow gate: $WORKFLOW_GATE"
   cit_log "running runtime gate"
-  bash "$WORKFLOW_GATE" --runtime
+  PATH="$NODE_DIR:$PATH" bash "$WORKFLOW_GATE" --runtime
 fi
 
 if [ "$MODE" = "dry-run" ]; then
