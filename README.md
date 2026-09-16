@@ -40,6 +40,27 @@ English judge copy: [README.en.md](README.en.md)
 超標由 `macos/scripts/module-matrix.mjs` 直接判錯。`runtime-modules.json` 的 `policy` 另外寫死 `rendererMaintenanceMs: 2500`、`heavyMaintenanceMs: 10000`，並禁止 idle backdrop blur 與 per-icon filter stack；素材載入限於「已啟用模組實際引用的部分」。
 
 
+## 人機貢獻佔比
+
+以下為專案擁有者依實際協作過程給出的第一手估算，**非量測值**。列出以保留歸屬透明度；可量測的部分（實作規模、驗證覆蓋、證據層密度）另見 [docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md)。
+
+| 階段 | 使用者 input | Codex / GPT-5.6 output | 佔比估算 |
+|---|---|---|---|
+| 起點定義 | 提出想做 Codex desktop skin / Dream Skin | 判斷應升級成可回復 runtime engine | 使用者 70% / Codex 30% |
+| 視覺方向 | 橘貓、駭客、Matrix、cyberpunk、機甲、撞色 | 拆成 theme language、safe area、色彩角色、模組順序 | 使用者 45% / Codex 55% |
+| 素材生成 | 提供少量截圖、參考、審美方向 | 生成背景、角色、badge、table-flip 素材變體 | 使用者 25% / Codex 75% |
+| 去背與素材處理 | 要求乾淨、可用、不遮擋 | 建立 chroma / cutout / runtime 尺寸，檢查 alpha | 使用者 10% / Codex 90% |
+| Runtime 架構 | 要求不要破壞 Codex | 設計 CDP one-shot injection、restore、verify、engine/state 分層 | 使用者 15% / Codex 85% |
+| 截圖與圖層除錯 | 回報黑框、遮擋、不乾淨 | 掃 DOM、圖層、owner boundary、direct/root cause | 使用者 20% / Codex 80% |
+| 點擊與互動驗證 | 要求可點、不要擋、要確認 | sidebar / composer / right panel / workspace picker / table-flip lifecycle 測試 | 使用者 10% / Codex 90% |
+| 動畫生命週期 | 想要互動效果 | 改成 click-time load、播完釋放、避免常駐 | 使用者 15% / Codex 85% |
+| 效能治理 | 要求不要卡、不影響使用 | WebP、content-hash cache、移除 blur / idle animation / daemon | 使用者 10% / Codex 90% |
+| Build Week 提交 | 決定參賽、提供最終判斷 | README、Devpost 文案、asset inventory、demo timeline、judge path | 使用者 25% / Codex 75% |
+
+**整體：使用者約 20% – 30%，Codex / GPT-5.6 約 70% – 80%。**
+
+更精準的說法：使用者主要貢獻 intent、taste、constraints、approval、defect reports、final judgment；Codex / GPT-5.6 主要貢獻 architecture、implementation、asset pipeline、cutout validation、click testing、layer scanning、performance optimization、restore path、submission packaging。
+
 ## 自我檢測、自我修復的工作流
 
 `docs/PINNED_REVISION_LOOP_STANDARD.md` 定義的迴圈是可重入的：

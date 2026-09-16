@@ -65,6 +65,34 @@ block in `runtime-modules.json` additionally fixes `rendererMaintenanceMs` at
 filter stacks, and restricts asset loading to what enabled modules actually
 reference.
 
+## Human and Model Contribution Split
+
+The figures below are the project owner's first-hand estimate from the actual
+collaboration. They are **not measured**. They are published for attribution
+transparency; the measurable parts — implementation size, verification
+coverage, evidence-layer density — are in
+[docs/CODEX_CAPABILITY_BOUNDARY_TEST.md](docs/CODEX_CAPABILITY_BOUNDARY_TEST.md).
+
+| Stage | User input | Codex / GPT-5.6 output | Estimated split |
+|---|---|---|---|
+| Starting definition | Asked for a Codex desktop skin / Dream Skin | Judged that it should become a restorable runtime engine | User 70% / Codex 30% |
+| Visual direction | Orange cat, hacker, Matrix, cyberpunk, mecha, clashing colour | Decomposed into theme language, safe area, colour roles, module order | User 45% / Codex 55% |
+| Asset generation | A few screenshots, references, aesthetic direction | Generated backgrounds, character, badge, table-flip asset variants | User 25% / Codex 75% |
+| Cutout and asset processing | Asked for clean, usable, non-occluding | Built chroma / cutout / runtime sizing, checked alpha | User 10% / Codex 90% |
+| Runtime architecture | Asked that Codex not be broken | Designed CDP one-shot injection, restore, verify, engine/state layering | User 15% / Codex 85% |
+| Screenshot and layer debugging | Reported black frames, occlusion, unclean edges | Scanned DOM, layers, owner boundary, direct and root cause | User 20% / Codex 80% |
+| Click and interaction verification | Asked that it stay clickable, unobstructed, confirmed | Sidebar, composer, right panel, workspace picker, table-flip lifecycle tests | User 10% / Codex 90% |
+| Animation lifecycle | Wanted an interactive effect | Moved to click-time load, release after playback, no resident animation | User 15% / Codex 85% |
+| Performance governance | Asked that it not stutter or interfere | WebP, content-hash cache, removed blur / idle animation / daemon | User 10% / Codex 90% |
+| Build Week submission | Decided to enter, gave final judgment | README, Devpost copy, asset inventory, demo timeline, judge path | User 25% / Codex 75% |
+
+**Overall: roughly 20–30% user, 70–80% Codex / GPT-5.6.**
+
+Put precisely: the user contributed intent, taste, constraints, approval,
+defect reports, and final judgment; Codex / GPT-5.6 contributed architecture,
+implementation, the asset pipeline, cutout validation, click testing, layer
+scanning, performance optimisation, the restore path, and submission packaging.
+
 ## Self-checking, Self-repairing Loop
 
 `docs/PINNED_REVISION_LOOP_STANDARD.md` defines a re-entrant loop:
