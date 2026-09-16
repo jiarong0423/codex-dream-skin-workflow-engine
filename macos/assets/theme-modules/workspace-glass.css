@@ -1,0 +1,33 @@
+/* Single-owner workspace glass.
+   Keep one colored frosted shell; inner rows must not add a second dark layer. */
+html[data-codex-interface-theme="active"] {
+  --cit-workspace-glass-fill: rgba(22, 45, 58, 0.52);
+  --cit-workspace-glass-cyan: rgba(0, 216, 224, 0.075);
+  --cit-workspace-glass-warm: rgba(255, 92, 64, 0.055);
+  --cit-workspace-glass-line: rgba(126, 231, 246, 0.26);
+}
+
+html[data-codex-interface-theme="active"] :is(.codex-interface-theme-workspace-picker,[data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker,[role="listbox"],[role="menu"],[cmdk-root],[data-cmdk-root],[data-radix-popper-content-wrapper] [role="listbox"],[data-radix-popper-content-wrapper] [role="menu"]) {
+  background: var(--cit-workspace-glass-fill) !important;
+  background-color: var(--cit-workspace-glass-fill) !important;
+  border-color: var(--cit-workspace-glass-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.075), inset 0 0 0 1px rgba(126, 231, 246, 0.045) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
+  backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
+}
+
+html[data-codex-interface-theme="active"] :is(.codex-interface-theme-workspace-picker,[data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker,[role="listbox"],[role="menu"],[cmdk-root],[data-cmdk-root],[data-radix-popper-content-wrapper]) :is(.codex-interface-theme-workspace-picker-row,button,a,[role="button"],[role="option"],[role="menuitem"],[cmdk-item],[data-cmdk-item],[tabindex]):not([role="menu"]):not([role="listbox"]):not([role="dialog"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] [class*="ComposerTopMenuShell"] > :is([class*="bg-token-dropdown-background"],[class*="bg-surface-elevated-secondary"]) {
+  background: var(--cit-workspace-glass-fill) !important;
+  background-color: var(--cit-workspace-glass-fill) !important;
+  border-color: var(--cit-workspace-glass-line) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.075), inset 0 0 0 1px rgba(126, 231, 246, 0.045) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
+  backdrop-filter: blur(18px) saturate(1.16) brightness(1.02) !important;
+}

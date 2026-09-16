@@ -3,18 +3,18 @@ html[data-codex-interface-theme="active"] {
   --cit-secondary: #00c8f8;
   --cit-highlight: #ff5a45;
   --cit-sidebar-accent: #00c8f8;
-  --cit-sidebar-surface: rgba(8, 13, 16, 0.78);
+  --cit-sidebar-surface: rgba(38, 82, 101, 0.58);
   --cit-sidebar-border: rgba(0, 200, 248, 0.20);
   --cit-header-accent: #f2a23a;
-  --cit-header-surface: rgba(12, 13, 14, 0.62);
+  --cit-header-surface: rgba(38, 82, 101, 0.54);
   --cit-header-border: rgba(242, 162, 58, 0.16);
   --cit-composer-accent: #f2a23a;
-  --cit-composer-surface: rgba(9, 10, 12, 0.56);
+  --cit-composer-surface: rgba(38, 82, 101, 0.50);
   --cit-composer-border: rgba(242, 162, 58, 0.16);
   --cit-popover-accent: #ff5a45;
-  --cit-popover-surface: rgba(16, 11, 12, 0.88);
+  --cit-popover-surface: rgba(38, 82, 101, 0.68);
   --cit-popover-border: rgba(255, 90, 69, 0.18);
-  --cit-mecha-frame: #161a20;
+  --cit-mecha-frame: #265265;
   --cit-mecha-armor: #f2a23a;
   --cit-mecha-glow: #00c8f8;
   --cit-status-success: #19e6a3;
@@ -27,26 +27,26 @@ html[data-codex-interface-theme="active"] {
   --cit-character-opacity: 1;
   --cit-bg-focus-x: 74%;
   --cit-bg-focus-y: 48%;
-  --cit-bg-base: #07090b;
-  --cit-bg-elevated: rgba(12, 14, 16, 0.82);
-  --cit-bg-soft: rgba(15, 18, 20, 0.74);
+  --cit-bg-base: #265265;
+  --cit-bg-elevated: rgba(38, 82, 101, 0.82);
+  --cit-bg-soft: rgba(38, 82, 101, 0.74);
   --cit-bg-hover: rgba(0, 200, 248, 0.08);
   --cit-border: rgba(0, 200, 248, 0.18);
   --cit-border-soft: rgba(255, 255, 255, 0.08);
   --cit-text: #f4f7fb;
-  --cit-shadow: 0 18px 64px rgba(0, 0, 0, 0.34);
+  --cit-shadow: 0 18px 64px rgba(0, 200, 248, 0.18);
   --cit-blur: 8px;
-  --cit-glass-surface: rgba(15, 22, 27, 0.42);
-  --cit-glass-surface-strong: rgba(15, 22, 27, 0.58);
+  --cit-glass-surface: rgba(38, 82, 101, 0.42);
+  --cit-glass-surface-strong: rgba(38, 82, 101, 0.58);
   --cit-glass-highlight: rgba(255, 255, 255, 0.16);
   --cit-glass-border: rgba(255, 255, 255, 0.16);
   --cit-glass-border-soft: rgba(255, 255, 255, 0.08);
-  --cit-glass-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  --cit-glass-shadow: 0 18px 50px rgba(0, 200, 248, 0.14);
   --cit-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 0 0 1px rgba(255, 255, 255, 0.045);
   --cit-glass-radius: 18px;
   --cit-glass-radius-tight: 12px;
   --cit-glass-radius-pill: 24px;
-  --cit-icon-plate: rgba(8, 14, 18, 0.48);
+  --cit-icon-plate: rgba(38, 82, 101, 0.48);
   --cit-icon-edge: rgba(255, 255, 255, 0.16);
   --cit-icon-filter: none;
   --cit-icon-filter-hover: none;
@@ -75,10 +75,10 @@ html[data-codex-interface-theme="active"][data-cit-appearance="light"] {
   pointer-events: none;
   overflow: hidden;
   background:
-    linear-gradient(180deg, rgba(36, 43, 48, 0.54), rgba(8, 10, 12, 0.82)),
+    linear-gradient(180deg, rgba(38, 82, 101, 0.54), rgba(38, 82, 101, 0.82)),
     radial-gradient(ellipse at 35% 12%, rgba(218, 231, 236, 0.14), transparent 38%),
     radial-gradient(ellipse at 64% 92%, color-mix(in srgb, var(--cit-mecha-armor), transparent 90%), transparent 42%),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.30) 0%, transparent 24%, transparent 72%, rgba(0, 0, 0, 0.26) 100%),
+    linear-gradient(90deg, rgba(0, 200, 248, 0.12) 0%, transparent 24%, transparent 72%, rgba(0, 200, 248, 0.10) 100%),
     var(--cit-bg-image) !important;
   background-position:
     center,
@@ -166,7 +166,7 @@ html[data-codex-interface-theme="active"][data-cit-appearance="light"] {
     contrast(1.04)
     drop-shadow(0 0 8px color-mix(in srgb, var(--cit-secondary), transparent 60%))
     drop-shadow(0 0 14px color-mix(in srgb, var(--cit-mecha-armor), transparent 76%))
-    drop-shadow(0 12px 20px rgba(0, 0, 0, 0.42));
+    drop-shadow(0 12px 20px rgba(0, 200, 248, 0.14));
   image-rendering: auto;
   opacity: var(--cit-table-flip-cat-opacity, 0.96);
   transform: translateZ(0);
@@ -190,7 +190,7 @@ html[data-cit-table-flip-cat="false"] #codex-interface-theme-right-hud::after {
     contrast(1.04)
     drop-shadow(0 0 18px color-mix(in srgb, var(--cit-mecha-armor), transparent 70%))
     drop-shadow(0 0 24px color-mix(in srgb, var(--cit-secondary), transparent 76%))
-    drop-shadow(0 22px 28px rgba(0, 0, 0, 0.38));
+    drop-shadow(0 22px 28px rgba(0, 200, 248, 0.14));
   transform: translate3d(0, 0, 0) scale(1);
   transform-origin: center bottom;
   transition:
@@ -231,7 +231,7 @@ html[data-codex-interface-theme="active"][data-cit-character-retreat]:not([data-
   filter:
     saturate(0.94)
     contrast(0.96)
-    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.28)) !important;
+    drop-shadow(0 10px 18px rgba(0, 200, 248, 0.10)) !important;
 }
 
 html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) #codex-interface-theme-backdrop {
@@ -265,8 +265,8 @@ html[data-codex-interface-theme="active"]:not([data-cit-task-mode="off"]) #codex
 
 html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) body {
   background:
-    linear-gradient(180deg, rgba(12, 16, 18, 0.06), rgba(4, 6, 8, 0.34)),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.16) 0%, transparent 24%, transparent 76%, rgba(0, 0, 0, 0.18) 100%),
+    linear-gradient(180deg, rgba(38, 82, 101, 0.06), rgba(38, 82, 101, 0.34)),
+    linear-gradient(90deg, rgba(0, 200, 248, 0.08) 0%, transparent 24%, transparent 76%, rgba(0, 200, 248, 0.09) 100%),
     var(--cit-bg-image) var(--cit-bg-focus-x) var(--cit-bg-focus-y) / cover no-repeat scroll,
     var(--cit-bg-base) !important;
 }
@@ -274,10 +274,11 @@ html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-c
 html[data-codex-interface-theme="active"][data-cit-has-image="true"][data-cit-workspace-treatment="native"]:not([data-cit-task-mode="off"]) :is(body>div:first-child,body>div:first-child>div,body>div:first-child>div>div,body>div:first-child>div>div>div,main,[role="main"]){background:transparent!important;box-shadow:none!important}
 
 html[data-codex-interface-theme=active] .flex.h-full.min-h-0.flex-col.bg-token-main-surface-primary{background:transparent!important;box-shadow:none!important}
-html[data-codex-interface-theme=active] :is(button.bg-token-foreground.rounded-lg.h-token-button-composer,main button.bg-token-foreground.border-token-border.rounded-full:not(.size-token-button-composer)){background:rgba(6,10,13,.72)!important;color:var(--cit-text)!important;-webkit-text-fill-color:currentColor!important;border-color:rgba(255,255,255,.16)!important;box-shadow:0 0 0 1px rgba(255,255,255,.05)!important}
-html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋專案"],[placeholder*="搜尋已排程任務"],[placeholder*="搜尋外掛程式"],[placeholder*="Search projects"],[placeholder*="Search scheduled"],[placeholder*="Search plugins"])) :is([class*="bg-token-input-background"][class*="rounded-full"],[data-project-row-wrapper],[data-project-row],[role=listitem],[class*="group/plugin-row"],[role=button][class*="rounded-2xl"]){background:rgba(3,9,12,.14)!important;background-image:none!important;border-color:rgba(255,255,255,.065)!important;outline:0!important;box-shadow:none!important}
-html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋專案"],[placeholder*="搜尋已排程任務"],[placeholder*="搜尋外掛程式"],[placeholder*="Search projects"],[placeholder*="Search scheduled"],[placeholder*="Search plugins"])) :is([class*="text-token-text-tertiary"],[class*="border-token-border"],[class*="border-token-border-light"],[class*="border-b"],[class*="border-t"]){border-color:transparent!important;box-shadow:none!important}
-html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋專案"],[placeholder*="搜尋已排程任務"],[placeholder*="搜尋外掛程式"],[placeholder*="Search projects"],[placeholder*="Search scheduled"],[placeholder*="Search plugins"])) div[class*="bg-token-input-background"][class*="rounded-full"]:not(#cit-route-surface){background:rgba(3,9,12,.14)!important;border-color:rgba(255,255,255,.065)!important;box-shadow:none!important}
+html[data-codex-interface-theme=active] :is(button.bg-token-foreground.rounded-lg.h-token-button-composer,main button.bg-token-foreground.border-token-border.rounded-full:not(.size-token-button-composer)){background:rgba(38,82,101,.54)!important;color:var(--cit-text)!important;-webkit-text-fill-color:currentColor!important;border-color:rgba(255,255,255,.16)!important;box-shadow:0 0 0 1px rgba(255,255,255,.05)!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋"],[placeholder*="Search"])) .flex.h-full.min-h-0.flex-col.bg-surface{background:rgba(22,45,58,.16)!important;background-image:none!important;box-shadow:none!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋"],[placeholder*="Search"])) :is([class*="bg-token-input-background"][class*="rounded-full"],[class*="bg-background-primary-soft"][class*="rounded-full"],[data-project-row-wrapper],[data-project-row],[role=listitem],[class*="group/plugin-row"],[role=button][class*="rounded-2xl"]){background:rgba(22,45,58,.20)!important;background-image:none!important;border-color:rgba(255,255,255,.065)!important;outline:0!important;box-shadow:none!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋"],[placeholder*="Search"])) :is([class*="text-token-text-tertiary"],[class*="border-token-border"],[class*="border-token-border-light"],[class*="border-b"],[class*="border-t"]){border-color:transparent!important;box-shadow:none!important}
+html[data-codex-interface-theme=active] main:has(input:is([placeholder*="搜尋"],[placeholder*="Search"])) [class*="before:absolute"][class*="before:-inset-x-3"]::after{content:none!important;display:none!important;background:none!important;background-image:none!important}
 
 html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) body::after {
   content: none;
@@ -324,7 +325,7 @@ html[data-codex-interface-theme="active"][data-cit-safe-area="none"] #codex-inte
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
     inset 0 0 0 1px color-mix(in srgb, var(--cit-secondary), transparent 96%),
-    0 0 40px rgba(0, 0, 0, 0.16);
+    0 0 40px rgba(0, 200, 248, 0.10);
   opacity: 0.34;
   mask-image:
     linear-gradient(270deg, black 0%, rgba(0, 0, 0, 0.72) 70%, transparent 100%),
@@ -357,7 +358,7 @@ html[data-codex-interface-theme="active"] aside.app-shell-left-panel {
   box-shadow:
     var(--cit-glass-inset),
     1px 0 0 color-mix(in srgb, var(--cit-sidebar-accent), transparent 90%),
-    18px 0 42px rgba(0, 0, 0, 0.18);
+    18px 0 42px rgba(0, 200, 248, 0.10);
   -webkit-backdrop-filter: blur(var(--cit-blur)) saturate(1.34) contrast(1.04);
   backdrop-filter: blur(var(--cit-blur)) saturate(1.34) contrast(1.04);
 }
@@ -372,7 +373,7 @@ html[data-codex-interface-theme="active"][data-cit-corner-armor="sidebar-top-lef
   pointer-events: none;
   background:
     linear-gradient(132deg, transparent 0 24%, color-mix(in srgb, var(--cit-mecha-armor), white 6%) 25% 41%, transparent 42%),
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-mecha-frame), black 24%), color-mix(in srgb, var(--cit-mecha-armor), black 8%));
+    linear-gradient(90deg, color-mix(in srgb, var(--cit-mecha-frame), #265265 24%), color-mix(in srgb, var(--cit-mecha-armor), #265265 8%));
   clip-path: polygon(0 0, 86% 0, 100% 32%, 72% 100%, 12% 78%);
   filter: drop-shadow(0 0 14px color-mix(in srgb, var(--cit-mecha-glow), transparent 72%));
   opacity: 0.58;
@@ -406,7 +407,7 @@ html[data-codex-interface-theme="active"] header.app-header-tint {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 42%, rgba(255, 255, 255, 0)),
     linear-gradient(90deg, color-mix(in srgb, var(--cit-header-accent), transparent 94%), transparent 42%),
-    linear-gradient(180deg, color-mix(in srgb, var(--cit-glass-surface), var(--cit-header-surface) 42%), rgba(5, 6, 7, 0.18), rgba(5, 6, 7, 0)) !important;
+    linear-gradient(180deg, color-mix(in srgb, var(--cit-glass-surface), var(--cit-header-surface) 42%), rgba(38, 82, 101, 0.18), rgba(38, 82, 101, 0)) !important;
   border-bottom: 1px solid color-mix(in srgb, var(--cit-glass-border), var(--cit-header-border) 42%) !important;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
   -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.95)) saturate(1.34) contrast(1.03);
@@ -419,60 +420,6 @@ html[data-codex-interface-theme="active"][data-cit-appearance="light"] header.ap
 
 html[data-codex-interface-theme="active"] [data-testid="app-shell-header-context-menu-surface"] {
   color: var(--cit-text) !important;
-}
-
-html[data-codex-interface-theme="active"] [role="dialog"],
-html[data-codex-interface-theme="active"] [class*="popover" i],
-html[data-codex-interface-theme="active"] [class*="modal" i],
-html[data-codex-interface-theme="active"] [class*="menu" i] {
-  overflow: hidden;
-  border-radius: var(--cit-glass-radius-tight) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.035) 24%, rgba(255, 255, 255, 0.018)),
-    color-mix(in srgb, var(--cit-popover-surface), transparent 18%) !important;
-  border-color: color-mix(in srgb, var(--cit-glass-border), var(--cit-popover-border) 44%) !important;
-  box-shadow:
-    var(--cit-glass-inset),
-    var(--cit-glass-shadow) !important;
-  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 1.08)) saturate(1.38) contrast(1.04);
-  backdrop-filter: blur(calc(var(--cit-blur) * 1.08)) saturate(1.38) contrast(1.04);
-}
-
-html[data-codex-interface-theme="active"] .composer-surface-chrome {
-  overflow: hidden;
-  border-radius: var(--cit-glass-radius-pill) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.02)),
-    radial-gradient(circle at 8% 16%, color-mix(in srgb, var(--cit-composer-accent), transparent 91%), transparent 34%),
-    radial-gradient(circle at 92% 82%, color-mix(in srgb, var(--cit-highlight), transparent 94%), transparent 32%),
-    linear-gradient(118deg,
-      color-mix(in srgb, var(--cit-mecha-armor), transparent 96%) 0%,
-      transparent 31%,
-      color-mix(in srgb, var(--cit-popover-accent), transparent 96%) 68%,
-      color-mix(in srgb, var(--cit-secondary), transparent 95%) 100%),
-    color-mix(in srgb, var(--cit-composer-surface), transparent 26%) !important;
-  border-color: color-mix(in srgb, var(--cit-glass-border), var(--cit-composer-border) 46%) !important;
-  box-shadow:
-    var(--cit-glass-inset),
-    0 0 0 1px color-mix(in srgb, var(--cit-composer-accent), transparent 94%),
-    0 0 0 2px color-mix(in srgb, var(--cit-secondary), transparent 97%),
-    0 14px 38px rgba(0, 0, 0, 0.20) !important;
-  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 1.04)) saturate(1.42) contrast(1.05);
-  backdrop-filter: blur(calc(var(--cit-blur) * 1.04)) saturate(1.42) contrast(1.05);
-}
-
-html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:not(button):not([role="button"]):not(input):not(textarea):not(pre):not(code):not(.composer-surface-chrome):not(.codex-interface-theme-project-panel):not(.codex-interface-theme-workspace-picker):not([data-cit-workspace-picker="shell"]):not([class*="bg-token-dropdown-background"]):not([class*="max-h-"]) {
-  overflow: hidden;
-  border-radius: var(--cit-glass-radius-tight) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.028) 24%, rgba(255, 255, 255, 0.014)),
-    color-mix(in srgb, var(--cit-glass-surface), transparent 10%) !important;
-  border-color: color-mix(in srgb, var(--cit-glass-border), var(--cit-secondary) 10%) !important;
-  box-shadow:
-    var(--cit-glass-inset),
-    0 14px 34px rgba(0, 0, 0, 0.18) !important;
-  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.74)) saturate(1.26) contrast(1.03);
-  backdrop-filter: blur(calc(var(--cit-blur) * 0.74)) saturate(1.26) contrast(1.03);
 }
 
 html[data-codex-interface-theme="active"] button,
@@ -527,7 +474,7 @@ html[data-codex-interface-theme="active"][data-cit-mode="sidebar-art"][data-cit-
   opacity: var(--cit-badge-opacity);
   filter:
     drop-shadow(0 0 10px color-mix(in srgb, var(--cit-sidebar-accent), transparent 58%))
-    drop-shadow(0 8px 18px rgba(0, 0, 0, 0.32));
+    drop-shadow(0 8px 18px rgba(0, 200, 248, 0.12));
 }
 
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel .codex-interface-theme-button-iconized {
@@ -546,7 +493,7 @@ html[data-codex-interface-theme="active"] aside.app-shell-left-panel .cit-button
   filter:
     saturate(1.24) contrast(1.12)
     drop-shadow(0 0 8px color-mix(in srgb, var(--cit-sidebar-accent), transparent 42%))
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.38));
+    drop-shadow(0 1px 2px rgba(0, 200, 248, 0.14));
 }
 
 html[data-codex-interface-theme="active"] button[data-cit-button-module="titlebarNavigation"] {
@@ -578,7 +525,7 @@ html[data-codex-interface-theme="active"] button[data-cit-button-module="titleba
   filter:
     saturate(1.2) contrast(1.14)
     drop-shadow(0 0 6px color-mix(in srgb, var(--cit-header-accent), transparent 58%))
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.32));
+    drop-shadow(0 1px 2px rgba(242, 162, 58, 0.14));
 }
 
 html[data-codex-interface-theme="active"] [data-cit-button-module="topUtilityActions"] {
@@ -610,7 +557,7 @@ html[data-codex-interface-theme="active"] [data-cit-button-module="topUtilityAct
   filter:
     saturate(1.24) contrast(1.14)
     drop-shadow(0 0 6px color-mix(in srgb, var(--cit-header-accent), transparent 58%))
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.34));
+    drop-shadow(0 1px 2px rgba(242, 162, 58, 0.14));
 }
 
 html[data-codex-interface-theme="active"] .composer-surface-chrome [data-cit-button-module="composerControls"] {
@@ -632,7 +579,7 @@ html[data-codex-interface-theme="active"] .composer-surface-chrome [data-cit-but
   filter:
     saturate(1.22) contrast(1.12)
     drop-shadow(0 0 6px color-mix(in srgb, var(--cit-composer-accent), transparent 62%))
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.30));
+    drop-shadow(0 1px 2px rgba(242, 162, 58, 0.12));
 }
 
 html[data-codex-interface-theme="active"] .composer-surface-chrome [data-cit-button-action="stop"] .cit-button-glyph,
@@ -672,116 +619,7 @@ html[data-codex-interface-theme="active"] [data-cit-button-module="messageAction
   filter:
     saturate(1.22) contrast(1.12)
     drop-shadow(0 0 5px color-mix(in srgb, var(--cit-secondary), transparent 58%))
-    drop-shadow(0 1px 2px rgba(0, 0, 0, 0.30));
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  border-radius: var(--cit-glass-radius) !important;
-  clip-path: inset(0 round var(--cit-glass-radius));
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.036) 24%, rgba(255, 255, 255, 0.018)),
-    linear-gradient(180deg, color-mix(in srgb, var(--cit-secondary), transparent 97%), transparent 86px),
-    linear-gradient(124deg, color-mix(in srgb, var(--cit-popover-accent), transparent 98%) 0%, transparent 42%, color-mix(in srgb, var(--cit-header-accent), transparent 97%) 100%),
-    color-mix(in srgb, var(--cit-glass-surface), var(--cit-mecha-frame) 34%) !important;
-  border: 1px solid color-mix(in srgb, var(--cit-glass-border), var(--cit-secondary) 16%) !important;
-  box-shadow:
-    var(--cit-glass-inset),
-    inset 0 1px 0 color-mix(in srgb, white, transparent 88%),
-    inset 0 0 0 1px color-mix(in srgb, var(--cit-header-accent), transparent 95%),
-    0 18px 46px rgba(0, 0, 0, 0.26) !important;
-  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 1.02)) saturate(1.38) contrast(1.04);
-  backdrop-filter: blur(calc(var(--cit-blur) * 1.02)) saturate(1.38) contrast(1.04);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-secondary), transparent 84%), transparent 22%, transparent 80%, color-mix(in srgb, var(--cit-popover-accent), transparent 90%)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 34%);
-  opacity: 0.24;
-  mask-image: linear-gradient(180deg, black, transparent 58%);
-}
-
-html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) .codex-interface-theme-project-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background-image: var(--cit-bg-image);
-  background-repeat: no-repeat;
-  background-position: right bottom;
-  background-size: auto 100%;
-  opacity: 0.14;
-  mix-blend-mode: screen;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.36) 32%, black 100%);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel > * {
-  position: relative;
-  z-index: 2;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-secondary), transparent 92%), transparent 54%),
-    transparent !important;
-  border-bottom: 1px solid color-mix(in srgb, var(--cit-secondary), transparent 88%) !important;
-  color: color-mix(in srgb, var(--cit-text), var(--cit-secondary) 18%) !important;
-  letter-spacing: 0;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-section {
-  position: relative;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-section::after {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-secondary), transparent 72%), transparent 44%, color-mix(in srgb, var(--cit-popover-accent), transparent 82%)) !important;
-  opacity: 0.64;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  --cit-row-accent: var(--cit-secondary);
-  --cit-row-accent-soft: color-mix(in srgb, var(--cit-row-accent), transparent 95%);
-  --cit-row-accent-faint: color-mix(in srgb, var(--cit-row-accent), transparent 98.5%);
-  border-radius: var(--cit-glass-radius-tight) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.034), rgba(255, 255, 255, 0.008)),
-    linear-gradient(90deg, var(--cit-row-accent-faint), transparent 34%),
-    color-mix(in srgb, var(--cit-bg-elevated), transparent 76%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.038),
-    inset 2px 0 0 var(--cit-row-accent-soft),
-    inset 0 0 0 1px color-mix(in srgb, var(--cit-row-accent), transparent 98%) !important;
-  -webkit-backdrop-filter: blur(calc(var(--cit-blur) * 0.34)) saturate(1.16);
-  backdrop-filter: blur(calc(var(--cit-blur) * 0.34)) saturate(1.16);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button:hover,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button:hover,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item:hover,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item:hover {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.058), rgba(255, 255, 255, 0.016)),
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-row-accent), transparent 94%), transparent 42%, color-mix(in srgb, var(--cit-popover-accent), transparent 98%)),
-    color-mix(in srgb, var(--cit-bg-elevated), transparent 64%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.055),
-    inset 2px 0 0 color-mix(in srgb, var(--cit-row-accent), transparent 84%),
-    inset 0 0 0 1px color-mix(in srgb, var(--cit-row-accent), transparent 95%) !important;
+    drop-shadow(0 1px 2px rgba(0, 200, 248, 0.12));
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel [data-cit-button-module="projectPanelRows"] {
@@ -822,21 +660,21 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel [
   filter:
     saturate(1.14) contrast(1.08)
     drop-shadow(0 0 4px color-mix(in srgb, var(--cit-row-accent), transparent 70%))
-    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.28));
+    drop-shadow(0 1px 1px rgba(0, 200, 248, 0.10));
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel [data-cit-button-action="agentRow"] .cit-button-glyph {
   filter:
     saturate(1.2) contrast(1.1)
     drop-shadow(0 0 5px color-mix(in srgb, var(--cit-popover-accent), transparent 66%))
-    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.30));
+    drop-shadow(0 1px 1px rgba(38, 82, 101, 0.18));
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel [data-cit-button-action="statusRow"] .cit-button-glyph {
   filter:
     saturate(1.18) contrast(1.12)
     drop-shadow(0 0 5px color-mix(in srgb, var(--cit-status-danger), transparent 66%))
-    drop-shadow(0 1px 1px rgba(0, 0, 0, 0.30));
+    drop-shadow(0 1px 1px rgba(255, 90, 69, 0.12));
 }
 
 html[data-codex-interface-theme="active"] .cit-button-glyph {
@@ -844,9 +682,9 @@ html[data-codex-interface-theme="active"] .cit-button-glyph {
   background-color: var(--cit-icon-plate);
   box-shadow:
     inset 0 1px 0 var(--cit-icon-edge),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.50),
+    inset 0 -1px 0 rgba(38, 82, 101, 0.22),
     0 1px 0 rgba(255, 255, 255, 0.05),
-    0 4px 8px rgba(0, 0, 0, 0.26);
+    0 4px 8px rgba(38, 82, 101, 0.16);
   filter: var(--cit-icon-filter) !important;
   transform: translateY(0) scale(1);
   transition:
@@ -862,9 +700,9 @@ html[data-codex-interface-theme="active"] a:hover .cit-button-glyph {
   background-color: color-mix(in srgb, var(--cit-icon-plate), var(--cit-mecha-armor) 12%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.56),
+    inset 0 -1px 0 rgba(38, 82, 101, 0.24),
     0 1px 0 rgba(255, 255, 255, 0.06),
-    0 6px 12px rgba(0, 0, 0, 0.34),
+    0 6px 12px rgba(38, 82, 101, 0.18),
     0 0 10px color-mix(in srgb, var(--cit-secondary), transparent 76%);
   filter: var(--cit-icon-filter-hover) !important;
   transform: translateY(-1px) scale(1.04);
@@ -875,9 +713,9 @@ html[data-codex-interface-theme="active"] [role="button"]:active .cit-button-gly
 html[data-codex-interface-theme="active"] a:active .cit-button-glyph {
   transform: translateY(0) scale(0.98);
   box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.58),
+    inset 0 1px 2px rgba(38, 82, 101, 0.24),
     inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-    0 2px 5px rgba(0, 0, 0, 0.28);
+    0 2px 5px rgba(38, 82, 101, 0.16);
 }
 
 #codex-interface-theme-marker {
@@ -901,184 +739,11 @@ html[data-codex-interface-theme="active"] {
 }
 
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel {
-  background:
-    linear-gradient(180deg, rgba(246, 252, 255, 0.035), rgba(246, 252, 255, 0.01) 26%, rgba(255, 90, 69, 0.008) 100%),
-    radial-gradient(ellipse at 24% 9%, color-mix(in srgb, var(--cit-cockpit-amber), transparent 94%), transparent 34%),
-    radial-gradient(ellipse at 92% 88%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 95%), transparent 36%),
-    linear-gradient(116deg, color-mix(in srgb, var(--cit-cockpit-amber), transparent 92%) 0 12%, transparent 12.4% 100%),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.015) 0 1px, transparent 1px 34px),
-    linear-gradient(180deg, rgba(5, 11, 15, 0.42), rgba(3, 8, 11, 0.30)) !important;
-  border-right: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 68%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset -1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 62%),
-    inset -18px 0 38px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 96%),
-    inset 0 -1px 0 color-mix(in srgb, var(--cit-cockpit-amber), transparent 89%),
-    16px 0 44px rgba(0, 0, 0, 0.24) !important;
-  -webkit-backdrop-filter: blur(6px) saturate(1.22) contrast(1.05);
-  backdrop-filter: blur(6px) saturate(1.22) contrast(1.05);
-}
-
-html[data-codex-interface-theme="active"] aside.app-shell-left-panel::before,
-html[data-codex-interface-theme="active"][data-cit-corner-armor="sidebar-top-left"] aside.app-shell-left-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  width: auto;
-  height: auto;
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--cit-cockpit-amber), transparent 48%) 0 7%, transparent 7.4%),
-    linear-gradient(90deg, transparent 0%, transparent calc(100% - 2px), color-mix(in srgb, var(--cit-cockpit-cyan), transparent 50%) calc(100% - 2px), transparent 100%),
-    linear-gradient(180deg, transparent 0 76px, color-mix(in srgb, white, transparent 95%) 76px 77px, transparent 77px),
-    repeating-linear-gradient(180deg, transparent 0 31px, rgba(255, 255, 255, 0.018) 31px 32px),
-    radial-gradient(circle at 96% 18%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 84%), transparent 12px);
-  clip-path: none;
-  filter: none;
-  opacity: 0.42;
-  mask-image: linear-gradient(180deg, black 0%, black 82%, transparent 100%);
-}
-
-html[data-codex-interface-theme="active"] aside.app-shell-left-panel::after,
-html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) aside.app-shell-left-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 97%) 55%, transparent 100%),
-    repeating-linear-gradient(135deg, transparent 0 16px, rgba(0, 229, 255, 0.022) 16px 17px),
-    linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.10) 100%);
-  background-position: center;
-  background-size: auto;
-  opacity: 0.34;
-  mix-blend-mode: screen;
-  mask-image: linear-gradient(180deg, transparent 0%, black 10%, black 84%, transparent 100%);
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud {
-  width: clamp(260px, 18vw, 360px);
-  border-radius: 18px 0 0 18px;
-  border-color: color-mix(in srgb, var(--cit-cockpit-amber), transparent 72%) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.006) 30%, color-mix(in srgb, var(--cit-cockpit-red), transparent 99%) 100%),
-    radial-gradient(ellipse at 84% 12%, color-mix(in srgb, var(--cit-cockpit-amber), transparent 97%), transparent 34%),
-    radial-gradient(ellipse at 72% 84%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 95%), transparent 34%),
-    linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 98.5%) 58%, color-mix(in srgb, var(--cit-cockpit-red), transparent 99.5%) 100%),
-    repeating-linear-gradient(90deg, transparent 0 32px, rgba(0, 229, 255, 0.016) 32px 33px),
-    repeating-linear-gradient(180deg, transparent 0 28px, rgba(255, 255, 255, 0.014) 28px 29px) !important;
-  box-shadow:
-    inset 1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 70%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset -10px 0 24px color-mix(in srgb, var(--cit-cockpit-red), transparent 98%),
-    inset 10px 0 24px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 98%),
-    0 0 22px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 96%),
-    -10px 0 28px rgba(0, 0, 0, 0.16) !important;
-  -webkit-backdrop-filter: blur(5px) saturate(1.18) contrast(1.06);
-  backdrop-filter: blur(5px) saturate(1.18) contrast(1.06);
-  mask-image:
-    linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.42) 18%, black 100%),
-    linear-gradient(180deg, transparent 0%, black 5%, black 94%, transparent 100%);
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud::before {
-  top: clamp(26px, 5vh, 58px);
-  right: clamp(20px, 1.8vw, 38px);
-  width: clamp(150px, 11vw, 230px);
-  height: clamp(150px, 24vh, 280px);
-  border-top: 1px solid color-mix(in srgb, var(--cit-cockpit-amber), transparent 58%);
-  border-right: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 58%);
-  border-bottom: 1px solid color-mix(in srgb, var(--cit-cockpit-red), transparent 78%);
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--cit-cockpit-amber), transparent 92%) 0 18%, transparent 18.5%),
-    radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 84%), transparent 13px),
-    repeating-linear-gradient(90deg, transparent 0 24px, rgba(0, 229, 255, 0.045) 24px 25px),
-    repeating-linear-gradient(180deg, transparent 0 22px, rgba(255, 255, 255, 0.024) 22px 23px);
-  clip-path: polygon(16% 0, 100% 0, 100% 78%, 82% 100%, 0 100%, 0 18%);
-  opacity: 0.30;
-  mask-image: linear-gradient(180deg, black, transparent 86%);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.01) 24%, rgba(255, 255, 255, 0.006)),
-    radial-gradient(ellipse at 8% 0%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 95%), transparent 36%),
-    radial-gradient(ellipse at 98% 22%, color-mix(in srgb, var(--cit-cockpit-amber), transparent 97%), transparent 34%),
-    linear-gradient(124deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 98%) 0%, transparent 42%, color-mix(in srgb, var(--cit-cockpit-red), transparent 99%) 100%),
-    rgba(4, 8, 11, 0.56) !important;
-  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 66%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset 1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 86%),
-    inset -1px 0 0 color-mix(in srgb, var(--cit-cockpit-red), transparent 90%),
-    inset 0 0 0 1px color-mix(in srgb, var(--cit-cockpit-amber), transparent 94%),
-    0 18px 46px rgba(0, 0, 0, 0.28) !important;
-  -webkit-backdrop-filter: blur(6px) saturate(1.18) contrast(1.08);
-  backdrop-filter: blur(6px) saturate(1.18) contrast(1.08);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::before {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 88%), transparent 22%, transparent 78%, color-mix(in srgb, var(--cit-cockpit-red), transparent 94%)),
-    linear-gradient(135deg, color-mix(in srgb, var(--cit-cockpit-amber), transparent 88%) 0 14%, transparent 14.5%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.016), transparent 34%) !important;
-  opacity: 0.24;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::after,
-html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) .codex-interface-theme-project-panel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at 91% 9%, color-mix(in srgb, var(--cit-cockpit-amber), transparent 90%), transparent 11px),
-    radial-gradient(circle at 8% 78%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 92%), transparent 30%),
-    repeating-linear-gradient(90deg, transparent 0 28px, rgba(0, 229, 255, 0.018) 28px 29px),
-    repeating-linear-gradient(180deg, transparent 0 25px, rgba(255, 255, 255, 0.012) 25px 26px);
-  opacity: 0.18;
-  mix-blend-mode: screen;
-  mask-image: linear-gradient(90deg, transparent 0%, black 22%, black 100%);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 86%), transparent 44%, color-mix(in srgb, var(--cit-cockpit-amber), transparent 93%) 100%),
-    rgba(255, 255, 255, 0.018) !important;
-  border-bottom-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 78%) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel [role="button"] {
-  color: color-mix(in srgb, var(--cit-text), white 6%) !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.46);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.036), rgba(255, 255, 255, 0.008)),
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-row-accent), transparent 94%), transparent 36%),
-    rgba(5, 9, 12, 0.52) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 2px 0 0 color-mix(in srgb, var(--cit-row-accent), transparent 78%),
-    inset 0 0 0 1px color-mix(in srgb, var(--cit-row-accent), transparent 94%) !important;
-}
-
-html[data-codex-interface-theme="active"] aside.app-shell-left-panel {
-  background: rgba(3, 7, 9, 0.58) !important;
+  background: rgba(38, 82, 101, 0.54) !important;
   border-right: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 78%) !important;
   box-shadow:
     inset -1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 82%),
-    8px 0 20px rgba(0, 0, 0, 0.14) !important;
+    8px 0 20px rgba(38, 82, 101, 0.12) !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
 }
@@ -1099,9 +764,9 @@ html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, butt
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"]):not(.sidebar-item *)[aria-current],
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"]):not(.sidebar-item *)[data-state="active"],
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel :is(a, button, [role="button"]):not(.sidebar-item *)[data-selected="true"] {
-  background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.06), transparent 72%),
-    rgba(255, 255, 255, 0.04) !important;
+  background: transparent !important;
+  background-color:transparent!important;
+  background-image: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
@@ -1127,9 +792,9 @@ html[data-codex-interface-theme="active"] aside.app-shell-left-panel .sidebar-it
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel .sidebar-item[aria-current],
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel .sidebar-item[data-state="active"],
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel .sidebar-item[data-selected="true"] {
-  background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.06), transparent 72%),
-    rgba(255, 255, 255, 0.04) !important;
+  background: transparent !important;
+  background-color:transparent!important;
+  background-image:none!important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
@@ -1168,534 +833,6 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud::afte
   bottom: 0 !important;
 }
 
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012) 24%, rgba(255, 255, 255, 0.006)),
-    radial-gradient(ellipse at 0% 0%, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 94%), transparent 32%),
-    radial-gradient(ellipse at 100% 18%, color-mix(in srgb, var(--cit-cockpit-amber), transparent 95%), transparent 34%),
-    linear-gradient(128deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 97%) 0%, transparent 48%, color-mix(in srgb, var(--cit-cockpit-red), transparent 98%) 100%),
-    rgba(6, 9, 12, 0.88) !important;
-  background-clip: padding-box !important;
-  -webkit-backdrop-filter: blur(2px) saturate(1.08) contrast(1.06) !important;
-  backdrop-filter: blur(2px) saturate(1.08) contrast(1.06) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::after {
-  opacity: 0.08 !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 88%), transparent 54%),
-    rgba(7, 10, 13, 0.72) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.008)),
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-row-accent), transparent 92%), transparent 42%),
-    rgba(7, 11, 14, 0.82) !important;
-}
-
-html[data-codex-interface-theme="active"] .composer-surface-chrome {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.012) 28%, rgba(255, 255, 255, 0.006)),
-    linear-gradient(110deg, color-mix(in srgb, var(--cit-cockpit-amber), transparent 95%) 0%, transparent 42%, color-mix(in srgb, var(--cit-cockpit-red), transparent 96%) 100%),
-    rgba(9, 10, 12, 0.90) !important;
-  border-color: color-mix(in srgb, var(--cit-cockpit-amber), transparent 78%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.035),
-    0 12px 28px rgba(0, 0, 0, 0.24) !important;
-  -webkit-backdrop-filter: blur(2px) saturate(1.08) contrast(1.06) !important;
-  backdrop-filter: blur(2px) saturate(1.08) contrast(1.06) !important;
-}
-
-html[data-codex-interface-theme="active"] {
-  --cit-split-bluegreen: rgba(0, 216, 224, 0.20);
-  --cit-split-green: rgba(20, 226, 158, 0.14);
-  --cit-split-mid: rgba(6, 9, 12, 0.94);
-  --cit-split-purple: rgba(126, 34, 122, 0.18);
-  --cit-split-red: rgba(255, 58, 70, 0.16);
-  --cit-split-ink: rgba(4, 6, 9, 0.92);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame {
-  position: relative !important;
-  isolation: isolate;
-  border-radius: 24px;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.012) 28%, rgba(255, 255, 255, 0.006)),
-    linear-gradient(104deg,
-      var(--cit-split-bluegreen) 0%,
-      var(--cit-split-green) 18%,
-      rgba(6, 12, 14, 0.90) 34%,
-      var(--cit-split-mid) 54%,
-      rgba(45, 12, 38, 0.88) 72%,
-      var(--cit-split-purple) 86%,
-      var(--cit-split-red) 100%),
-    var(--cit-split-ink);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 2px 0 0 rgba(0, 216, 224, 0.22),
-    inset -2px 0 0 rgba(255, 58, 70, 0.16),
-    0 0 0 1px rgba(0, 216, 224, 0.13),
-    0 14px 28px rgba(0, 0, 0, 0.24);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::after,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::after {
-  content: "";
-  position: absolute;
-  inset: 1px;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: calc(24px - 1px);
-  background:
-    repeating-linear-gradient(90deg, transparent 0 32px, rgba(0, 216, 224, 0.018) 32px 33px),
-    repeating-linear-gradient(180deg, transparent 0 28px, rgba(255, 255, 255, 0.012) 28px 29px);
-  opacity: 0.68;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame > *,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame > * {
-  position: relative;
-  z-index: 1;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame {
-  border-radius: 24px 0 0 24px;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.01) 28%, rgba(255, 255, 255, 0.006)),
-    linear-gradient(102deg,
-      var(--cit-split-bluegreen) 0%,
-      rgba(7, 20, 22, 0.94) 34%,
-      var(--cit-split-mid) 52%,
-      rgba(72, 16, 48, 0.84) 74%,
-      var(--cit-split-purple) 88%,
-      var(--cit-split-red) 100%),
-    var(--cit-split-ink);
-  box-shadow:
-    inset 1px 0 0 rgba(0, 216, 224, 0.20),
-    inset -1px 0 0 rgba(255, 58, 70, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.11),
-    0 0 0 1px rgba(0, 216, 224, 0.15),
-    0 16px 32px rgba(0, 0, 0, 0.24);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.008) 28%, rgba(255, 255, 255, 0.004)),
-    linear-gradient(102deg,
-      rgba(0, 216, 224, 0.16) 0%,
-      rgba(6, 12, 14, 0.90) 34%,
-      rgba(6, 9, 12, 0.96) 54%,
-      rgba(84, 16, 56, 0.76) 82%,
-      rgba(255, 58, 70, 0.12) 100%),
-    rgba(5, 8, 11, 0.94) !important;
-  border-color: rgba(0, 216, 224, 0.20) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(96deg,
-      rgba(0, 216, 224, 0.18) 0%,
-      rgba(7, 12, 14, 0.86) 44%,
-      rgba(98, 20, 72, 0.16) 100%),
-    rgba(7, 10, 13, 0.86) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background:
-    linear-gradient(92deg,
-      rgba(0, 216, 224, 0.13) 0%,
-      rgba(5, 10, 13, 0.88) 38%,
-      rgba(7, 10, 14, 0.92) 64%,
-      rgba(132, 24, 104, 0.11) 100%),
-    rgba(6, 10, 13, 0.90) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame {
-  border-radius: 28px;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::before {
-  inset: 0;
-  border-radius: 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.012) 30%, rgba(255, 255, 255, 0.006)),
-    linear-gradient(102deg,
-      rgba(0, 216, 224, 0.18) 0%,
-      rgba(12, 70, 67, 0.16) 20%,
-      rgba(7, 9, 12, 0.92) 46%,
-      rgba(56, 16, 48, 0.88) 76%,
-      rgba(176, 28, 126, 0.16) 90%,
-      rgba(255, 58, 70, 0.12) 100%),
-    rgba(5, 7, 10, 0.94);
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.01) 28%, rgba(255, 255, 255, 0.004)),
-    linear-gradient(102deg,
-      rgba(0, 216, 224, 0.12) 0%,
-      rgba(7, 11, 13, 0.92) 42%,
-      rgba(8, 8, 12, 0.94) 62%,
-      rgba(120, 24, 92, 0.12) 100%),
-    rgba(7, 8, 10, 0.95) !important;
-  border: 0 !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 0 0 1px rgba(0, 216, 224, 0.09),
-    0 10px 24px rgba(0, 0, 0, 0.20) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame {
-  border-radius: 24px 0 0 24px !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.006) 30%, rgba(255, 255, 255, 0.003)),
-    rgba(5, 8, 11, 0.94) !important;
-  box-shadow:
-    inset 1px 0 0 rgba(0, 216, 224, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 0 0 1px rgba(0, 216, 224, 0.12),
-    0 16px 32px rgba(0, 0, 0, 0.22) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.006) 28%, rgba(255, 255, 255, 0.003)),
-    rgba(5, 8, 11, 0.96) !important;
-  border-color: rgba(0, 216, 224, 0.18) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    inset 1px 0 0 rgba(0, 216, 224, 0.12),
-    0 12px 24px rgba(0, 0, 0, 0.20) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.11), transparent 46%),
-    rgba(7, 10, 13, 0.88) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.08), transparent 34%),
-    rgba(7, 11, 14, 0.92) !important;
-  border-color: rgba(0, 216, 224, 0.13) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame {
-  isolation: auto !important;
-  border-radius: 0 !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::before,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface {
-  background:
-    linear-gradient(102deg,
-      rgba(0, 216, 224, 0.12) 0%,
-      rgba(7, 11, 13, 0.94) 40%,
-      rgba(8, 8, 12, 0.95) 64%,
-      rgba(120, 24, 92, 0.11) 100%),
-    rgba(7, 8, 10, 0.96) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame {
-  border-radius: 24px 0 0 24px !important;
-  background: transparent !important;
-  box-shadow:
-    inset 1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 82%),
-    -8px 0 20px rgba(0, 0, 0, 0.14) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before {
-  background: rgba(3, 7, 9, 0.58) !important;
-  box-shadow:
-    inset 1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 78%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055),
-    0 0 0 1px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 86%) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background: rgba(3, 7, 9, 0.42) !important;
-  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 78%) !important;
-  box-shadow:
-    inset 1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 86%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::before,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::after {
-  opacity: 0 !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 90%), transparent 64%),
-    rgba(3, 7, 9, 0.38) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--cit-cockpit-cyan), transparent 90%), transparent 74%),
-    rgba(5, 14, 18, 0.42) !important;
-  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 86%) !important;
-  box-shadow:
-    inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 72%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.045),
-    0 0 10px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 94%) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::before,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface {
-  background:
-    linear-gradient(102deg,
-      rgba(0, 216, 224, 0.08) 0%,
-      rgba(7, 11, 13, 0.92) 38%,
-      rgba(8, 8, 12, 0.94) 68%,
-      rgba(120, 24, 92, 0.08) 100%),
-    rgba(7, 8, 10, 0.94) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 0 0 1px rgba(0, 216, 224, 0.075),
-    0 10px 22px rgba(0, 0, 0, 0.18) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-
-html[data-codex-interface-theme="active"] {
-  --cit-side-glass: rgba(3, 7, 9, 0.52);
-  --cit-side-glass-strong: rgba(3, 7, 9, 0.62);
-  --cit-side-line: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 78%);
-  --cit-side-line-soft: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 88%);
-}
-
-html[data-codex-interface-theme="active"] aside.app-shell-left-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.012) 22%, rgba(255, 255, 255, 0.006)),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.035), transparent 58%),
-    var(--cit-side-glass) !important;
-  border-right: 1px solid var(--cit-side-line) !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.055),
-    14px 0 28px rgba(0, 0, 0, 0.16) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-  backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-}
-
-html[data-codex-interface-theme="active"] aside.app-shell-left-panel::after,
-html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) aside.app-shell-left-panel::after {
-  opacity: 0.18 !important;
-  background:
-    linear-gradient(90deg, transparent 0%, rgba(0, 216, 224, 0.035) 52%, transparent 100%),
-    repeating-linear-gradient(135deg, transparent 0 18px, rgba(0, 229, 255, 0.014) 18px 19px) !important;
-  mix-blend-mode: screen !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame {
-  isolation: isolate !important;
-  overflow: hidden !important;
-  border-radius: 22px 0 0 22px !important;
-  background: transparent !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line-soft),
-    -8px 0 22px rgba(0, 0, 0, 0.14) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-  backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before {
-  content: "" !important;
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 0 !important;
-  pointer-events: none !important;
-  border-radius: inherit !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.026), rgba(255, 255, 255, 0.006) 28%, rgba(255, 255, 255, 0.003)),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.022), transparent 58%),
-    rgba(3, 7, 9, 0.24) !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line),
-    inset 0 1px 0 rgba(255, 255, 255, 0.052),
-    0 0 0 1px var(--cit-side-line-soft) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame > * {
-  position: relative !important;
-  z-index: 1 !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.006) 30%, rgba(255, 255, 255, 0.003)),
-    rgba(3, 7, 9, 0.32) !important;
-  border-color: var(--cit-side-line) !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-  backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::before,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.032), transparent 62%),
-    rgba(3, 7, 9, 0.22) !important;
-  border-color: var(--cit-side-line-soft) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background:
-    linear-gradient(90deg, rgba(0, 216, 224, 0.040), transparent 70%),
-    rgba(5, 14, 18, 0.30) !important;
-  border-color: var(--cit-side-line-soft) !important;
-  box-shadow:
-    inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 76%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.042) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame {
-  background: transparent !important;
-  border: 0 !important;
-  box-shadow: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::before,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-frame::after {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface {
-  overflow: hidden !important;
-  border-radius: var(--cit-glass-radius-pill) !important;
-  background:
-    linear-gradient(102deg,
-      rgba(0, 216, 224, 0.13) 0%,
-      rgba(4, 36, 36, 0.20) 18%,
-      rgba(6, 8, 10, 0.88) 45%,
-      rgba(24, 9, 25, 0.88) 68%,
-      rgba(144, 28, 116, 0.16) 86%,
-      rgba(255, 58, 70, 0.12) 100%),
-    rgba(5, 7, 9, 0.90) !important;
-  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 84%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.065),
-    inset 0 0 0 1px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 90%),
-    inset -18px 0 34px rgba(176, 28, 126, 0.055),
-    0 10px 24px rgba(0, 0, 0, 0.18) !important;
-  -webkit-backdrop-filter: blur(2px) saturate(1.10) contrast(1.02) !important;
-  backdrop-filter: blur(2px) saturate(1.10) contrast(1.02) !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud {
-  width: calc(var(--cit-table-flip-cat-size, 118px) + 18px) !important;
-  height: calc(var(--cit-table-flip-cat-size, 118px) * 0.72 + 18px) !important;
-  right: clamp(14px, 1.2vw, 24px) !important;
-  bottom: clamp(14px, 1.4vh, 24px) !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-  mask-image: none !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud::before {
-  content: none !important;
-  display: none !important;
-}
-
-html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card {
-  overflow: hidden !important;
-  border-radius: 16px !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.006) 30%, rgba(255, 255, 255, 0.003)),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.040), transparent 70%),
-    rgba(5, 14, 18, 0.30) !important;
-  border: 1px solid var(--cit-side-line-soft) !important;
-  box-shadow:
-    inset 2px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 76%),
-    inset 0 1px 0 rgba(255, 255, 255, 0.042),
-    0 8px 18px rgba(0, 0, 0, 0.10) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-  backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-}
-
 html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card table {
   background: transparent !important;
 }
@@ -1731,103 +868,8 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud::afte
   display: none !important;
 }
 
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-cat-poster,
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-cat-animated {
-  position: absolute !important;
-  inset: 0 !important;
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain !important;
-  background-position: center;
-  background-repeat: no-repeat !important;
-  background-size: contain !important;
-  border: 0 !important;
-  filter:
-    saturate(1.08)
-    contrast(1.04)
-    drop-shadow(0 0 8px color-mix(in srgb, var(--cit-secondary), transparent 60%))
-    drop-shadow(0 0 14px color-mix(in srgb, var(--cit-mecha-armor), transparent 76%))
-    drop-shadow(0 12px 20px rgba(0, 0, 0, 0.42)) !important;
-  opacity: var(--cit-table-flip-cat-opacity, 0.96) !important;
-  transition: opacity 120ms ease-out, transform 140ms ease-out !important;
-  transform-origin: 58% 88% !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-trigger-icon {
-  position: absolute !important;
-  top: -8px !important;
-  right: -6px !important;
-  z-index: 3 !important;
-  display: block !important;
-  width: clamp(30px, calc(var(--cit-table-flip-cat-size, 118px) * 0.30), 42px) !important;
-  height: clamp(30px, calc(var(--cit-table-flip-cat-size, 118px) * 0.30), 42px) !important;
-  pointer-events: auto !important;
-  cursor: pointer !important;
-  border-radius: 999px !important;
-  background-image: var(--cit-table-flip-cat-trigger-icon) !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-size: contain !important;
-  filter:
-    saturate(1.18)
-    contrast(1.12)
-    drop-shadow(0 0 7px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 46%))
-    drop-shadow(0 0 10px color-mix(in srgb, var(--cit-cockpit-red), transparent 58%))
-    drop-shadow(0 8px 10px rgba(0, 0, 0, 0.42)) !important;
-  opacity: 0.96 !important;
-  transform: translateZ(0) !important;
-  transition: transform 130ms ease-out, filter 130ms ease-out, opacity 130ms ease-out !important;
-}
-
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud[data-cit-has-trigger-icon="false"] .codex-interface-theme-table-flip-trigger-icon {
   display: none !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud:hover .codex-interface-theme-table-flip-trigger-icon,
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud:focus-visible .codex-interface-theme-table-flip-trigger-icon {
-  opacity: 1 !important;
-  transform: translateZ(0) scale(1.08) !important;
-  filter:
-    saturate(1.24)
-    contrast(1.16)
-    drop-shadow(0 0 9px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 34%))
-    drop-shadow(0 0 12px color-mix(in srgb, var(--cit-cockpit-red), transparent 42%))
-    drop-shadow(0 9px 12px rgba(0, 0, 0, 0.46)) !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-trigger-icon:hover,
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-trigger-icon:focus-visible {
-  opacity: 1 !important;
-  outline: 2px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 24%) !important;
-  outline-offset: 3px !important;
-  transform: translateZ(0) scale(1.08) !important;
-  filter:
-    saturate(1.24)
-    contrast(1.16)
-    drop-shadow(0 0 9px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 34%))
-    drop-shadow(0 0 12px color-mix(in srgb, var(--cit-cockpit-red), transparent 42%))
-    drop-shadow(0 9px 12px rgba(0, 0, 0, 0.46)) !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-cat-poster {
-  background-image: var(--cit-table-flip-cat-poster-image) !important;
-  transform: translateZ(0) !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-cat-animated {
-  opacity: 0 !important;
-  transform: translateZ(0) scale(0.98) !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud.codex-interface-theme-table-flip-playing .codex-interface-theme-table-flip-cat-poster {
-  opacity: 0 !important;
-  transform: translateZ(0) scale(1.02) !important;
-}
-
-html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud.codex-interface-theme-table-flip-playing .codex-interface-theme-table-flip-cat-animated {
-  opacity: var(--cit-table-flip-cat-opacity, 0.96) !important;
-  transform: translateZ(0) scale(1) !important;
 }
 
 /* Composer five-batch rebuild */
@@ -1852,19 +894,10 @@ html[data-codex-interface-theme="active"] .sticky.bottom-0:has(:is(.codex-interf
   display: none !important;
 }
 
-/* Composer batch 2 */
-html[data-codex-interface-theme="active"][data-cit-has-image="true"]:not([data-cit-task-mode="off"]) body {
-  background:
-    linear-gradient(180deg, rgba(12, 16, 18, 0.026), rgba(4, 6, 8, 0.155)),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, transparent 24%, transparent 76%, rgba(0, 0, 0, 0.09) 100%),
-    var(--cit-bg-image) var(--cit-bg-focus-x) var(--cit-bg-focus-y) / cover no-repeat scroll,
-    var(--cit-bg-base) !important;
-}
-
 html[data-codex-interface-theme="active"] .sticky.bottom-0:has(:is(.codex-interface-theme-composer-surface,[class*="ComposerLayoutRoot"])) {
   background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
+  background-color:transparent!important;
+  background-image:none!important;
   box-shadow: none !important;
   -webkit-backdrop-filter: none !important;
   backdrop-filter: none !important;
@@ -1874,8 +907,8 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-composer-dock,
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-dock>div,
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-native-floor {
   background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
+  background-color:transparent!important;
+  background-image:none!important;
   border-color: transparent !important;
   box-shadow: none !important;
   -webkit-backdrop-filter: none !important;
@@ -1896,28 +929,6 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-composer-native
   background-image: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
-}
-
-/* Composer batch 3 */
-html[data-codex-interface-theme="active"] .sticky.bottom-0 .composer-surface-chrome,
-html[data-codex-interface-theme="active"] .composer-surface-chrome.codex-interface-theme-composer-surface,
-html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface {
-  position: relative !important;
-  isolation: isolate !important;
-  overflow: hidden !important;
-  border-radius: var(--cit-glass-radius-pill) !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  background-image: none !important;
-  border-width: 1px !important;
-  border-style: solid !important;
-  border-color: var(--cit-composer-ring-cyan) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.075),
-    inset 1px 0 0 color-mix(in srgb, var(--cit-cockpit-cyan), transparent 88%),
-    inset -1px 0 0 color-mix(in srgb, var(--cit-cockpit-red), transparent 93%) !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface::before,
@@ -1954,7 +965,7 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surfac
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface textarea,
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface [contenteditable="true"] {
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.42) !important;
+  text-shadow: none !important;
 }
 
 /* Composer batch 5 */
@@ -1980,7 +991,7 @@ html[data-codex-interface-theme="active"] .thread-scroll-container [data-cit-but
 html[data-codex-interface-theme="active"] .thread-scroll-container [data-cit-button-action="guide"] {
   background:
     linear-gradient(90deg, rgba(0, 216, 224, 0.115), rgba(255, 58, 70, 0.070)),
-    rgba(5, 14, 18, 0.180) !important;
+    rgba(38, 82, 101, 0.180) !important;
   border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 74%) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.055),
@@ -2050,7 +1061,7 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .code
     contrast(1.04)
     drop-shadow(0 0 8px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 64%))
     drop-shadow(0 0 14px color-mix(in srgb, var(--cit-cockpit-red), transparent 72%))
-    drop-shadow(0 12px 20px rgba(0, 0, 0, 0.42)) !important;
+    drop-shadow(0 12px 20px rgba(38, 82, 101, 0.22)) !important;
   transform-origin: 58% 88% !important;
   transition: opacity 120ms ease-out, transform 140ms ease-out !important;
 }
@@ -2108,7 +1119,7 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .code
     contrast(1.12)
     drop-shadow(0 0 7px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 46%))
     drop-shadow(0 0 10px color-mix(in srgb, var(--cit-cockpit-red), transparent 58%))
-    drop-shadow(0 8px 10px rgba(0, 0, 0, 0.42)) !important;
+    drop-shadow(0 8px 10px rgba(38, 82, 101, 0.22)) !important;
   transform: translateZ(0) !important;
 }
 
@@ -2182,11 +1193,11 @@ html[data-codex-interface-theme="active"] body > .codex-interface-theme-pack-bay
   padding: 0 !important;
   border: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 48%) !important;
   border-radius: 999px !important;
-  background: radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--cit-cockpit-cyan), white 12%), rgba(3, 8, 11, 0.98) 72%) !important;
+  background: radial-gradient(circle at 50% 52%, color-mix(in srgb, var(--cit-cockpit-cyan), white 12%), rgba(38, 82, 101, 0.84) 72%) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.26),
-    0 0 0 1px rgba(0, 0, 0, 0.18),
-    0 4px 7px rgba(0, 0, 0, 0.28) !important;
+    0 0 0 1px rgba(38, 82, 101, 0.18),
+    0 4px 7px rgba(38, 82, 101, 0.18) !important;
   color: transparent !important;
   cursor: pointer !important;
   outline: none !important;
@@ -2228,7 +1239,7 @@ html[data-codex-interface-theme="active"] body > .codex-interface-theme-pack-bay
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.30),
     0 0 0 2px color-mix(in srgb, var(--cit-cockpit-cyan), transparent 72%),
-    0 5px 9px rgba(0, 0, 0, 0.32) !important;
+    0 5px 9px rgba(0, 200, 248, 0.12) !important;
   transform: translate3d(0, -1px, 0) scale(1.06) !important;
 }
 
@@ -2256,7 +1267,7 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel .
   z-index: 2 !important;
   color: color-mix(in srgb, var(--cit-text), white 10%) !important;
   -webkit-text-fill-color: currentColor !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.50) !important;
+  text-shadow: none !important;
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel :is(p, span, div, label, small, strong, em) {
@@ -2269,94 +1280,85 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel :
   -webkit-text-fill-color: currentColor !important;
 }
 
-/* Final cockpit convergence */
 html[data-codex-interface-theme="active"] .sticky.bottom-0:has(.composer-surface-chrome) [class*="bg-gradient-to-t"][class*="from-token-main-surface-primary"],
-html[data-codex-interface-theme="active"] .sticky.bottom-0:has([class*="ComposerLayoutRoot"]) [class*="bg-gradient-to-t"][class*="from-token-main-surface-primary"] {
+html[data-codex-interface-theme="active"] .sticky.bottom-0:has([class*="ComposerLayoutRoot"]) [class*="bg-gradient-to-t"][class*="from-token-main-surface-primary"],
+html[data-codex-interface-theme="active"] .thread-scroll-container [class*="bg-gradient-to-t"][class*="from-surface"][class*="via-surface"] {
   display: none !important;
   background: none !important;
   opacity: 0 !important;
 }
 
+/* Final cockpit convergence */
+html[data-codex-interface-theme="active"] .thread-scroll-container .sticky.bottom-0[class*="mt-auto"][class*="shrink-0"]{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+
 html[data-codex-interface-theme="active"] .sticky.bottom-0 .composer-surface-chrome,
-html[data-codex-interface-theme="active"] .sticky.bottom-0 [class*="ComposerLayoutRoot"],
+html[data-codex-interface-theme="active"] [class*="ComposerLayoutRoot"],
+html[data-codex-interface-theme="active"] [class*="ComposerLayoutBody"],
 html[data-codex-interface-theme="active"] .composer-surface-chrome.codex-interface-theme-composer-surface,
 html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.004) 24%, transparent),
-    linear-gradient(100deg, rgba(0, 216, 224, 0.080), transparent 44%, rgba(176, 28, 126, 0.052) 82%, rgba(255, 58, 70, 0.038)),
-    rgba(0, 68, 76, 0.240) !important;
+  background:none!important;
+  background-color:transparent!important;
+  background-image:none!important;
   border:1px solid color-mix(in srgb,var(--cit-cockpit-cyan),white 24%)!important;
   box-shadow:
-    inset 1px 0 0 rgba(255,255,255,.070),
+    inset 1px 0 0 rgba(255,255,255,.07),
     inset -1px 0 0 color-mix(in srgb,var(--cit-cockpit-red),transparent 86%),
-    inset 0 1px 0 rgba(255,255,255,.090),
-    0 0 0 1px rgba(255,255,255,.052),
-    0 12px 30px rgba(0,0,0,.16) !important;
-  -webkit-backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
-  backdrop-filter: blur(3px) saturate(1.12) contrast(1.02) !important;
+    inset 0 1px 0 rgba(255,255,255,.09),
+    0 0 0 1px rgba(255,255,255,.052)!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
 }
 
-html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble {
-  background:
-    linear-gradient(100deg, rgba(0, 216, 224, 0.055), rgba(5, 14, 18, 0.120) 42%, rgba(28, 9, 30, 0.105) 72%, rgba(255, 58, 70, 0.045)),
-    rgba(3, 9, 12, 0.095) !important;
-  border:1px solid color-mix(in srgb,var(--cit-cockpit-cyan),white 18%)!important;
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card {
+  background: rgba(38, 82, 101, 0.62) !important;
+  background-color: rgba(38, 82, 101, 0.62) !important;
+  background-image: none !important;
+  border:1px solid color-mix(in srgb,var(--cit-cockpit-cyan),transparent 34%)!important;
   box-shadow:
     inset 2px 0 0 color-mix(in srgb,var(--cit-cockpit-cyan),transparent 52%),
     inset -2px 0 0 color-mix(in srgb,var(--cit-cockpit-red),transparent 70%),
-    inset 0 1px 0 rgba(255,255,255,.105),
-    0 0 0 1px rgba(255,255,255,.052),
-    0 10px 26px rgba(0,0,0,.14) !important;
-  -webkit-backdrop-filter: blur(1.2px) saturate(1.08) !important;
-  backdrop-filter: blur(1.2px) saturate(1.08) !important;
+    inset 0 1px 0 rgba(255,255,255,.105) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
-html[data-codex-interface-theme="active"] {
-  --cit-side-glass: rgba(3, 7, 9, 0.30);
-  --cit-side-glass-strong: rgba(3, 7, 9, 0.38);
-}
-
-html[data-codex-interface-theme="active"] aside.app-shell-left-panel {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.004) 24%, transparent),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.024), transparent 62%),
-    var(--cit-side-glass) !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.040),
-    8px 0 18px rgba(0, 0, 0, 0.08) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.004) 24%, transparent),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.024), transparent 62%),
-    var(--cit-side-glass) !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.040),
-    -8px 0 18px rgba(0, 0, 0, 0.08) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background: transparent !important;
-  border-color: var(--cit-side-line) !important;
-  box-shadow:
-    inset 1px 0 0 var(--cit-side-line-soft),
-    inset 0 1px 0 rgba(255, 255, 255, 0.040) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header {
-  background: rgba(3, 7, 9, 0.105) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="list"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content [role="listitem"] button,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content button.group\/summary-panel-item,
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-content .group\/summary-panel-item {
-  background: transparent !important;
-  border-color: transparent !important;
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble::before,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble::after,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card::before,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
   box-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] .thread-scroll-container [data-cit-button-module="messageActions"],
+html[data-codex-interface-theme="active"] .thread-scroll-container [data-cit-button-action="guide"] {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 70%) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-bubble :is(p, span, div, strong, em),
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card,
+html[data-codex-interface-theme="active"] .thread-scroll-container .codex-interface-theme-chat-card :is(p, span, div, strong, em) {
+  color: color-mix(in srgb, var(--cit-text), white 8%) !important;
+  -webkit-text-fill-color: currentColor !important;
+  text-shadow: none !important;
+}
+
+html[data-codex-interface-theme="active"] .codex-interface-theme-composer-surface :is(textarea, [contenteditable="true"])::placeholder,
+html[data-codex-interface-theme="active"] [class*="ComposerLayoutRoot"] :is(textarea, [contenteditable="true"])::placeholder {
+  color: color-mix(in srgb, var(--cit-text), transparent 34%) !important;
+  opacity: 1 !important;
 }
 
 /* GPU composition budget */
@@ -2402,11 +1404,11 @@ html[data-codex-interface-theme="active"] .cit-button-glyph {
 }
 
 html[data-codex-interface-theme="active"] #codex-interface-theme-badge {
-  filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.30)) !important;
+  filter: drop-shadow(0 5px 7px rgba(0, 200, 248, 0.12)) !important;
 }
 
 html[data-codex-interface-theme="active"] body > #codex-interface-theme-character {
-  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.32)) !important;
+  filter: drop-shadow(0 16px 18px rgba(0, 200, 248, 0.12)) !important;
   transition: opacity 90ms ease-out, transform 90ms ease-out !important;
   will-change: auto !important;
 }
@@ -2420,7 +1422,7 @@ html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud:hover
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud:focus-visible .codex-interface-theme-table-flip-trigger-icon,
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-trigger-icon:hover,
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-trigger-icon:focus-visible {
-  filter: drop-shadow(0 5px 6px rgba(0, 0, 0, 0.34)) !important;
+  filter: drop-shadow(0 5px 6px rgba(0, 200, 248, 0.12)) !important;
 }
 
 html[data-codex-interface-theme="active"] #codex-interface-theme-right-hud .codex-interface-theme-table-flip-trigger-icon {
@@ -2439,19 +1441,6 @@ html[data-codex-interface-theme="active"] aside.app-shell-left-panel::before {
   display: none !important;
 }
 
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame {
-  isolation: auto !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.004) 24%, transparent),
-    linear-gradient(90deg, rgba(0, 216, 224, 0.024), transparent 62%),
-    var(--cit-side-glass) !important;
-}
-
-html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame::before {
-  content: none !important;
-  display: none !important;
-}
-
 /* Layer-clean owner overrides. */
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-frame {
   background: transparent !important;
@@ -2461,16 +1450,18 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-f
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel {
-  background: transparent !important;
-  border: 1px solid var(--cit-side-line-soft) !important;
+  background: rgba(38, 82, 101, 0.62) !important;
+  background-color: rgba(38, 82, 101, 0.62) !important;
+  background-image: none !important;
+  border: 1px solid color-mix(in srgb, var(--cit-cockpit-cyan), transparent 88%) !important;
   box-shadow: none !important;
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel header,
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel :is(button,[role="button"],.group\/summary-panel-item,[class*="group/summary-panel-item"]),
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-row {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: rgba(38, 82, 101, 0.44) !important;
+  background-color: rgba(38, 82, 101, 0.44) !important;
   background-image: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
@@ -2484,45 +1475,77 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-c
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel :is(button,[role="button"],.group\/summary-panel-item,[class*="group/summary-panel-item"]):is(:hover,:focus-visible,[aria-selected="true"],[data-selected="true"],[data-highlighted]),
 html[data-codex-interface-theme="active"] .codex-interface-theme-project-panel-row:is(:hover,:focus-visible,[aria-selected="true"],[data-selected="true"],[data-highlighted]) {
-  background: rgba(255,255,255,.04) !important;
-  background-image: linear-gradient(90deg,rgba(0,216,224,.055),transparent 72%) !important;
+  background: rgba(55, 115, 140, 0.58) !important;
+  background-image: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
 
 html[data-codex-interface-theme="active"] [class*="summary-panel-item"] {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: rgba(38, 82, 101, 0.44) !important;
+  background-color: rgba(38, 82, 101, 0.44) !important;
   background-image: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
 
 html[data-codex-interface-theme="active"] [class*="summary-panel-item"]:is(:hover,:focus-visible,[aria-selected="true"],[data-selected="true"],[data-highlighted]) {
-  background: rgba(255,255,255,.04) !important;
-  background-image: linear-gradient(90deg,rgba(0,216,224,.055),transparent 72%) !important;
+  background: rgba(55, 115, 140, 0.58) !important;
+  background-image: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }
 
 /* Opaque transient surfaces */
 html[data-codex-interface-theme="active"] [role="dialog"],
-html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper] > *,
-html[data-codex-interface-theme="active"] [class*="popover" i],
+html[data-codex-interface-theme="active"] [data-radix-popper-content-wrapper] > *:not(.codex-interface-theme-transient-shell),
+html[data-codex-interface-theme="active"] [class*="popover" i]:not(.codex-interface-theme-transient-shell),
 html[data-codex-interface-theme="active"] [class*="modal" i],
-html[data-codex-interface-theme="active"] [class*="menu" i] {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.018), transparent 28%),
-    linear-gradient(100deg, rgba(0, 216, 224, 0.010), transparent 56%, rgba(255, 58, 70, 0.008)),
-    rgba(6, 10, 13, 0.76) !important;
-  -webkit-backdrop-filter: blur(2px) saturate(1.02) brightness(.96) !important;
-  backdrop-filter: blur(2px) saturate(1.02) brightness(.96) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 18px 44px rgba(0, 0, 0, 0.40) !important;
+html[data-codex-interface-theme="active"] [class*="menu" i]:not(.codex-interface-theme-transient-shell) {
+  background: rgba(38, 82, 101, 0.68) !important;
+  background-color: rgba(38, 82, 101, 0.68) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
 }
 
-/* Opaque workspace pickers */
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell:is([data-cit-transient-shell="sidebar-preview"], [data-cit-transient-shell="status-toast"]),
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell[role="tooltip"] {
+  background: rgba(38, 82, 101, 0.68) !important;
+  background-color: rgba(38, 82, 101, 0.68) !important;
+  background-image: none !important;
+  border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 54%) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell:is([data-cit-transient-shell="sidebar-preview"], [data-cit-transient-shell="status-toast"]) :is(div, section, article, button, [role="button"]),
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell[role="tooltip"] :is(div, section, article, button, [role="button"]) {
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell:is([data-cit-transient-shell="sidebar-preview"], [data-cit-transient-shell="status-toast"])::before,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell:is([data-cit-transient-shell="sidebar-preview"], [data-cit-transient-shell="status-toast"])::after,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell:is([data-cit-transient-shell="sidebar-preview"], [data-cit-transient-shell="status-toast"]) *::before,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell:is([data-cit-transient-shell="sidebar-preview"], [data-cit-transient-shell="status-toast"]) *::after,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell[role="tooltip"]::before,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell[role="tooltip"]::after,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell[role="tooltip"] *::before,
+html[data-codex-interface-theme="active"] .codex-interface-theme-transient-shell[role="tooltip"] *::after {
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
 html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker,
 html[data-codex-interface-theme="active"] [role="listbox"],
 html[data-codex-interface-theme="active"] [role="menu"],
@@ -2537,20 +1560,14 @@ html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border
 html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([cmdk-list]),
 html[data-codex-interface-theme="active"] main [class*="rounded"][class*="border"]:has([data-cmdk-list]) {
   color: var(--cit-text) !important;
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.52) !important;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 22%),
-    linear-gradient(105deg, rgba(0, 216, 224, 0.024), rgba(3, 10, 13, 0.56) 42%, rgba(255, 48, 82, 0.024)),
-    rgba(3, 8, 11, 0.74) !important;
-  background-color: rgba(3, 8, 11, 0.74) !important;
+  text-shadow: none !important;
+  background: rgba(38, 82, 101, 0.68) !important;
+  background-color: rgba(38, 82, 101, 0.68) !important;
+  background-image: none !important;
   border-color: color-mix(in srgb, var(--cit-cockpit-cyan), transparent 74%) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.070),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.022),
-    0 0 0 1px rgba(0, 216, 224, 0.06),
-    0 24px 56px rgba(0, 0, 0, 0.68) !important;
-  -webkit-backdrop-filter: blur(2px) saturate(1.03) brightness(.96) !important;
-  backdrop-filter: blur(2px) saturate(1.03) brightness(.96) !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
   opacity: 1 !important;
 }
 
@@ -2561,7 +1578,7 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picke
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker * {
-  text-shadow: 0 1px 9px rgba(0, 0, 0, 0.64) !important;
+  text-shadow: none !important;
 }
 
 html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picker :is(div, section, article) {
@@ -2593,18 +1610,17 @@ html[data-codex-interface-theme="active"] [role="listbox"] :is([aria-selected="t
 html[data-codex-interface-theme="active"] [role="menu"] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]),
 html[data-codex-interface-theme="active"] [cmdk-root] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]),
 html[data-codex-interface-theme="active"] [data-cmdk-root] :is([aria-selected="true"], [data-selected="true"], [data-highlighted]) {
-  background:linear-gradient(90deg,rgba(0,216,224,.045),transparent 62%),rgba(255,255,255,.028)!important;
+  background:transparent!important;
+  background-image:none!important;
   box-shadow:none!important;
 }
 
 html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.026), transparent 22%),
-    linear-gradient(105deg, rgba(0, 216, 224, 0.024), rgba(3, 10, 13, 0.56) 42%, rgba(255, 48, 82, 0.024)),
-    rgba(3, 8, 11, 0.74) !important;
-  background-color: rgba(3, 8, 11, 0.74) !important;
-  -webkit-backdrop-filter: blur(2px) saturate(1.03) brightness(.96) !important;
-  backdrop-filter: blur(2px) saturate(1.03) brightness(.96) !important;
+  background: rgba(38, 82, 101, 0.68) !important;
+  background-color: rgba(38, 82, 101, 0.68) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].codex-interface-theme-workspace-picker :is(input, button, [role="button"], [role="option"], [role="menuitem"], [tabindex]) {
@@ -2621,8 +1637,9 @@ html[data-codex-interface-theme="active"] [data-cit-workspace-picker="shell"].co
   [class*="sticky"][class*="top-"],
   [class*="text-token-description-foreground"]
 ) {
-  background:linear-gradient(90deg,rgba(3,8,11,.72),rgba(4,13,19,.44))!important;
-  background-color:rgba(3,8,11,.66)!important;
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
   border: 0 !important;
   outline: 0 !important;
   box-shadow: none !important;
@@ -2642,11 +1659,12 @@ html[data-codex-interface-theme="active"] .codex-interface-theme-workspace-picke
 }
 
 html[data-codex-interface-theme="active"] :is(.codex-interface-theme-workspace-picker,[role="listbox"],[role="menu"],[cmdk-root],[data-cmdk-root],[data-radix-popper-content-wrapper]) :is(.codex-interface-theme-workspace-picker-row,button,a,[role="button"],[role="option"],[role="menuitem"],[cmdk-item],[data-cmdk-item]):not([role="menu"]):not([role="listbox"]):not([role="dialog"]):is(:hover,:focus-visible,[aria-selected="true"],[data-selected="true"],[data-highlighted]) {
-  background:
-    linear-gradient(90deg,rgba(0,216,224,.040),transparent 68%),
-    rgba(255,255,255,.028) !important;
+  background:transparent!important;
+  background-image:none!important;
   box-shadow:none!important;
 }
+
+html[data-codex-interface-theme="active"] [class*="ComposerTopMenuShell"]>:is([class*="bg-token-dropdown-background"],[class*="bg-surface-elevated-secondary"]){background:rgba(38,82,101,.68)!important;background-image:none!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 
 /* Official titlebar/sidebar junction */
 html[data-codex-interface-theme="active"] {
@@ -2683,7 +1701,7 @@ html[data-codex-interface-theme="active"] header.app-header-tint::after {
 
 /* Final sidebar row state cleanup */
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel {
-  --cit-sidebar-row-state: linear-gradient(90deg, rgba(0,216,224,.040), transparent 68%), rgba(255,255,255,.028);
+  --cit-sidebar-row-state: transparent;
 }
 
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel :where(
@@ -2713,9 +1731,9 @@ html[data-codex-interface-theme="active"] aside.app-shell-left-panel :where(.sid
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel :where(.sidebar-item):has(:is(a, button, [role="button"], [role="link"]):is(:hover, :focus-visible, [aria-current], [aria-current="page"], [aria-selected="true"], [data-state="active"], [data-selected="true"], [data-active="true"])),
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel :where(li, [role="listitem"]):has(> :is(a, button, [role="button"], [role="link"]):is(:hover, :focus-visible, [aria-current], [aria-current="page"], [aria-selected="true"], [data-state="active"], [data-selected="true"], [data-active="true"])),
 html[data-codex-interface-theme="active"] aside.app-shell-left-panel > :is(a, button, [role="button"], [role="link"]):is(:hover, :focus-visible, [aria-current], [aria-current="page"], [aria-selected="true"], [data-state="active"], [data-selected="true"], [data-active="true"]) {
-  background: var(--cit-sidebar-row-state) !important;
-  background-color: rgba(255,255,255,.028) !important;
-  background-image: linear-gradient(90deg, rgba(0,216,224,.040), transparent 68%) !important;
+  background:var(--cit-sidebar-row-state)!important;
+  background-color: transparent !important;
+  background-image: none !important;
   border-color: transparent !important;
   box-shadow: none !important;
 }

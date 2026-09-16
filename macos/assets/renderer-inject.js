@@ -37,7 +37,6 @@
     : [];
   let activeHotSwapPack = null;
   let tableFlipCatTimer = null;
-  let tableFlipCatPlaybackInterval = null;
   let characterRetreatObserver = null;
   let characterRetreatCheckTimer = null;
   let characterRetreatLastCheckAt = 0;
@@ -64,6 +63,31 @@
 
   function setVariable(name, value) {
     if (value !== undefined && value !== null && String(value).trim() !== "") root.style.setProperty(name, String(value));
+  }
+
+  function removeRootDataset(names) {
+    names.forEach(function removeRootDatasetName(name) {
+      delete root.dataset[name];
+    });
+  }
+
+  function setRootDatasetZero(names) {
+    names.forEach(function setRootDatasetZeroName(name) {
+      root.dataset[name] = "0";
+    });
+  }
+
+  function removeRootVariables(names) {
+    names.forEach(function removeRootVariable(name) {
+      root.style.removeProperty(name);
+    });
+  }
+
+  function removeElementById(id) {
+    const node = doc.getElementById(id);
+    if (node) {
+      node.remove();
+    }
   }
 
   function isImageAssetUrl(value) {
@@ -155,10 +179,6 @@
     if (tableFlipCatTimer) {
       window.clearTimeout(tableFlipCatTimer);
       tableFlipCatTimer = null;
-    }
-    if (tableFlipCatPlaybackInterval) {
-      window.clearInterval(tableFlipCatPlaybackInterval);
-      tableFlipCatPlaybackInterval = null;
     }
     if (!hud) {
       return;
@@ -411,7 +431,7 @@
   function clearBodyInlineBackground(force) {
     const body = doc.body;
     const cssText = body ? body.style.cssText : "";
-    if (!body || (!force && !body.dataset.citInlineBackground && !(cssText.includes("data:image/") && cssText.includes("rgba(4, 6, 8")))) {
+    if (!body || (!force && !body.dataset.citInlineBackground && !(cssText.includes("data:image/") && cssText.includes("rgba(38, 82, 101")))) {
       return;
     }
     ["background", "background-image", "background-size", "background-position", "background-repeat", "background-attachment"].forEach(function removeBodyBackgroundProperty(propertyName) {
@@ -433,8 +453,8 @@
     const focusX = root.style.getPropertyValue("--cit-bg-focus-x") || "50.00%";
     const focusY = root.style.getPropertyValue("--cit-bg-focus-y") || "50.00%";
     const backgroundLayers = [
-      "linear-gradient(180deg, rgba(12, 16, 18, 0.026), rgba(4, 6, 8, 0.155))",
-      "linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0%, transparent 24%, transparent 76%, rgba(0, 0, 0, 0.09) 100%)",
+      "linear-gradient(180deg, rgba(38, 82, 101, 0.026), rgba(38, 82, 101, 0.155))",
+      "linear-gradient(90deg, rgba(0, 200, 248, 0.08) 0%, transparent 24%, transparent 76%, rgba(0, 200, 248, 0.09) 100%)",
       backgroundImage
     ];
     body.style.setProperty("background-image", backgroundLayers.join(", "), "important");
@@ -695,23 +715,7 @@
     triggerIcon.setAttribute("aria-label", "播放翻桌貓動畫");
     triggerIcon.setAttribute("title", "點一下播放翻桌貓");
     function stopTableFlipCatPlayback() {
-      if (tableFlipCatTimer) {
-        window.clearTimeout(tableFlipCatTimer);
-        tableFlipCatTimer = null;
-      }
-      if (tableFlipCatPlaybackInterval) {
-        window.clearInterval(tableFlipCatPlaybackInterval);
-        tableFlipCatPlaybackInterval = null;
-      }
-      hud.classList.remove("codex-interface-theme-table-flip-playing");
-      hud.setAttribute("data-cit-table-flip-state", "idle");
-      hud.setAttribute("data-cit-table-flip-frame", "idle");
-      hud.removeAttribute("data-cit-table-flip-deadline");
-      const activeAnimated = animated || hud.querySelector(".codex-interface-theme-table-flip-cat-animated");
-      if (activeAnimated) {
-        activeAnimated.style.setProperty("background-image", "none", "important");
-        activeAnimated.remove();
-      }
+      releaseTableFlipPlaybackNode();
       animated = null;
     }
     function playTableFlipCat(event) {
@@ -751,17 +755,6 @@
       hud.classList.add("codex-interface-theme-table-flip-playing");
       const playbackDeadline = Date.now() + tableFlipCatDurationMs + 360;
       hud.setAttribute("data-cit-table-flip-deadline", String(playbackDeadline));
-      tableFlipCatPlaybackInterval = window.setInterval(function releaseFinishedTableFlipPlayback() {
-        if (animated !== playbackNode) {
-          window.clearInterval(tableFlipCatPlaybackInterval);
-          tableFlipCatPlaybackInterval = null;
-          return;
-        }
-        const animations = typeof playbackNode.getAnimations === "function" ? playbackNode.getAnimations() : [];
-        if ((animations[0] && animations[0].playState === "finished") || Date.now() >= playbackDeadline) {
-          releaseCompletedPlayback();
-        }
-      }, 160);
       tableFlipCatTimer = window.setTimeout(function stopTableFlipCatFallback() {
         releaseCompletedPlayback();
       }, Math.max(tableFlipCatDurationMs + 260, 700));
@@ -1171,6 +1164,82 @@
     }
   }
 
+  function cleanupTransientBlackLayerOwners() {
+    doc.querySelectorAll(".codex-interface-theme-transient-shell").forEach(function clearTransientShell(node) {
+      node.classList.remove("codex-interface-theme-transient-shell");
+      node.removeAttribute("data-cit-transient-shell");
+    });
+  }
+
+  function transientShellKind(node, rect, text) {
+    const className = String(node.className || "");
+    const role = String(node.getAttribute("role") || "").toLowerCase();
+    const style = window.getComputedStyle(node);
+    const positioned = style.position === "fixed" || style.position === "absolute" || /fixed|absolute|popover|toast|tooltip|radix/i.test(className);
+    if (!positioned || rect.width < 150 || rect.height < 34 || rect.width > Math.min(860, window.innerWidth * 0.78) || rect.height > 240) {
+      return "";
+    }
+    if (/已變更|changed|files changed|\+[0-9]+|-[0-9]+/.test(text) && rect.top <= 190) {
+      return "status-toast";
+    }
+    if (
+      role === "tooltip" ||
+      /tooltip|bg-primary-solid|bg-surface-elevated-secondary|shadow-xl-spread/i.test(className) ||
+      (/陰影層|黑色|near-black|浮層|toast/i.test(text) && rect.top <= Math.max(560, window.innerHeight * 0.72))
+    ) {
+      return "sidebar-preview";
+    }
+    if (
+      rect.left >= 160 &&
+      rect.left <= Math.max(410, window.innerWidth * 0.62) &&
+      rect.top >= 58 &&
+      rect.top <= Math.max(560, window.innerHeight * 0.72) &&
+      text.length >= 4 &&
+      text.length <= 240 &&
+      !/新增|附加|目標|規劃模式|搜尋|search|documents|pdf|spreadsheets|presentations/i.test(text)
+    ) {
+      return "sidebar-preview";
+    }
+    return "";
+  }
+
+  function installTransientBlackLayerOwners() {
+    cleanupTransientBlackLayerOwners();
+    let marked = 0;
+    const candidates = Array.from(doc.querySelectorAll("body > div, body > section, [data-radix-popper-content-wrapper] > *, [role=\"tooltip\"], [class*=\"popover\" i], [class*=\"toast\" i], [class*=\"tooltip\" i]"));
+    candidates.forEach(function markTransientShell(node) {
+      if (
+        marked >= 8 ||
+        !node ||
+        node.nodeType !== 1 ||
+        node === doc.body ||
+        node === root ||
+        node.id === BACKDROP_ID ||
+        node.id === RIGHT_HUD_ID ||
+        node.id === CHARACTER_ID ||
+        node.id === BADGE_ID ||
+        node.id === MARKER_ID ||
+        node.closest("#" + RIGHT_HUD_ID + ",#" + CHARACTER_ID + ",#" + BADGE_ID + ",.composer-surface-chrome,.codex-interface-theme-workspace-picker,.codex-interface-theme-project-panel,.codex-interface-theme-project-panel-frame")
+      ) {
+        return;
+      }
+      if (!hasLayoutBox(node)) {
+        return;
+      }
+      const rect = node.getBoundingClientRect();
+      const text = normalizeText(node.innerText || node.textContent || "");
+      const kind = transientShellKind(node, rect, text);
+      if (!kind) {
+        return;
+      }
+      node.classList.add("codex-interface-theme-transient-shell");
+      node.setAttribute("data-cit-transient-shell", kind);
+      marked += 1;
+    });
+    root.dataset.citTransientShells = String(marked);
+    return marked;
+  }
+
   function candidateText(target) {
     const values = [
       target.getAttribute("aria-label"),
@@ -1266,11 +1335,25 @@
     return true;
   }
 
-  function installSidebarNavigationButtons() {
+  function buttonModule(moduleName) {
     const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
     const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const sidebarModule = buttonModules.sidebarNavigation && typeof buttonModules.sidebarNavigation === "object" ? buttonModules.sidebarNavigation : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || sidebarModule.enabled !== true) {
+    const moduleConfig = buttonModules[moduleName] && typeof buttonModules[moduleName] === "object" ? buttonModules[moduleName] : {};
+    return buttonsTheme.enabled === true && String(buttonsTheme.applyMode || "") === "module" && moduleConfig.enabled === true ? moduleConfig : null;
+  }
+
+  function buttonActions(moduleConfig) {
+    return moduleConfig && moduleConfig.actions && typeof moduleConfig.actions === "object" ? moduleConfig.actions : {};
+  }
+
+  function buttonModulesEnabled() {
+    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
+    return buttonsTheme.enabled === true && String(buttonsTheme.applyMode || "") === "module";
+  }
+
+  function installSidebarNavigationButtons() {
+    const sidebarModule = buttonModule("sidebarNavigation");
+    if (!sidebarModule) {
       cleanupButtonGlyphsForModule("sidebarNavigation");
       root.dataset.citButtonSidebarNavigation = "0";
       return 0;
@@ -1283,7 +1366,7 @@
     if (suppressSideGlyphModule("sidebarNavigation", "citButtonSidebarNavigation", sidebar, 3)) {
       return 0;
     }
-    const actionIcons = sidebarModule.actions && typeof sidebarModule.actions === "object" ? sidebarModule.actions : {};
+    const actionIcons = buttonActions(sidebarModule);
     const actionLabels = {
       search: ["Search", "搜尋"],
       newTask: ["New Task", "New task", "新增任務"],
@@ -1331,14 +1414,12 @@
   }
 
   function installTitlebarNavigationButtons() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const titlebarModule = buttonModules.titlebarNavigation && typeof buttonModules.titlebarNavigation === "object" ? buttonModules.titlebarNavigation : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || titlebarModule.enabled !== true) {
+    const titlebarModule = buttonModule("titlebarNavigation");
+    if (!titlebarModule) {
       root.dataset.citButtonTitlebarNavigation = "0";
       return 0;
     }
-    const actionIcons = titlebarModule.actions && typeof titlebarModule.actions === "object" ? titlebarModule.actions : {};
+    const actionIcons = buttonActions(titlebarModule);
     const actionLabels = {
       back: ["上一步", "Back", "Go Back"],
       forward: ["向前", "Forward", "Go Forward"]
@@ -1645,10 +1726,8 @@
   }
 
   function installComposerControlButtons() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const composerModule = buttonModules.composerControls && typeof buttonModules.composerControls === "object" ? buttonModules.composerControls : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || composerModule.enabled !== true) {
+    const composerModule = buttonModule("composerControls");
+    if (!composerModule) {
       root.dataset.citButtonComposerControls = "0";
       return 0;
     }
@@ -1657,7 +1736,7 @@
       root.dataset.citButtonComposerControls = "0";
       return 0;
     }
-    const actionIcons = composerModule.actions && typeof composerModule.actions === "object" ? composerModule.actions : {};
+    const actionIcons = buttonActions(composerModule);
     const actionLabels = {
       run: ["代我核准", "Run", "Approve"],
       stop: ["停止", "停止產生", "Stop", "Stop generating"],
@@ -1722,14 +1801,12 @@
   }
 
   function installTopUtilityActionButtons() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const topUtilityModule = buttonModules.topUtilityActions && typeof buttonModules.topUtilityActions === "object" ? buttonModules.topUtilityActions : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || topUtilityModule.enabled !== true) {
+    const topUtilityModule = buttonModule("topUtilityActions");
+    if (!topUtilityModule) {
       root.dataset.citButtonTopUtilityActions = "0";
       return 0;
     }
-    const actionIcons = topUtilityModule.actions && typeof topUtilityModule.actions === "object" ? topUtilityModule.actions : {};
+    const actionIcons = buttonActions(topUtilityModule);
     const actionLabels = {
       projectContext: { labels: ["專案：", "Project:"], prefix: true },
       taskActions: { labels: ["任務動作", "Task actions"], prefix: false },
@@ -1781,14 +1858,12 @@
   }
 
   function installMessageActionButtons() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const messageModule = buttonModules.messageActions && typeof buttonModules.messageActions === "object" ? buttonModules.messageActions : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || messageModule.enabled !== true) {
+    const messageModule = buttonModule("messageActions");
+    if (!messageModule) {
       root.dataset.citButtonMessageActions = "0";
       return 0;
     }
-    const actionIcons = messageModule.actions && typeof messageModule.actions === "object" ? messageModule.actions : {};
+    const actionIcons = buttonActions(messageModule);
     const actionLabels = {
       copyMessage: ["複製訊息", "複製", "Copy message", "Copy"],
       goodResponse: ["良好回覆", "Good response"],
@@ -1839,10 +1914,7 @@
   }
 
   function hasVisibleUnreplacedMessageActionButton() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const messageModule = buttonModules.messageActions && typeof buttonModules.messageActions === "object" ? buttonModules.messageActions : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || messageModule.enabled !== true) {
+    if (!buttonModule("messageActions")) {
       return false;
     }
     const labels = [
@@ -1935,10 +2007,8 @@
   }
 
   function installProjectPanelRowButtons() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const panelRowsModule = buttonModules.projectPanelRows && typeof buttonModules.projectPanelRows === "object" ? buttonModules.projectPanelRows : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || panelRowsModule.enabled !== true) {
+    const panelRowsModule = buttonModule("projectPanelRows");
+    if (!panelRowsModule) {
       cleanupButtonGlyphsForModule("projectPanelRows");
       root.dataset.citButtonProjectPanelRows = "0";
       return 0;
@@ -1948,7 +2018,7 @@
       root.dataset.citButtonProjectPanelRows = "0";
       return 0;
     }
-    const actionIcons = panelRowsModule.actions && typeof panelRowsModule.actions === "object" ? panelRowsModule.actions : {};
+    const actionIcons = buttonActions(panelRowsModule);
     let replaced = 0;
     projectPanelRowTargets(panel).forEach(function maybeReplaceRow(target) {
       if (replaced >= 28) {
@@ -1981,10 +2051,7 @@
   }
 
   function hasVisibleUnreplacedProjectPanelRow() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    const buttonModules = buttonsTheme.modules && typeof buttonsTheme.modules === "object" ? buttonsTheme.modules : {};
-    const panelRowsModule = buttonModules.projectPanelRows && typeof buttonModules.projectPanelRows === "object" ? buttonModules.projectPanelRows : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module" || panelRowsModule.enabled !== true) {
+    if (!buttonModule("projectPanelRows")) {
       return false;
     }
     const panel = staticProjectPanel();
@@ -2152,7 +2219,7 @@
     const candidates = Array.from(doc.querySelectorAll("div")).filter(function isPanelCandidate(node) {
       const rect = node.getBoundingClientRect();
       const maxProjectPanelWidth = Math.min(680, Math.max(420, window.innerWidth - 24));
-      if (rect.width < 240 || rect.width > maxProjectPanelWidth || rect.height < 150 || rect.height > window.innerHeight - 24) {
+      if (rect.width < 240 || rect.width > maxProjectPanelWidth || rect.height < 96 || rect.height > window.innerHeight - 24) {
         return false;
       }
       if (rect.right < window.innerWidth * .52 || rect.right > window.innerWidth + 8 || rect.top < 36 || rect.top > 140) {
@@ -2214,15 +2281,9 @@
 
   function installButtonGlyphs() {
     cleanupButtonGlyphs();
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module") {
+    if (!buttonModulesEnabled()) {
       root.dataset.citButtonIcons = "false";
-      root.dataset.citButtonSidebarNavigation = "0";
-      root.dataset.citButtonTitlebarNavigation = "0";
-      root.dataset.citButtonComposerControls = "0";
-      root.dataset.citButtonTopUtilityActions = "0";
-      root.dataset.citButtonMessageActions = "0";
-      root.dataset.citButtonProjectPanelRows = "0";
+      setRootDatasetZero(["citButtonSidebarNavigation", "citButtonTitlebarNavigation", "citButtonComposerControls", "citButtonTopUtilityActions", "citButtonMessageActions", "citButtonProjectPanelRows"]);
       return;
     }
     const replaced = installSidebarNavigationButtons() + installTitlebarNavigationButtons() + installComposerControlButtons() + installTopUtilityActionButtons() + installMessageActionButtons() + installProjectPanelRowButtons();
@@ -2230,8 +2291,7 @@
   }
 
   function maintainButtonGlyphs() {
-    const buttonsTheme = icons.buttons && typeof icons.buttons === "object" ? icons.buttons : {};
-    if (buttonsTheme.enabled !== true || String(buttonsTheme.applyMode || "") !== "module") {
+    if (!buttonModulesEnabled()) {
       return;
     }
     const sidebarExpected = Number(root.dataset.citButtonSidebarNavigation || "0");
@@ -2459,18 +2519,18 @@
     setVariable("--cit-surface-strong", runtimePalette.surfaceStrong || palette.surfaceStrong);
     setVariable("--cit-text", runtimePalette.text || palette.text);
     setVariable("--cit-sidebar-accent", runtimePalette.accent || modules.sidebar && modules.sidebar.accent || "#00c8f8");
-    setVariable("--cit-sidebar-surface", runtimePalette.surface || modules.sidebar && modules.sidebar.surface || "rgba(8, 13, 16, 0.78)");
+    setVariable("--cit-sidebar-surface", runtimePalette.surface || modules.sidebar && modules.sidebar.surface || "rgba(38, 82, 101, 0.58)");
     setVariable("--cit-sidebar-border", modules.sidebar && modules.sidebar.border || "rgba(0, 200, 248, 0.20)");
     setVariable("--cit-header-accent", runtimePalette.warm || modules.header && modules.header.accent || "#f2a23a");
-    setVariable("--cit-header-surface", runtimePalette.surface || modules.header && modules.header.surface || "rgba(12, 13, 14, 0.62)");
+    setVariable("--cit-header-surface", runtimePalette.surface || modules.header && modules.header.surface || "rgba(38, 82, 101, 0.54)");
     setVariable("--cit-header-border", modules.header && modules.header.border || "rgba(242, 162, 58, 0.16)");
     setVariable("--cit-composer-accent", runtimePalette.warm || modules.composer && modules.composer.accent || "#f2a23a");
-    setVariable("--cit-composer-surface", runtimePalette.surface || modules.composer && modules.composer.surface || "rgba(9, 10, 12, 0.56)");
+    setVariable("--cit-composer-surface", runtimePalette.surface || modules.composer && modules.composer.surface || "rgba(38, 82, 101, 0.50)");
     setVariable("--cit-composer-border", modules.composer && modules.composer.border || "rgba(242, 162, 58, 0.16)");
     setVariable("--cit-popover-accent", runtimePalette.highlight || modules.popover && modules.popover.accent || "#ff5a45");
-    setVariable("--cit-popover-surface", runtimePalette.surfaceStrong || modules.popover && modules.popover.surface || "rgba(16, 11, 12, 0.88)");
+    setVariable("--cit-popover-surface", runtimePalette.surfaceStrong || modules.popover && modules.popover.surface || "rgba(38, 82, 101, 0.68)");
     setVariable("--cit-popover-border", modules.popover && modules.popover.border || "rgba(255, 90, 69, 0.18)");
-    setVariable("--cit-mecha-frame", modules.mecha && modules.mecha.frame || "#161a20");
+    setVariable("--cit-mecha-frame", modules.mecha && modules.mecha.frame || "#265265");
     setVariable("--cit-mecha-armor", runtimePalette.warm || modules.mecha && modules.mecha.armor || "#f2a23a");
     setVariable("--cit-mecha-glow", runtimePalette.accent || modules.mecha && modules.mecha.glow || "#00c8f8");
     setVariable("--cit-status-success", runtimePalette.accent || modules.status && modules.status.success || "#19e6a3");
@@ -2596,8 +2656,15 @@
       id: "workspacePickers",
       install: function installWorkspacePickerModule() {
         installWorkspacePickerEventHooks();
+        installTransientBlackLayerOwners();
       },
-      cleanup: cleanupWorkspacePickerEventHooks
+      route: installTransientBlackLayerOwners,
+      light: installTransientBlackLayerOwners,
+      stabilize: installTransientBlackLayerOwners,
+      cleanup: function cleanupWorkspacePickerModule() {
+        cleanupWorkspacePickerEventHooks();
+        cleanupTransientBlackLayerOwners();
+      }
     },
     {
       id: "buttonGlyphs",
@@ -2648,110 +2715,16 @@
   }
 
   function removeTheme() {
-    const style = doc.getElementById(STYLE_ID);
-    if (style) {
-      style.remove();
-    }
+    removeElementById(STYLE_ID);
     removeLegacyBackgroundStyle();
     clearBodyInlineBackground(true);
-    const backdrop = doc.getElementById(BACKDROP_ID);
-    if (backdrop) {
-      backdrop.remove();
-    }
-    const rightHud = doc.getElementById(RIGHT_HUD_ID);
-    if (rightHud) {
-      rightHud.remove();
-    }
-    const character = doc.getElementById(CHARACTER_ID);
-    if (character) {
-      character.remove();
-    }
-    const marker = doc.getElementById(MARKER_ID);
-    if (marker) {
-      marker.remove();
-    }
-    const badge = doc.getElementById(BADGE_ID);
-    if (badge) {
-      badge.remove();
-    }
+    [BACKDROP_ID, RIGHT_HUD_ID, CHARACTER_ID, MARKER_ID, BADGE_ID].forEach(removeElementById);
     cleanupButtonGlyphs();
     cleanupProjectPanels();
     cleanupHotSwapSwitcher();
     root.removeAttribute(ROOT_ATTR);
-    delete root.dataset.citHasImage;
-    delete root.dataset.citAppearance;
-    delete root.dataset.citMode;
-    delete root.dataset.citWorkspaceTreatment;
-    delete root.dataset.citBlockContrast;
-    delete root.dataset.citCornerArmor;
-    delete root.dataset.citSafeArea;
-    delete root.dataset.citTaskMode;
-    delete root.dataset.citIconBadge;
-    delete root.dataset.citCharacter;
-    delete root.dataset.citCharacterPlacement;
-    delete root.dataset.citCharacterRetreat;
-    delete root.dataset.citTableFlipCat;
-    delete root.dataset.citTableFlipCatMode;
-    delete root.dataset.citHotSwapPacks;
-    delete root.dataset.citActiveThemePack;
-    delete root.dataset.citHotSwapBayMode;
-    delete root.dataset.citHotSwapPlacement;
-    delete root.dataset.citHotSwapRetreat;
-    delete root.dataset.citButtonIcons;
-    delete root.dataset.citButtonSidebarNavigation;
-    delete root.dataset.citButtonTitlebarNavigation;
-    delete root.dataset.citButtonComposerControls;
-    delete root.dataset.citButtonTopUtilityActions;
-    delete root.dataset.citButtonMessageActions;
-    delete root.dataset.citButtonProjectPanelRows;
-    delete root.dataset.citProjectPanels;
-    delete root.dataset.citRightMajorPanel;
-    delete root.dataset.citConversationSurfaces;
-    delete root.dataset.citComposerFrame;
-    delete root.dataset.citMaintenanceIntervalMs;
-    delete root.dataset.citHeavyMaintenanceMs;
-    delete root.dataset.citRoute;
-    delete root.dataset.citPageKind;
-    root.style.removeProperty("--cit-accent");
-    root.style.removeProperty("--cit-secondary");
-    root.style.removeProperty("--cit-highlight");
-    root.style.removeProperty("--cit-bg-image");
-    root.style.removeProperty("--cit-character-image");
-    root.style.removeProperty("--cit-table-flip-cat-trigger-icon");
-    root.style.removeProperty("--cit-bg-focus-x");
-    root.style.removeProperty("--cit-bg-focus-y");
-    root.style.removeProperty("--cit-badge-size");
-    root.style.removeProperty("--cit-badge-opacity");
-    root.style.removeProperty("--cit-character-size");
-    root.style.removeProperty("--cit-character-opacity");
-    root.style.removeProperty("--cit-table-flip-cat-size");
-    root.style.removeProperty("--cit-table-flip-cat-opacity");
-    root.style.removeProperty("--cit-table-flip-cat-frames");
-    root.style.removeProperty("--cit-table-flip-cat-frame-steps");
-    root.style.removeProperty("--cit-table-flip-cat-sprite-width");
-    root.style.removeProperty("--cit-table-flip-cat-duration");
-    root.style.removeProperty("--cit-surface");
-    root.style.removeProperty("--cit-surface-strong");
-    root.style.removeProperty("--cit-text");
-    root.style.removeProperty("--cit-sidebar-accent");
-    root.style.removeProperty("--cit-sidebar-surface");
-    root.style.removeProperty("--cit-sidebar-border");
-    root.style.removeProperty("--cit-header-accent");
-    root.style.removeProperty("--cit-header-surface");
-    root.style.removeProperty("--cit-header-border");
-    root.style.removeProperty("--cit-composer-accent");
-    root.style.removeProperty("--cit-composer-surface");
-    root.style.removeProperty("--cit-composer-border");
-    root.style.removeProperty("--cit-popover-accent");
-    root.style.removeProperty("--cit-popover-surface");
-    root.style.removeProperty("--cit-popover-border");
-    root.style.removeProperty("--cit-mecha-frame");
-    root.style.removeProperty("--cit-mecha-armor");
-    root.style.removeProperty("--cit-mecha-glow");
-    root.style.removeProperty("--cit-status-success");
-    root.style.removeProperty("--cit-status-warning");
-    root.style.removeProperty("--cit-status-danger");
-    root.style.removeProperty("--cit-status-info");
+    removeRootDataset(["citHasImage", "citAppearance", "citMode", "citWorkspaceTreatment", "citBlockContrast", "citCornerArmor", "citSafeArea", "citTaskMode", "citIconBadge", "citCharacter", "citCharacterPlacement", "citCharacterRetreat", "citTableFlipCat", "citTableFlipCatMode", "citHotSwapPacks", "citActiveThemePack", "citHotSwapBayMode", "citHotSwapPlacement", "citHotSwapRetreat", "citButtonIcons", "citButtonSidebarNavigation", "citButtonTitlebarNavigation", "citButtonComposerControls", "citButtonTopUtilityActions", "citButtonMessageActions", "citButtonProjectPanelRows", "citProjectPanels", "citRightMajorPanel", "citConversationSurfaces", "citComposerFrame", "citMaintenanceIntervalMs", "citHeavyMaintenanceMs", "citRoute", "citPageKind"]);
+    removeRootVariables(["--cit-accent", "--cit-secondary", "--cit-highlight", "--cit-bg-image", "--cit-character-image", "--cit-table-flip-cat-trigger-icon", "--cit-bg-focus-x", "--cit-bg-focus-y", "--cit-badge-size", "--cit-badge-opacity", "--cit-character-size", "--cit-character-opacity", "--cit-table-flip-cat-size", "--cit-table-flip-cat-opacity", "--cit-table-flip-cat-frames", "--cit-table-flip-cat-frame-steps", "--cit-table-flip-cat-sprite-width", "--cit-table-flip-cat-duration", "--cit-surface", "--cit-surface-strong", "--cit-text", "--cit-sidebar-accent", "--cit-sidebar-surface", "--cit-sidebar-border", "--cit-header-accent", "--cit-header-surface", "--cit-header-border", "--cit-composer-accent", "--cit-composer-surface", "--cit-composer-border", "--cit-popover-accent", "--cit-popover-surface", "--cit-popover-border", "--cit-mecha-frame", "--cit-mecha-armor", "--cit-mecha-glow", "--cit-status-success", "--cit-status-warning", "--cit-status-danger", "--cit-status-info"]);
     if (window.__CODEX_INTERFACE_THEME_ROUTE_WATCH__) {
       window.clearInterval(window.__CODEX_INTERFACE_THEME_ROUTE_WATCH__);
       delete window.__CODEX_INTERFACE_THEME_ROUTE_WATCH__;
@@ -2760,10 +2733,6 @@
     if (tableFlipCatTimer) {
       window.clearTimeout(tableFlipCatTimer);
       tableFlipCatTimer = null;
-    }
-    if (tableFlipCatPlaybackInterval) {
-      window.clearInterval(tableFlipCatPlaybackInterval);
-      tableFlipCatPlaybackInterval = null;
     }
     delete window.__CODEX_INTERFACE_THEME_MAINTENANCE_TICK__;
     return { ok: true, removed: true };
