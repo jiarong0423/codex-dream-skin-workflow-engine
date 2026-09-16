@@ -7,6 +7,22 @@ description: Design, implement, debug, validate, package, or submit Codex Dream 
 
 Treat Codex Dream Skin as one product: a schema-driven workflow engine for safely designing, applying, testing, and reverting personalized Codex desktop themes. Do not split the developer-tool implementation from the productivity story.
 
+## Pinned Revision Loop
+
+Before any visual, theme-pack, renderer, injector, launcher, packaging, or
+budget revision, read `docs/PINNED_REVISION_LOOP_STANDARD.md` and run its
+decision loop. That file is the canonical post-revision architecture for:
+
+- exact-route black-layer scanning
+- replacement-only owner repair
+- budget compression
+- one-shot injection
+- restore readiness
+- final evidence logging
+
+If the pinned loop conflicts with an older log entry, follow the pinned loop
+and record the conflict in `docs/PROJECT_LOG.md`.
+
 ## Positioning
 
 - Submit to `Developer Tools` as the primary track.
@@ -46,9 +62,28 @@ Never skip directly from `ASSET` or `MODULE` to `PACKAGE`.
 
 - For visual requests, start at `BRIEF`; use image generation or editing only for source art, then create a runtime-sized asset.
 - For black frames, clipping, overlap, or flicker, start at `ORIENT`; inspect actual layers and recordings before changing opacity.
+- For black or near-black surfaces, classify the live candidates through `docs/KNOWN_BLACK_RANGE_LEDGER.json` and `docs/SURFACE_GAP_MATRIX.json` before editing CSS or renderer code.
 - For performance work, measure payload, decoded asset dimensions, DOM residency, timer frequency, and transfer reuse separately.
 - For new controls or characters, define activation, retreat, cleanup, disable, and restore behavior before styling.
 - For competition work, preserve one coherent product narrative and update `competition-manifest.json` evidence.
+
+## Post-Revision Layer Scan Rule
+
+After every visual, theme-pack, renderer, injector, launcher, or runtime module revision, run this rule before package, release, or handoff. If CDP or screenshot access is unavailable, record the blocker and stop at `VISUAL_GATE` instead of packaging.
+
+1. Scan the exact live route, panel, menu, and composer state that was changed; do not substitute a clean route for a reported broken surface.
+2. Always prioritize the user-reported black-layer hot spots before declaring the scan clean: bottom composer and adjacent message action strip, plus/add menu popover, right environment/source header bars, and the large right-side browser/webview or command-palette shell. Open reversible UI states and capture screenshots for these surfaces when they are present.
+3. Run the black-shell layer audit against the live CDP renderer and keep the screenshot evidence path with the revision id.
+4. Compare every near-black candidate against `docs/KNOWN_BLACK_RANGE_LEDGER.json` and `docs/SURFACE_GAP_MATRIX.json`.
+5. Classify each candidate as `RETAIN_NATIVE`, `PROTECTED`, `CONTROLLED`, `DIRTY_LAYER_SUSPECT`, `MODIFICATION_CANDIDATE`, or `INDEPENDENT_REVIEW`.
+6. Treat coordinates as evidence only; ownership identity must come from DOM ancestry, semantic role, theme markers, native surface role, and interaction state.
+7. If `unmarkedNearBlackShells` is greater than zero, repair or add the named owner row before widening a global selector or changing palette opacity.
+8. Multi-layer scan is mandatory: for each candidate, report the exact black layer among element `background-color`, `background-image`, `box-shadow`, `filter`, `backdrop-filter`, `::before`, and `::after`; do not call an owner clean when a pseudo or shadow layer is still black.
+9. Repair means replacement, not overlay. Replace the existing owner rule or owner marker so native black paint becomes `transparent`/`none`; do not add a new translucent panel, blur, gradient, or alpha fill to hide the black layer.
+10. Do not append a new selector for every screenshot. If the same owner recurs, consolidate into the existing owner selector, or fix renderer ownership marking so the existing selector applies.
+11. Change only one named ownership boundary per pass: `blackShellTransparency`, `pageHeaderShell`, `routeSearchBand`, `composerSurface`, `inputEditorShell`, `conversationSurface`, `projectListRows`, `transientMenuShell`, `workspacePicker`, or private overlay material.
+12. If only protected native surfaces remain, do not report them as missing theme assets; apply a protected-surface luminance budget or owner-scoped material tuning.
+13. Record the evidence directory, candidate counts, protected/controlled/unmarked status, direct cause, root cause, fix, validation commands, and exact next resume point in `docs/PROJECT_LOG.md`.
 
 ## Required Commands
 
@@ -88,6 +123,8 @@ Require all applicable checks:
 - Restore works without editing the official application.
 - Source and installed engine hashes match after installation.
 - The final screenshot and log identify the validated revision.
+- Every post-revision visual closeout reports layer-owner classification and whether `unmarkedNearBlackShells` is zero.
+- Package, release, and handoff are blocked unless the post-revision layer scan rule passed or its CDP/screenshot blocker is recorded.
 
 ## Closeout
 

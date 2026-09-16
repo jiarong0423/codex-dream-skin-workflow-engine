@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "updatedAt": "2026-08-02T23:09:10+08:00",
+  "updatedAt": "2026-08-22T23:20:00+08:00",
   "inventory": {
     "mode": "static-read-only",
     "dedupeField": "gap.id",
@@ -16,8 +16,105 @@
     "restores": false,
     "mutatesLiveUi": false,
     "defaultPlanKind": "atomic-gate",
-    "defaultLoadMode": "carrier-only"
+    "defaultLoadMode": "carrier-only",
+    "blackLayerRepairMode": "replace-existing-owner-rule-only",
+    "forbiddenBlackLayerRepair": [
+      "add translucent overlay panel",
+      "add blur layer to hide native black",
+      "append per-screenshot selector without owner consolidation",
+      "tune global opacity before DOM owner and pseudo-layer classification"
+    ],
+    "requiredLayerScanFields": [
+      "element.backgroundColor",
+      "element.backgroundImage",
+      "element.boxShadow",
+      "element.filter",
+      "element.backdropFilter",
+      "before.backgroundColor",
+      "before.backgroundImage",
+      "before.boxShadow",
+      "after.backgroundColor",
+      "after.backgroundImage",
+      "after.boxShadow"
+    ]
   },
+  "postRevisionPriorityScanTargets": [
+    {
+      "id": "priority.composerAndMessageActionStrip",
+      "owner": "composerSurface + conversationSurface.messageRows",
+      "status": "△",
+      "sourceEvidence": [
+        "local-evidence:screenshot-20260822-102901"
+      ],
+      "requiredState": "current conversation view with bottom composer visible",
+      "scanAction": "capture screenshot, map black pixels around composer top edge and sent-message action strip to DOM ancestry",
+      "lastVerifiedAt": "2026-08-22T23:03:00+08:00",
+      "latestEvidence": [
+        "macos/previews/composer-floor-exact-after-pseudo-clear-20260822-2303/composer-floor-exact.png",
+        "macos/previews/composer-floor-exact-after-pseudo-clear-20260822-2303/composer-floor-exact.json"
+      ],
+      "latestOwnerBreakdown": {
+        "stickyFloorShell": "O: backgroundColor transparent, backgroundImage none, boxShadow none, backdropFilter none",
+        "stickyFloorShellPseudo": "O: ::before and ::after content none, display none, backgroundImage none, opacity 0",
+        "composerSurface": "O: backgroundColor transparent, backgroundImage none, backdropFilter none",
+        "nativeFade": "O: opacity 0, backgroundImage none"
+      },
+      "doNotConflateWith": [
+        "routeMainShell",
+        "rightSourceOutputPanel",
+        "browserWebviewShell"
+      ],
+      "nextAction": "classify separately before changing composer or message-row material"
+    },
+    {
+      "id": "priority.plusMenuPopover",
+      "owner": "transientMenuShell",
+      "status": "△",
+      "sourceEvidence": [
+        "local-evidence:screenshot-20260822-102907"
+      ],
+      "requiredState": "composer plus/add menu opened without selecting menu items",
+      "scanAction": "capture popover screenshot and DOM inventory for role menu, dialog, listbox, cmdk, and radix popper shells",
+      "doNotConflateWith": [
+        "workspacePicker",
+        "composerSurface",
+        "routeMainShell"
+      ],
+      "nextAction": "patch only transient menu shell if the popover panel remains a modification candidate"
+    },
+    {
+      "id": "priority.rightEnvironmentSourceBars",
+      "owner": "rightSourceOutputPanel + projectPanelRows",
+      "status": "△",
+      "sourceEvidence": [
+        "local-evidence:screenshot-20260822-102923"
+      ],
+      "requiredState": "right panel with environment and source rows visible",
+      "scanAction": "map horizontal black bars around 環境 and 來源 to sticky/header/row DOM and pseudo layers",
+      "doNotConflateWith": [
+        "routeMainShell",
+        "browserWebviewShell",
+        "topToolbar"
+      ],
+      "nextAction": "repair as right-panel row/header owner only after screenshot acceptance"
+    },
+    {
+      "id": "priority.rightBrowserCommandShell",
+      "owner": "browserWebviewShell + commandPaletteShell",
+      "status": "△",
+      "sourceEvidence": [
+        "local-evidence:screenshot-20260822-102926"
+      ],
+      "requiredState": "large right-side black browser/webview or command palette shell visible",
+      "scanAction": "capture full right shell, map black pixel clusters to browser/webview, command palette, or right panel ancestry",
+      "doNotConflateWith": [
+        "routeMainShell",
+        "composerSurface",
+        "projectListRows"
+      ],
+      "nextAction": "treat as independent owner; do not widen global bg-surface transparency"
+    }
+  ],
   "statusLegend": {
     "O": "已驗證，可作為下一階段依賴",
     "△": "草稿或部分完成，只能做同層補強",
@@ -105,11 +202,11 @@
       "verifiedBy": [
         "macos/scripts/surface-gap-matrix.mjs",
         "macos/tests/run-tests.sh",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-102019",
+        "local-evidence:screenshot-20260802-102030",
+        "local-evidence:screenshot-20260802-102035",
+        "local-evidence:screenshot-20260802-102042",
+        "local-evidence:screenshot-20260802-102107"
       ],
       "blocks": [
         "release",
@@ -125,7 +222,7 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-104318"
       ],
       "blocks": [
         "release",
@@ -141,8 +238,8 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot",
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-22659",
+        "local-evidence:screenshot-20260802-22747"
       ],
       "blocks": [
         "release",
@@ -158,23 +255,23 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-104842",
+        "local-evidence:screenshot-20260802-104848",
+        "local-evidence:screenshot-20260802-104903",
+        "local-evidence:screenshot-20260802-104907",
+        "local-evidence:screenshot-20260802-104911",
+        "local-evidence:screenshot-20260802-104913",
+        "local-evidence:screenshot-20260802-104917",
+        "local-evidence:screenshot-20260802-104920",
+        "local-evidence:screenshot-20260802-104924",
+        "local-evidence:screenshot-20260802-104928",
+        "local-evidence:screenshot-20260802-104931",
+        "local-evidence:screenshot-20260802-104933",
+        "local-evidence:screenshot-20260802-104944",
+        "local-evidence:screenshot-20260802-104955",
+        "local-evidence:screenshot-20260802-105010",
+        "local-evidence:screenshot-20260802-105013",
+        "local-evidence:screenshot-20260802-105017"
       ],
       "blocks": [
         "release",
@@ -190,11 +287,11 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot",
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-105041",
+        "local-evidence:screenshot-20260802-105043",
+        "local-evidence:screenshot-20260802-105046",
+        "local-evidence:screenshot-20260802-105052",
+        "local-evidence:screenshot-20260802-105054"
       ],
       "blocks": [
         "release",
@@ -210,8 +307,8 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot",
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-14741",
+        "local-evidence:screenshot-20260802-22431"
       ],
       "blocks": [
         "release",
@@ -227,8 +324,8 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot",
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-21553",
+        "local-evidence:screenshot-20260802-21715"
       ],
       "blocks": [
         "release",
@@ -244,7 +341,7 @@
       "status": "△",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot",
+        "local-evidence:screenshot-20260731-22526",
         "local-evidence:screen-recording"
       ],
       "blocks": [
@@ -261,7 +358,7 @@
       "status": "X",
       "blockedAt": "2026-08-02T23:09:10+08:00",
       "verifiedBy": [
-        "local-evidence:screenshot"
+        "local-evidence:screenshot-20260802-23013"
       ],
       "blocks": [
         "release",
