@@ -97,8 +97,8 @@
     },
     {
       "path": "scripts/",
-      "classification": "public-export",
-      "note": "Repository-level helper scripts"
+      "classification": "local-only",
+      "note": "Local scratch gates only; scripts/forge-gate.sh is excluded and no file here is published. Runtime gates live under macos/scripts."
     },
     {
       "path": "submission/",

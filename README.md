@@ -99,7 +99,7 @@ flowchart LR
 
 ## 開發歷程框架
 
-這張圖整理自 [docs/PROJECT_LOG.md](docs/PROJECT_LOG.md) 的公開開發摘要，不是事後憑印象重寫。它描述這個專案從「單張主題圖」演進成可驗證、可還原、低負載工作流的實際路徑。
+這張圖整理自本機開發日誌 `docs/PROJECT_LOG.md` 的開發摘要，不是事後憑印象重寫。該日誌記錄本機絕對路徑與截圖證據，因此只保留在本機、不隨 repo 發布。它描述這個專案從「單張主題圖」演進成可驗證、可還原、低負載工作流的實際路徑。
 
 ```mermaid
 flowchart TD
@@ -392,4 +392,4 @@ projectPanelRows 是右側 project/resource panel 內的資料列模組。它必
 
 ## 專案紀錄
 
-所有 `.md` 檔案與階段決策集中登記在 [docs/PROJECT_LOG.md](docs/PROJECT_LOG.md)。
+所有 `.md` 檔案與階段決策集中登記在本機開發日誌 `docs/PROJECT_LOG.md`（本機限定，不隨 repo 發布）。

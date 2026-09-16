@@ -135,7 +135,7 @@ flowchart LR
 
 ## Development Process Framework
 
-This diagram is derived from the sanitized public `docs/PROJECT_LOG.md`, not from memory. It shows
+This diagram is derived from the local development journal `docs/PROJECT_LOG.md`, not from memory. That journal records absolute local paths and screenshot evidence, so it stays local and is not published with this repository. It shows
 how the project moved from a single visual theme idea into a modular,
 testable, reversible workflow engine.
 
